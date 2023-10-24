@@ -1,0 +1,13 @@
+{
+  "extends": "@tsconfig/node-lts/tsconfig.json",
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "strict": true,
+    "lib": ["DOM"]
+  },
+  "exclude": ["node_modules"]
+}

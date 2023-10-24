@@ -1,0 +1,83 @@
+
+.form-control {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 18px;
+}
+
+.form-control label,
+.form-control input {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.form-control input:focus {
+  outline-color: #2196f3;
+}
+
+.form-control input {
+  font: inherit;
+  border-radius: 0.25rem;
+  border: 1px solid #2196f3;
+}
+
+.url-form, .auth-form {
+  width: 20rem;
+  max-width: 80%;
+  margin: 2rem auto 1rem auto;
+}
+
+.url-form .action, .auth-form .action {
+    width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+input.invalid {
+  border: 1px solid red;
+}
+
+button {
+  font: inherit;
+  border: 1px solid #2196f3;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  color: #2196f3;
+  padding: 0.5rem 1.75rem;
+  cursor: pointer;
+}
+
+button:hover,
+button:active,
+.btn:hover,
+.btn:active {
+  background-color: #2196f3;
+  color: #fff;
+}
+
+.btn {
+  font: inherit;
+  border: 1px solid #2196f3;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  color: #2196f3;
+  cursor: pointer;
+  padding: 0.5rem 1.75rem;
+  text-decoration: none;
+}
+
+p.user-message {
+  margin: auto;
+  color: #2196f3;
+  font-size: 14px;
+  text-align: start;
+}
+
+p.user-message.user-message--error {
+  color: red;
+  text-align: start;
+}

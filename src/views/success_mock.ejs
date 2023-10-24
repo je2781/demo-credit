@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= docTitle %></title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/fontawesome/css/all.min.css" />
+
+<link rel="stylesheet" href="/css/form.css">
+</head>
+<body>
+    <div class="backdrop"></div>
+    <header class="main-header">
+    <div class="brand__nav" data-testid="navbar-brand">
+        <span>Shortlink</span>
+        <i class="fa-solid fa-link"></i>
+    </div>
+    <i class="fa-solid fa-bars" id="side-menu-toggle" data-testid="navber-toggle"></i>
+    <nav class="main-header__nav">
+        <ul class="main-header__item-list">
+            <% if (!isAuthenticated) { %>
+            <li class="main-header__item">
+                <a href="/login" class="<%= path === '/login' ? 'active' : '' %>">Login</a>
+            </li>
+            <li class="main-header__item">
+                <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>">Signup</a>
+            </li>
+            <% } else { %>
+            <li class="main-header__item">
+                <form action="/logout" method="POST">
+                    <button type="submit" class="<%= path === '/logout' ? 'active' : '' %>">Logout</button>
+                </form>
+            </li>
+            <% } %>
+        </ul>
+    </nav>
+    </header>
+    <nav class="mobile-nav">
+        <ul class="mobile-nav__item-list">
+            <% if (!isAuthenticated) { %>
+                <li class="mobile-nav__item">
+                    <a href="/login" class="<%= path === '/login' ? 'active' : '' %>">Login</a>
+                </li>
+                <li class="mobile-nav__item">
+                    <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>">Signup</a>
+                </li>
+            <% } else { %>
+            <li class="mobile-nav__item">
+                <form action="/logout" method="POST">
+                    <button type="submit" class="<%= path === '/logout' ? 'active' : '' %>">Logout</button>
+                </form>
+            </li>
+            <% } %>
+        </ul>
+        
+    </nav>
+    <main style="text-align: center" class="success__content">
+        <i class="fa-solid fa-circle-check" style="font-size: 10rem; color: rgb(65, 182, 65);"></i>
+        <p>Your shortened url is <a href="/decode/<%= shortId %>">http://short.est/<%= shortId %></a></p>
+        <p>You can also check the <a href="/statistic/<%= shortId %>">stats</a> or try going back to the <a href="/" style="text-decoration: none">home</a> page</p>
+    </main>
+    <script src="/js/main.js">
+
+    </script>
+    </body>
+    </html>
