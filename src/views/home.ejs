@@ -5,26 +5,35 @@
     <%- include('includes/nav.ejs') %>
 
     <main>
-        <h1>Welcome To Shortlink</h1>
-        <form class='url-form' method="POST" action="/encode" 
-            novalidate>
-            <% if(Msg) { %>
-                <p class="<%= hasMsg ? 'user-message' : 'user-message user-message--error' %>"><%= Msg %></p>
-            <% } %>
-            <p>
-                <div class="form-control">
-                    <label for="longUrl">Enter Url</label>
-                    <input 
-                    class="<%= validationErrors.find(e => e.path === 'longUrl') ? 'invalid' : '' %>"
-                    type="text" 
-                    name="longUrl" 
-                    id="longUrl" />
-                </div>
-            </p>
-            <div class="action">
-                <button type="submit">Submit</button>
+        <% if(Msg) { %>
+            <div class="user-message"><%= Msg %></div>
+        <% } %>
+        <h1 class="profile-title">
+            Hi! <%= userName %>
+        </h1>
+        <div class="card">
+            <div class="profile-image__container">
+                <img class="profile-image" src="<%= url.replaceAll('src/public', '') %>" alt="profile pic"/>
             </div>
-        </form>
+            <div class="profile__item">
+                <label class="icon">
+                    <i class="fa-solid fa-envelope"></i>
+                </label>
+                <div class="content">
+                    <label>Email Address</label>
+                    <h3><%= email %></h3>
+                </div>
+            </div>
+            <div class="profile__item">
+                <label class="icon">
+                    <i class="fa-solid fa-wallet"></i>
+                </label>
+                <div class="content">
+                    <label>Wallet Balance</label>
+                    <h3>$<%= balance %></h3>
+                </div>
+            </div>
+        </div>
     </main>
 <%- include('includes/end.ejs') %>
 

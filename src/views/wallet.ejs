@@ -1,0 +1,62 @@
+<%- include('includes/head.ejs') %>
+    <link rel="stylesheet" href="/css/form.css">
+</head>
+<body>
+    <%- include('includes/nav.ejs') %>
+
+    <main>
+        <h2 class='wallet-header' style="text-align: center;">Wallet</h2>
+        <div class="card">
+            <div class="wallet-balance">
+                <label>
+                    Your Balance:
+                </label>
+                <span>$<%= balance %></span>
+            </div>
+            <form action="/<%= action %>" method="POST">
+                <% if(action === 'transfer') { %>
+                    <p>
+                        <div class="form-control transfer">
+                            <label for="r_name">Recipient's Name</label>
+                            <input 
+                            type="text" 
+                            name="r_name" 
+                            id="r_name" />
+                        </div>
+                    </p>
+                    <p>
+                        <div class="form-control transfer">
+                            <label for="r_email">Recipient's Email</label>
+                            <input 
+                            type="text" 
+                            name="r_email" 
+                            id="r_email"/>
+                        </div>
+                    </p>
+                <% } %>
+                <div class="operation-container">
+                    <h2 class="wallet-operation"><%= mode %>:</h2>
+    
+                    <div class="select-wrapper">
+                        <select class="dropdown" name="fund">
+                            <option selected hidden>
+                            select amount
+                            </option>
+                            <option value="50">$50</option>
+                            <option value="100">$100</option>
+                            <option value="200">$200</option>
+                            <option value="500">$500</option>
+                            <option value="1000">$1000</option>
+                            <option value="2000">$2000</option>
+                            <option value="5000">$5000</option>
+                      </select>
+                    </div>
+                </div>
+                <div class="action" >
+                    <button type="submit" style="width: 100%;">PROCEED</button>
+                </div>
+            </form>
+        </div>
+    </main>
+<%- include('includes/end.ejs') %>
+

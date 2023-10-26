@@ -17,13 +17,9 @@ router.get('/login', getLogin);
 router.get('/signup', getSignup);
 
 router.post('/signup', 
-check('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail().custom((value, {req}) => {
-    return findUser({ email: value }).then((user) => {
-        if (user) {
-            return Promise.reject('The E-mail is already in use');
-        }
-    });
-}), 
+check('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), 
+body('fullName', 'Provide a name for your account').isString().trim(), 
+body('balance', 'Set your starting balance').notEmpty().trim(), 
 body('password', 'Password must contain at least 5 characters').trim().isLength({min: 5}), 
 body('c_password').trim().custom((value, {req}) => {
     if(value !== req.body.password){

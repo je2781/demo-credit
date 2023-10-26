@@ -12,41 +12,140 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const supertest_1 = __importDefault(require("supertest"));
-const api_1 = __importDefault(require("../../functions/api"));
-const server_1 = require("../../db/server");
-require("dotenv").config();
-const agent = supertest_1.default.agent(api_1.default); // Create an agent to maintain cookies
-let db;
+const user_1 = require("../../dao/user");
+const auth_1 = require("../../controllers/auth");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const uuid_1 = require("uuid");
+let statusCode;
+let locationHeader;
+let id;
+let error;
 describe("Authentication", () => {
     /* Connecting to the database before each test. */
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        db = (0, server_1.dbConnection)('testing', 0);
-    }));
-    it("should show validation error because user already registered", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield agent.post("/signup").send({
-            fullName: "testinguser",
+        id = (0, uuid_1.v4)();
+        //creating test user record
+        yield (0, user_1.createUser)({
+            email: "testing1000@test.com",
             password: "testingpassword",
-            email: "test1000@test.com",
-            c_password: "testingpassword",
+            imageUrl: "src/public/images/testing.jpg",
+            wallet: 200,
+            fullName: "testinguser",
+        }, {
+            id: id,
+            env: 'testing'
         });
-        expect(response.statusCode).toBe(422);
     }));
-    it("should log in a user", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield agent
-            .post("/login")
-            .send({ email: "test1000@test.com", password: "testingpassword" });
-        expect(response.statusCode).toBe(302);
-        expect(response.header.location).toBe("/");
-    }));
-    it("should show validation error because user doesn't exist", () => __awaiter(void 0, void 0, void 0, function* () {
-        const response = yield agent
-            .post("/login")
-            .send({ email: "test100@test.com", password: "testpassword" });
-        expect(response.statusCode).toBe(422);
-    }));
+    it("should throw error because user already registered", (done) => {
+        const request = {
+            body: {
+                email: "testing1000@test.com",
+                password: "testingpassword",
+                c_password: "testingpassword",
+                image: "/src/public/images/testing.jpg",
+                balance: '200',
+                fullName: "testinguser",
+            },
+            env: "testing",
+            id: id
+        };
+        (0, auth_1.postSignup)(request, {}, () => { }).then((result) => {
+            expect(result.message).toBe('Email is already in use');
+            done();
+        });
+    });
+    it("should log in a user", (done) => {
+        const response = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            redirect: jest.fn(function (location) {
+                locationHeader = location;
+            }),
+        };
+        const request = {
+            body: {
+                email: "testing1000@test.com",
+                password: "testingpassword",
+            },
+            session: {
+                isLoggedIn: false,
+                user: {},
+                save: jest.fn(() => {
+                    response.status(302);
+                    response.redirect("/");
+                })
+            },
+            env: "testing",
+        };
+        bcryptjs_1.default.compare = function (s, hash) {
+            return __awaiter(this, void 0, void 0, function* () {
+                return true;
+            });
+        };
+        (0, auth_1.postLogin)(request, response, () => { }).then((result) => {
+            expect(statusCode).toBe(302);
+            expect(locationHeader).toBe("/");
+            expect(response.redirect).toBeCalled();
+            expect(response.status).toBeCalled();
+            expect(request.session.save).toBeCalled();
+            done();
+        });
+    });
+    it("should show validation error because the user doesn't exist", (done) => {
+        const request = {
+            body: {
+                email: "testing34@test.com",
+                password: "test23password",
+            },
+            env: "testing",
+        };
+        const response = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            render: jest.fn(function (view, viewParams) {
+                error = viewParams.errorMsg;
+            }),
+        };
+        (0, auth_1.postLogin)(request, response, () => { }).then((result) => {
+            expect(result.message).toBe("User account doesn't exist. Create an account");
+            expect(statusCode).toBe(422);
+            expect(error).toBe("User account doesn't exist. Create an account");
+            done();
+        });
+    });
+    it("should logout when logout button is pressed", (done) => {
+        const response = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            redirect: jest.fn(function (location) {
+                locationHeader = location;
+            }),
+        };
+        const request = {
+            session: {
+                destroy: jest.fn((err) => {
+                    response.status(302);
+                    response.redirect("/login");
+                }),
+            },
+        };
+        (0, auth_1.postLogout)(request, response, () => { }).then((result) => {
+            expect(statusCode).toBe(302);
+            expect(locationHeader).toBe("/login");
+            expect(response.redirect).toBeCalled();
+            expect(response.status).toBeCalled();
+            expect(request.session.destroy).toBeCalled();
+            done();
+        });
+    });
     /* Closing database connection aftAll test. */
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield db.destroy();
+        yield (0, user_1.deleteUser)("testing1000@test.com", 'testing');
     }));
 });

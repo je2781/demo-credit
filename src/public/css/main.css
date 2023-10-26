@@ -14,6 +14,10 @@ main {
   margin-top: 5rem;
 }
 
+h1, h2, h3, h5{
+  margin: 0;
+}
+
 h1 {
   text-align: center;
   font-weight: 700;
@@ -55,12 +59,11 @@ i {
 .main-header__item-list {
   list-style: none;
   display: flex;
+  gap: .25rem;
   padding: 0;
-  margin: 0;
+  margin: .8rem 0 0 0;
 }
-.main-header__item {
-  margin: 0 1rem;
-}
+
 .main-header__item a {
   text-decoration: none;
   color: rgb(218, 210, 210);  
@@ -85,13 +88,6 @@ i {
   cursor: pointer;
 }
 
-.success__content a:hover,
-.success__content a:active,
-.success__content a:focus{
-  color: rgb(141, 155, 187);
-
-}
-
 .mobile-nav {
   width: 20rem;
   height: 100vh;
@@ -106,6 +102,25 @@ i {
   transition: transform 0.3s ease-out;
 }
 
+.mobile-nav__manage-wallet__item-list{
+  display: none;
+  list-style: none;
+  margin: 0 0 0 4rem;
+  padding: 0;
+}
+
+.mobile-nav__manage-wallet__item-list li{
+  margin: 1rem 0;
+}
+
+.mobile-nav__manage-wallet__item-list li a{
+  color: white;
+}
+
+.mobile-nav__manage-wallet__item-list.open{
+  display: block;
+}
+
 .mobile-nav button{
   background-color: transparent;
   border: none;
@@ -113,28 +128,19 @@ i {
   font-size: 1.2rem;
 }
 
+
 .mobile-nav.open {
   transform: translateX(0);
 }
 
 .mobile-nav__item-list {
   list-style: none;
-  display: flex;
-  flex-direction: column;
   margin: 0;
   padding: 0;
-}
-
-.mobile-nav__list-item {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  margin-bottom: 3rem;
 }
 
 .mobile-nav__item {
-  margin: 1rem;
-  padding: 0;
+  margin: 1.5rem;
 }
 
 .mobile-nav__item button{
@@ -156,10 +162,10 @@ i {
 
 #side-menu-toggle {
   font-size: 32px;
-  color: rgb(218, 210, 210);  
+  color: white;  
   cursor: pointer;
   /* float: right; */
-  padding-top: 1rem;
+  padding-top: 1.6rem;
 }
 
 #side-menu-toggle:focus {
@@ -178,14 +184,6 @@ i {
   padding-top: 1rem;
 }
 
-header{
-  font-size: 36px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #ced4da;
-}
-
 .backdrop {
   position: fixed;
   top: 0;
@@ -195,6 +193,21 @@ header{
   background: rgba(0, 0, 0, 0.5);
   z-index: 5;
   display: none;
+}
+
+.wallet-header{
+  margin-bottom: 2rem;
+}
+
+.user-message{
+  margin: 0 auto 2rem auto;
+  width: 20rem;
+  max-width: 80%;
+  background: #92cbec;
+  border: 1px solid #2d90c9;
+  border-radius: 3px;
+  padding: 0.5rem;
+  text-align: center;
 }
 
 @media screen and (min-width: 768px) {

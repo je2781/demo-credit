@@ -9,22 +9,124 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findUser = exports.createUser = void 0;
-const server_1 = require("../db/server");
+exports.manageFund = exports.findUser = exports.deleteUser = exports.createUser = void 0;
+const db_1 = require("../db/db");
 const uuid_1 = require("uuid");
-const createUser = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    const [id] = yield (0, server_1.dbConnection)()('users').insert({
-        id: (0, uuid_1.v4)(),
-        email: data.email,
-        password: data.password,
-        full_name: data.fullName,
-        wallet: data.wallet
-    }).returning('id');
-    return id;
+const createUser = (data, testObj) => __awaiter(void 0, void 0, void 0, function* () {
+    if (testObj && testObj.env === "testing") {
+        yield (0, db_1.dbConnection)(testObj.env)("users").insert({
+            id: testObj.id,
+            email: data.email,
+            password: data.password,
+            full_name: data.fullName,
+            wallet: data.wallet,
+            image_url: data.imageUrl,
+        });
+    }
+    else {
+        yield (0, db_1.dbConnection)()("users").insert({
+            id: (0, uuid_1.v4)(),
+            email: data.email,
+            password: data.password,
+            full_name: data.fullName,
+            wallet: data.wallet,
+            image_url: data.imageUrl,
+        });
+    }
 });
 exports.createUser = createUser;
-const findUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield (0, server_1.dbConnection)()('users').where('email', input.email).first();
+const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* () {
+    if (env) {
+        yield (0, db_1.dbConnection)(env)("users").where('email', email).del();
+    }
+    else {
+        yield (0, db_1.dbConnection)()("users").where('email', email).del();
+    }
+});
+exports.deleteUser = deleteUser;
+const findUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
+    let user;
+    if (env) {
+        user = yield (0, db_1.dbConnection)(env)("users").where("email", input.email).first();
+    }
+    else {
+        user = yield (0, db_1.dbConnection)()("users").where("email", input.email).first();
+    }
     return user;
 });
 exports.findUser = findUser;
+const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
+    let extractedUser;
+    switch (input.mode) {
+        case "transfer":
+            if (input.foreignUserEmail && env) {
+                extractedUser = yield (0, db_1.dbConnection)(env)("users")
+                    .where("email", input.foreignUserEmail)
+                    .first();
+                return yield (0, db_1.dbConnection)(env)("users")
+                    .where("email", input.foreignUserEmail)
+                    .update({
+                    wallet: extractedUser.wallet + input.fund,
+                });
+            }
+            if (input.foreignUserEmail) {
+                extractedUser = yield (0, db_1.dbConnection)()("users")
+                    .where("email", input.foreignUserEmail)
+                    .first();
+                return yield (0, db_1.dbConnection)()("users")
+                    .where("email", input.foreignUserEmail)
+                    .update({
+                    wallet: extractedUser.wallet + input.fund,
+                });
+            }
+            // Handle the case when input.foreignUserEmail is not provided.
+            throw new Error("Missing foreignUserEmail");
+        case "withdraw":
+            if (input.user && input.user.id && env) {
+                extractedUser = yield (0, db_1.dbConnection)(env)("users")
+                    .where("id", input.user.id)
+                    .first();
+                return yield (0, db_1.dbConnection)(env)("users")
+                    .where("id", input.user.id)
+                    .update({
+                    wallet: extractedUser.wallet - input.fund,
+                });
+            }
+            if (input.user && input.user.id) {
+                extractedUser = yield (0, db_1.dbConnection)()("users")
+                    .where("id", input.user.id)
+                    .first();
+                return yield (0, db_1.dbConnection)()("users")
+                    .where("id", input.user.id)
+                    .update({
+                    wallet: extractedUser.wallet - input.fund,
+                });
+            }
+            // Handle the case when input.user or input.user.id is not provided.
+            throw new Error("Missing user or user.id");
+        default:
+            if (input.user && input.user.id && env) {
+                extractedUser = yield (0, db_1.dbConnection)(env)("users")
+                    .where("id", input.user.id)
+                    .first();
+                return yield (0, db_1.dbConnection)(env)("users")
+                    .where("id", input.user.id)
+                    .update({
+                    wallet: extractedUser.wallet + input.fund,
+                });
+            }
+            if (input.user && input.user.id) {
+                extractedUser = yield (0, db_1.dbConnection)()("users")
+                    .where("id", input.user.id)
+                    .first();
+                return yield (0, db_1.dbConnection)()("users")
+                    .where("id", input.user.id)
+                    .update({
+                    wallet: extractedUser.wallet + input.fund,
+                });
+            }
+            // Handle the case when input.user or input.user.id is not provided.
+            throw new Error("Missing user or user.id");
+    }
+});
+exports.manageFund = manageFund;

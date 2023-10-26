@@ -14,17 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postLogout = exports.postLogin = exports.postSignup = exports.getSignup = exports.getLogin = void 0;
 const express_validator_1 = require("express-validator");
-const nodemailer_1 = __importDefault(require("nodemailer"));
 const user_1 = require("../dao/user");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-var transport = nodemailer_1.default.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
-    auth: {
-        user: "635594c3e99ed9",
-        pass: "0d447fba3f0528",
-    },
-});
+require("dotenv").config();
 const getLogin = (req, res, next) => {
     // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
     res.status(200).render("auth/auth_form.ejs", {
@@ -57,10 +49,31 @@ const getSignup = (req, res, next) => {
 };
 exports.getSignup = getSignup;
 const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    let image;
     const email = req.body.email;
     const password = req.body.password;
-    const fullName = req.body.fullName;
     const balance = req.body.balance;
+    image = req.body.image;
+    const fullName = req.body.fullName;
+    if (req.file) {
+        image = req.file;
+    }
+    if (!image) {
+        return res.status(422).render("auth/auth_form.ejs", {
+            docTitle: "Signup",
+            mode: "signup",
+            errorMsg: "profile picture not provided",
+            path: "/signup",
+            oldInput: {
+                email: email,
+                password: password,
+                confirmPassword: req.body.c_password,
+                fullName: fullName,
+                balance: balance,
+            },
+            validationErrors: [],
+        });
+    }
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
         return res.status(422).render("auth/auth_form.ejs", {
@@ -73,30 +86,36 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                 password: password,
                 confirmPassword: req.body.c_password,
                 fullName: fullName,
+                balance: balance,
             },
             validationErrors: errors.array(),
         });
     }
     try {
+        //checking for duplicate user accounts
+        const user = yield (0, user_1.findUser)({
+            email: email,
+        }, req.env);
+        if (user) {
+            throw new Error("Email is already in use");
+        }
+        const imageUrl = image.path.replaceAll("\\", "/");
         const hashedPassword = yield bcryptjs_1.default.hash(password, 12);
         yield (0, user_1.createUser)({
             email: email,
             password: hashedPassword,
             fullName: fullName,
-            wallet: +balance
+            wallet: +balance,
+            imageUrl: imageUrl,
+        }, {
+            env: req.env,
+            id: req.id,
         });
-        yield transport.sendMail({
-            from: "sender@yourdomain.com",
-            to: email,
-            subject: "Signup Succeeded!",
-            html: "<h1>You have successfully signed up</h1>",
-        });
+        return res.status(302).redirect("/login");
     }
     catch (err) {
-        return next(err);
-    }
-    finally {
-        res.status(302).redirect("/login");
+        next(err);
+        return err;
     }
 });
 exports.postSignup = postSignup;
@@ -116,9 +135,9 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         });
     }
     try {
-        const user = yield (0, user_1.findUser)({ email: req.body.email });
+        const user = yield (0, user_1.findUser)({ email: req.body.email }, req.env);
         if (!user) {
-            return res.status(422).render("auth/auth_form.ejs", {
+            res.status(422).render("auth/auth_form.ejs", {
                 docTitle: "Login",
                 mode: "login",
                 errorMsg: "User account doesn't exist. Create an account",
@@ -129,14 +148,13 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 },
                 validationErrors: [],
             });
+            throw new Error("User account doesn't exist. Create an account");
         }
         const doMatch = yield bcryptjs_1.default.compare(req.body.password, user.password);
         if (doMatch) {
             req.session.isLoggedIn = true;
             req.session.user = user;
-            return req.session.save(() => {
-                res.status(302).redirect("/");
-            });
+            return req.session.save(() => res.status(302).redirect("/"));
         }
         res.status(422).render("auth/auth_form.ejs", {
             docTitle: "Login",
@@ -151,15 +169,16 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         });
     }
     catch (err) {
-        return next(err);
+        next(err);
+        return err;
     }
 });
 exports.postLogin = postLogin;
-const postLogout = (req, res, next) => {
-    req.session.destroy((err) => {
+const postLogout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    return req.session.destroy((err) => {
         if (err)
             return next(err);
-        res.status(302).redirect("/login");
+        return res.status(302).redirect("/login");
     });
-};
+});
 exports.postLogout = postLogout;

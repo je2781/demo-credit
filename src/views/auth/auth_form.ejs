@@ -6,86 +6,102 @@
 <body>
     <%- include('../includes/nav.ejs') %>
     <main>
-        <header>
-            <i class="fa-solid fa-address-card"></i>
-            <% if(mode === 'signup') { %>
-                <h1>Account Registration</h1>
-            <% } else { %>
-                <h1>Account Login</h1>
+        <div class="card">
+            <% if(mode === 'login') { %>
+            <header class="form-header">
+                <i class="fa-solid fa-address-card"></i>
+                <h2>Account Login</h2>
+            </header>
             <% } %>
-        </header>
-        <form class='auth-form' method="POST" action="/<%= mode === 'login' ? 'login' : 'signup' %>" 
-            novalidate>
-            <% if(errorMsg) { %>
-            <p class="user-message user-message--error"><%= errorMsg %></p>
-            <% } %>
-            <% if(mode === 'signup') { %>
-            <p>
-                <div class="form-control">
-                    <label for="fullName">Full Name</label>
-                    <input 
-                    class="<%= validationErrors.find(e => e.path === 'fullName') ? 'invalid' : '' %>"
-                    type="text" 
-                    name="fullName" 
-                    id="fullName" 
-                    value="<%= oldInput.fullName %>"/>
+            <form class='auth-form' method="POST" action="/<%= mode === 'login' ? 'login' : 'signup' %>" 
+                novalidate enctype="multipart/form-data">
+                <% if(mode === 'signup') { %>
+                <div class="image-content__container">
+                    <section class="blank-image__content">
+                        <label for="image">
+                            <i class="fa-solid fa-camera"></i>
+                        </label>
+                        <input 
+                        type="file" 
+                        name="image" 
+                        onchange="fileInputChangeHandler(this)"
+                        id="image"/>
+                    </section>
+                    <section class="filled-image__content">
+                    </section>
                 </div>
-            </p>
-            <% } %>
-            <p>
-                <div class="form-control">
-                    <label for="email">Email</label>
-                    <input 
-                    class="<%= validationErrors.find(e => e.path === 'email') ? 'invalid' : '' %>"
-                    type="email" 
-                    name="email" 
-                    id="email" 
-                    value="<%= oldInput.email %>"/>
+                <% } %>
+                <% if(errorMsg) { %>
+                <p class="user-message--error"><%= errorMsg %></p>
+                <% } %>
+                <% if(mode === 'signup') { %>
+                <p>
+                    <div class="form-control">
+                        <label for="fullName">Full Name</label>
+                        <input 
+                        class="<%= validationErrors.find(e => e.path === 'fullName') ? 'invalid' : '' %>"
+                        type="text" 
+                        name="fullName" 
+                        id="fullName" 
+                        value="<%= oldInput.fullName %>"/>
+                    </div>
+                </p>
+                <% } %>
+                <p>
+                    <div class="form-control">
+                        <label for="email">Email</label>
+                        <input 
+                        class="<%= validationErrors.find(e => e.path === 'email') ? 'invalid' : '' %>"
+                        type="email" 
+                        name="email" 
+                        id="email" 
+                        value="<%= oldInput.email %>"/>
+                    </div>
+                </p>
+                <% if(mode === 'signup') { %>
+                <p>
+                    <div class="form-control">
+                        <label for="balance">Account Balance</label>
+                        <input 
+                        class="<%= validationErrors.find(e => e.path === 'balance') ? 'invalid' : '' %>"
+                        type="number" 
+                        step="50"
+                        name="balance" 
+                        id="balance" 
+                        value="<%= oldInput.balance %>"/>
+                    </div>
+                </p>
+                <% } %>
+                <p>
+                    <div class="form-control">
+                        <label for="password">Password</label>
+                        <input 
+                        class="<%= validationErrors.find(e => e.path === 'password') ? 'invalid' : '' %>"
+                        type="password" 
+                        name="password" 
+                        id="password" 
+                        value="<%= oldInput.password %>"/>
+                    </div>
+                </p>
+                <% if(mode === 'signup') { %>
+                <p>
+                    <div class="form-control">
+                        <label for="c_password">Confirm Password</label>
+                        <input 
+                        class="<%= validationErrors.find(e => e.path === 'c_password') ? 'invalid' : '' %>"
+                        type="password" 
+                        name="c_password" 
+                        id="c_password" 
+                        value="<%= oldInput.confirmPassword %>"/>
+                    </div>
+                </p>
+                <% } %>
+                <div class="action">
+    
+                    <button type="submit"><%= mode === 'signup' ? 'SIGN UP' : 'LOG IN' %></button>
                 </div>
-            </p>
-            <% if(mode === 'signup') { %>
-            <p>
-                <div class="form-control">
-                    <label for="balance">Account Balance</label>
-                    <input 
-                    class="<%= validationErrors.find(e => e.path === 'balance') ? 'invalid' : '' %>"
-                    type="number" 
-                    step="50"
-                    name="balance" 
-                    id="balance" 
-                    value="<%= oldInput.balance %>"/>
-                </div>
-            </p>
-            <% } %>
-            <p>
-                <div class="form-control">
-                    <label for="password">Password</label>
-                    <input 
-                    class="<%= validationErrors.find(e => e.path === 'password') ? 'invalid' : '' %>"
-                    type="password" 
-                    name="password" 
-                    id="password" 
-                    value="<%= oldInput.password %>"/>
-                </div>
-            </p>
-            <% if(mode === 'signup') { %>
-            <p>
-                <div class="form-control">
-                    <label for="c_password">Confirm Password</label>
-                    <input 
-                    class="<%= validationErrors.find(e => e.path === 'c_password') ? 'invalid' : '' %>"
-                    type="password" 
-                    name="c_password" 
-                    id="c_password" 
-                    value="<%= oldInput.confirmPassword %>"/>
-                </div>
-            </p>
-            <% } %>
-            <div class="action">
-
-                <button type="submit"><%= mode === 'signup' ? 'SIGN UP' : 'LOG IN' %></button>
-            </div>
-        </form>
+            </form>
+        </div>
     </main>
 <%- include('../includes/end.ejs') %>
 

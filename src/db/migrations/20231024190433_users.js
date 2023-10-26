@@ -7,9 +7,9 @@ exports.up = function(knex) {
     .createTable("users", (table) => {
       table.string("id").notNullable().primary().unique();
       table.string("full_name").notNullable();
-      table.string("email").notNullable().unique();
-      table.string("password").notNullable().unique();
-      table.string("image_url").notNullable().unique();
+      table.string("email").notNullable();
+      table.string("password").notNullable();
+      table.string("image_url").notNullable();
       table.integer("wallet").notNullable();
       table.timestamps(true, true);
     });
