@@ -69,7 +69,7 @@ app.use((0, multer_1.default)({
     storage: fileStorage,
 }).single("image"));
 //funneling static files request to public folder
-app.use(express_1.default.static(path_1.default.join(__dirname, "..", "public")));
+app.use(express_1.default.static(path_1.default.join(__dirname, "public")));
 //configuring server session middleware
 app.use((0, express_session_1.default)({
     secret: "3To6K1aCltNfmqi2",

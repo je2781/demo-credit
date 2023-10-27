@@ -76,7 +76,7 @@ app.use(
   }).single("image")
 );
 //funneling static files request to public folder
-app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(path.join(__dirname, "public")));
 //configuring server session middleware
 app.use(
   session({
