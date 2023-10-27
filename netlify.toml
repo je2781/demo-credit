@@ -1,5 +1,6 @@
 [build]
     functions = "src/functions"
+    command = "node src/server.js"
     publish =  "src/public"
 
 [dev]

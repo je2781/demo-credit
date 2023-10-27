@@ -22,23 +22,30 @@ const multer_1 = __importDefault(require("multer"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
 const uuid_1 = require("uuid");
 const express_session_1 = __importDefault(require("express-session"));
-const MySQLStore = require('express-mysql-session')(express_session_1.default);
+const MySQLStore = require("express-mysql-session")(express_session_1.default);
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
-const options = {
+const devOptions = {
     host: process.env.DB_HOST,
     port: +process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
-    database: process.env.NODE_ENV === "production" ? process.env.DB_PROD : process.env.DB_DEV,
+    database: process.env.DB_DEV,
+};
+const prodOptions = {
+    host: process.env.DATABASE_HOST,
+    user: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASS,
+    database: process.env.DB_PROD,
+    ssl: process.env.DB_SSL
 };
 const auth_routes_1 = __importDefault(require("../routes/auth.routes"));
 const wallet_routes_1 = __importDefault(require("../routes/wallet.routes"));
 const error_1 = require("../controllers/error");
 const app = (0, express_1.default)();
 //setting up collection to store session data
-const store = new MySQLStore(options);
+const store = new MySQLStore(process.env.NODE_ENV === "production" ? prodOptions : devOptions);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");

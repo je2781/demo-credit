@@ -1,17 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)();
 // Update with your config settings.
 const options = {
     development: {
         client: "mysql",
         connection: {
-            host: process.env.DB_HOST,
-            port: +process.env.DB_PORT,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_DEV,
+            host: 'localhost',
+            port: 3306,
+            user: 'root',
+            password: 'server1',
+            database: 'demo_credit_dev',
         },
         migrations: {
             directory: "./migrations",
@@ -20,11 +18,11 @@ const options = {
     testing: {
         client: "mysql",
         connection: {
-            host: process.env.DB_HOST,
-            port: +process.env.DB_PORT,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_TEST,
+            host: 'localhost',
+            port: 3306,
+            user: 'root',
+            password: 'server1',
+            database: 'demo_credit_testing'
         },
         migrations: {
             directory: "./migrations",
@@ -32,13 +30,7 @@ const options = {
     },
     production: {
         client: "mysql",
-        connection: {
-            host: process.env.DB_HOST,
-            port: +process.env.DB_PORT,
-            user: process.env.DB_USER,
-            password: process.env.DB_PASS,
-            database: process.env.DB_PROD,
-        },
+        connection: `mysql://bmbg9hhg6h9skrfg5jju:pscale_pw_PTB8Eu66XTsWlXkRXnXIQ1QZWJcyhsvN5Rptoa8rh1@aws.connect.psdb.cloud/demo_credit?ssl=true`,
         pool: {
             min: 2,
             max: 10,
