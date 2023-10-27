@@ -1,6 +1,6 @@
 [build]
     functions = "src/functions"
-    command = "node src/server.js"
+    command = "node src/functions/server.js"
     publish =  "src/public"
 
 [dev]
@@ -8,6 +8,6 @@
     port = 8000
 
 [[redirects]]
-    to = "/.netlify/functions/api/:splat"
+    to = "/.netlify/functions/server/:splat"
     from = "/*"
     status = 200

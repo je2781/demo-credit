@@ -1,6 +1,4 @@
 import bodyParser from "body-parser";
-import { Handler, Context } from "aws-lambda";
-import ServerlessHttp from "serverless-http";
 import helmet from "helmet";
 import compression from "compression";
 import express, { Application, Request, Response, NextFunction } from "express";
@@ -15,11 +13,11 @@ import { config } from "dotenv";
 config();
 
 const devOptions = {
-  host: process.env.DB_HOST,
-  port: +process.env.DB_PORT!,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_DEV,
+  host: '127.0.0.1',
+  port: 3306,
+  user: 'root',
+  password: 'server1',
+  database: 'demo_credit_dev',
 };
 
 const prodOptions = {
@@ -30,9 +28,9 @@ const prodOptions = {
   ssl: process.env.DB_SSL
 };
 
-import authRoutes from "../routes/auth.routes";
-import walletRoutes from "../routes/wallet.routes";
-import { get500Page, getPageNotFound } from "../controllers/error";
+import authRoutes from "./routes/auth.routes";
+import walletRoutes from "./routes/wallet.routes";
+import { get500Page, getPageNotFound } from "./controllers/error";
 
 const app: Application = express();
 
@@ -107,11 +105,3 @@ app.use(helmet());
 app.use(compression());
 
 export const api = app;
-
-// Export a Lambda function handler
-export const handler: Handler = async (event: any, context: Context) => {
-  // Create the Serverless Http handler and pass the Express app
-  const serverlessHandler = ServerlessHttp(app);
-  // Call the Serverless Http handler to process the Lambda event
-  return serverlessHandler(event, context);
-};

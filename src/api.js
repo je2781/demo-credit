@@ -1,20 +1,10 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handler = exports.api = void 0;
+exports.api = void 0;
 const body_parser_1 = __importDefault(require("body-parser"));
-const serverless_http_1 = __importDefault(require("serverless-http"));
 const helmet_1 = __importDefault(require("helmet"));
 const compression_1 = __importDefault(require("compression"));
 const express_1 = __importDefault(require("express"));
@@ -27,11 +17,11 @@ const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)();
 const devOptions = {
-    host: process.env.DB_HOST,
-    port: +process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_DEV,
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: 'server1',
+    database: 'demo_credit_dev',
 };
 const prodOptions = {
     host: process.env.DATABASE_HOST,
@@ -40,9 +30,9 @@ const prodOptions = {
     database: process.env.DB_PROD,
     ssl: process.env.DB_SSL
 };
-const auth_routes_1 = __importDefault(require("../routes/auth.routes"));
-const wallet_routes_1 = __importDefault(require("../routes/wallet.routes"));
-const error_1 = require("../controllers/error");
+const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
+const wallet_routes_1 = __importDefault(require("./routes/wallet.routes"));
+const error_1 = require("./controllers/error");
 const app = (0, express_1.default)();
 //setting up collection to store session data
 const store = new MySQLStore(process.env.NODE_ENV === "production" ? prodOptions : devOptions);
@@ -102,11 +92,3 @@ app.use((0, helmet_1.default)());
 //compressing response bodies
 app.use((0, compression_1.default)());
 exports.api = app;
-// Export a Lambda function handler
-const handler = (event, context) => __awaiter(void 0, void 0, void 0, function* () {
-    // Create the Serverless Http handler and pass the Express app
-    const serverlessHandler = (0, serverless_http_1.default)(app);
-    // Call the Serverless Http handler to process the Lambda event
-    return serverlessHandler(event, context);
-});
-exports.handler = handler;
