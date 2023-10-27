@@ -1,31 +1,23 @@
 import bodyParser from "body-parser";
 import helmet from "helmet";
+import mysql from "mysql";
 import compression from "compression";
-import express, { Application, Request, Response, NextFunction } from "express";
+import express, { Application} from "express";
 import multer from "multer";
 import flash from "connect-flash";
 import { v4 as uniqueId } from "uuid";
-import ejs from "ejs";
 import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
 import { config } from "dotenv";
-config({ path: '../.env' });
+config({ path: "../.env" });
 
 const devOptions = {
-  host: '127.0.0.1',
+  host: "127.0.0.1",
   port: 3306,
-  user: 'root',
-  password: 'server1',
-  database: 'demo_credit_dev',
-};
-
-const prodOptions = {
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASS,
-  database: process.env.DB_PROD,
-  ssl: process.env.DB_SSL
+  user: "root",
+  password: "server1",
+  database: "demo_credit_dev",
 };
 
 import authRoutes from "./routes/auth.routes";
@@ -35,9 +27,13 @@ import { get500Page, getPageNotFound } from "./controllers/error";
 const app: Application = express();
 
 //setting up collection to store session data
+const connection = mysql.createConnection(process.env.DATABASE_URL!);
 const store = new MySQLStore(
-  process.env.NODE_ENV === "production" ? prodOptions: devOptions
+  process.env.NODE_ENV === "production" ? {} : devOptions,
+  process.env.NODE_ENV === "production" && connection
 );
+//connecting to pscale serverless database
+connection.connect();
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
@@ -103,6 +99,5 @@ app.use(authRoutes);
 
 app.use(getPageNotFound);
 app.use(get500Page);
-
 
 export default app;

@@ -32,7 +32,7 @@ const options = {
     },
     production: {
         client: "mysql",
-        connection: `mysql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASS}@${process.env.DATABASE_HOST}/${process.env.DB_PROD}?ssl=true`,
+        connection: process.env.DATABASE_URL,
         pool: {
             min: 2,
             max: 10,

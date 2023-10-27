@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const body_parser_1 = __importDefault(require("body-parser"));
 const helmet_1 = __importDefault(require("helmet"));
+const mysql_1 = __importDefault(require("mysql"));
 const compression_1 = __importDefault(require("compression"));
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
@@ -14,27 +15,23 @@ const express_session_1 = __importDefault(require("express-session"));
 const MySQLStore = require("express-mysql-session")(express_session_1.default);
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)({ path: '../.env' });
+(0, dotenv_1.config)({ path: "../.env" });
 const devOptions = {
-    host: '127.0.0.1',
+    host: "127.0.0.1",
     port: 3306,
-    user: 'root',
-    password: 'server1',
-    database: 'demo_credit_dev',
-};
-const prodOptions = {
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASS,
-    database: process.env.DB_PROD,
-    ssl: process.env.DB_SSL
+    user: "root",
+    password: "server1",
+    database: "demo_credit_dev",
 };
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const wallet_routes_1 = __importDefault(require("./routes/wallet.routes"));
 const error_1 = require("./controllers/error");
 const app = (0, express_1.default)();
 //setting up collection to store session data
-const store = new MySQLStore(process.env.NODE_ENV === "production" ? prodOptions : devOptions);
+const connection = mysql_1.default.createConnection(process.env.DATABASE_URL);
+const store = new MySQLStore(process.env.NODE_ENV === "production" ? {} : devOptions, process.env.NODE_ENV === "production" && connection);
+//connecting to pscale serverless database
+connection.connect();
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
