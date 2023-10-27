@@ -10,7 +10,10 @@ import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
 import { config } from "dotenv";
+import crypto from 'crypto';
+
 config({ path: "../.env" });
+const nonce = crypto.randomBytes(16).toString('base64');
 
 const devOptions = {
   host: "127.0.0.1",
@@ -69,6 +72,12 @@ app.use(helmet());
 //compressing response bodies
 app.use(compression());
 
+// Set the CSP header
+app.use((req: any, res: any, next: any) => {
+  res.setHeader('Content-Security-Policy', `script-src 'nonce-${nonce}'`);
+  next();
+});
+
 //defining multer middleware for file processing
 app.use(
   multer({
@@ -91,6 +100,7 @@ app.use(
 //initializing local variables for views
 app.use((req: any, res: any, next: any) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.nonce = nonce;
   next();
 });
 
