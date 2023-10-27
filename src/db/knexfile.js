@@ -1,5 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)({ path: '../../.env' });
 // Update with your config settings.
 const options = {
     development: {
@@ -30,7 +32,7 @@ const options = {
     },
     production: {
         client: "mysql",
-        connection: `mysql://bmbg9hhg6h9skrfg5jju:pscale_pw_PTB8Eu66XTsWlXkRXnXIQ1QZWJcyhsvN5Rptoa8rh1@aws.connect.psdb.cloud/demo_credit?ssl=true`,
+        connection: `mysql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASS}@${process.env.DATABASE_HOST}/${process.env.DB_PROD}?ssl=true`,
         pool: {
             min: 2,
             max: 10,

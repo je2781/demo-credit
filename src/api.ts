@@ -10,7 +10,7 @@ import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
 import { config } from "dotenv";
-config();
+config({ path: '../.env' });
 
 const devOptions = {
   host: '127.0.0.1',

@@ -15,7 +15,7 @@ const express_session_1 = __importDefault(require("express-session"));
 const MySQLStore = require("express-mysql-session")(express_session_1.default);
 const path_1 = __importDefault(require("path"));
 const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)();
+(0, dotenv_1.config)({ path: '../.env' });
 const devOptions = {
     host: '127.0.0.1',
     port: 3306,
