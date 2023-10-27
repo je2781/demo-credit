@@ -7,6 +7,8 @@ exports.dbConnection = void 0;
 // require("dotenv").config();
 const knexfile_1 = __importDefault(require("./knexfile"));
 const knex_1 = __importDefault(require("knex"));
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
 const environment = process.env.NODE_ENV;
 const dbConnection = (env) => {
     const db = (0, knex_1.default)(knexfile_1.default[env || environment]);

@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
 // Update with your config settings.
-const config = {
+const options = {
     development: {
         client: "mysql",
         connection: {
@@ -46,4 +48,4 @@ const config = {
         },
     },
 };
-exports.default = config;
+exports.default = options;
