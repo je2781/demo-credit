@@ -11,8 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deposit = exports.transfer = exports.withdraw = exports.getWallet = exports.getHomePage = void 0;
 const user_1 = require("../dao/user");
-const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)();
 const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
     //defining flash message variable

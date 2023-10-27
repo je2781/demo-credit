@@ -1,8 +1,7 @@
 import { validationResult } from "express-validator";
 import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
-import {config} from 'dotenv';
-config();
+
 export const getLogin = (req: any, res: any, next: any) => {
   // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
 

@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = exports.api = void 0;
 const body_parser_1 = __importDefault(require("body-parser"));
 const serverless_http_1 = __importDefault(require("serverless-http"));
+const helmet_1 = __importDefault(require("helmet"));
+const compression_1 = __importDefault(require("compression"));
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
@@ -22,8 +24,6 @@ const uuid_1 = require("uuid");
 const express_session_1 = __importDefault(require("express-session"));
 const MySQLStore = require('express-mysql-session')(express_session_1.default);
 const path_1 = __importDefault(require("path"));
-const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)();
 const options = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -40,6 +40,10 @@ const store = new MySQLStore(options);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
+//setting security headers for responses
+app.use((0, helmet_1.default)());
+//compressing response bodies
+app.use((0, compression_1.default)());
 //parsing body of client request - for json data
 app.use(body_parser_1.default.json());
 //parsing body of client request - only for text requests

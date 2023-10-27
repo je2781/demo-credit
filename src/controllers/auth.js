@@ -16,8 +16,6 @@ exports.postLogout = exports.postLogin = exports.postSignup = exports.getSignup 
 const express_validator_1 = require("express-validator");
 const user_1 = require("../dao/user");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const dotenv_1 = require("dotenv");
-(0, dotenv_1.config)();
 const getLogin = (req, res, next) => {
     // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
     res.status(200).render("auth/auth_form.ejs", {
