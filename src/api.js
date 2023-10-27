@@ -63,6 +63,10 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 };
+//setting security headers for responses
+app.use((0, helmet_1.default)());
+//compressing response bodies
+app.use((0, compression_1.default)());
 //defining multer middleware for file processing
 app.use((0, multer_1.default)({
     fileFilter: fileFilter,
@@ -86,8 +90,4 @@ app.use(wallet_routes_1.default);
 app.use(auth_routes_1.default);
 app.use(error_1.getPageNotFound);
 app.use(error_1.get500Page);
-//setting security headers for responses
-app.use((0, helmet_1.default)());
-//compressing response bodies
-app.use((0, compression_1.default)());
 exports.default = app;

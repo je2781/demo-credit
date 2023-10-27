@@ -68,6 +68,11 @@ const fileFilter = (req: any, file: any, cb: any) => {
     cb(null, false);
   }
 };
+//setting security headers for responses
+app.use(helmet());
+//compressing response bodies
+app.use(compression());
+
 //defining multer middleware for file processing
 app.use(
   multer({
@@ -99,9 +104,5 @@ app.use(authRoutes);
 app.use(getPageNotFound);
 app.use(get500Page);
 
-//setting security headers for responses
-app.use(helmet());
-//compressing response bodies
-app.use(compression());
 
 export default app;
