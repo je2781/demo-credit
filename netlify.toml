@@ -1,11 +1,11 @@
 [build]
     functions = "src/functions"
-    command = "npm install"
+    command = "node src/server.js"
     publish =  "src/public"
 
 [dev]
     publish = "src/public"
-    port = 3000
+    port = 8000
 
 [[redirects]]
     to = "/.netlify/functions/api/:splat"

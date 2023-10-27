@@ -11,6 +11,8 @@ import ejs from 'ejs';
 import session from 'express-session';
 const MySQLStore = require('express-mysql-session')(session);
 import path from "path";
+import { config } from 'dotenv';
+config();
 
 const options =  {
   host: process.env.DB_HOST,
@@ -31,10 +33,6 @@ const store = new MySQLStore(options);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
-//setting security headers for responses
-app.use(helmet());
-//compressing response bodies
-app.use(compression());
 
 //parsing body of client request - for json data
 app.use(bodyParser.json());
@@ -56,29 +54,29 @@ const fileFilter = (req: any, file: any, cb: any) => {
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
     file.mimetype === "image/jpeg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-//defining multer middleware for file processing
-app.use(
-  multer({
-    fileFilter: fileFilter,
-    storage: fileStorage,
-  }).single("image")
-);
-//funneling static files request to public folder
-app.use(express.static(path.join(__dirname, "..", "public")));
-//configuring server session middleware
-app.use(
-  session({
-    secret: "3To6K1aCltNfmqi2",
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  })
+    ) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  };
+  //defining multer middleware for file processing
+  app.use(
+    multer({
+      fileFilter: fileFilter,
+      storage: fileStorage,
+    }).single("image")
+    );
+    //funneling static files request to public folder
+    app.use(express.static(path.join(__dirname, "..", "public")));
+    //configuring server session middleware
+    app.use(
+      session({
+        secret: "3To6K1aCltNfmqi2",
+        resave: false,
+        saveUninitialized: false,
+        store: store,
+      })
 );
 
 //initializing local variables for views
@@ -93,6 +91,11 @@ app.use(authRoutes);
 
 app.use(getPageNotFound);
 app.use(get500Page);
+
+//setting security headers for responses
+app.use(helmet());
+//compressing response bodies
+app.use(compression());
 
 export const api = app;
 

@@ -24,6 +24,8 @@ const uuid_1 = require("uuid");
 const express_session_1 = __importDefault(require("express-session"));
 const MySQLStore = require('express-mysql-session')(express_session_1.default);
 const path_1 = __importDefault(require("path"));
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
 const options = {
     host: process.env.DB_HOST,
     port: +process.env.DB_PORT,
@@ -40,10 +42,6 @@ const store = new MySQLStore(options);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
-//setting security headers for responses
-app.use((0, helmet_1.default)());
-//compressing response bodies
-app.use((0, compression_1.default)());
 //parsing body of client request - for json data
 app.use(body_parser_1.default.json());
 //parsing body of client request - only for text requests
@@ -92,6 +90,10 @@ app.use(wallet_routes_1.default);
 app.use(auth_routes_1.default);
 app.use(error_1.getPageNotFound);
 app.use(error_1.get500Page);
+//setting security headers for responses
+app.use((0, helmet_1.default)());
+//compressing response bodies
+app.use((0, compression_1.default)());
 exports.api = app;
 // Export a Lambda function handler
 const handler = (event, context) => __awaiter(void 0, void 0, void 0, function* () {
