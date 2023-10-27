@@ -59,7 +59,7 @@ i {
 .main-header__item-list {
   list-style: none;
   display: flex;
-  gap: .25rem;
+  gap: 1.5rem;
   padding: 0;
   margin: .8rem 0 0 0;
 }

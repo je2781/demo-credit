@@ -1,0 +1,12 @@
+{
+  "env": {
+    "NODE_ENV": "development",
+    "DB_HOST": "127.0.0.1",
+    "DB_PORT": "3306",
+    "DB_USER": "root",
+    "DB_PASS": "server1",
+    "DB_DEV": "demo_credit_dev",
+    "DB_TEST": "demo_credit_testing",
+    "DB_PROD": "demo_credit"
+  }
+}

@@ -11,7 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deposit = exports.transfer = exports.withdraw = exports.getWallet = exports.getHomePage = void 0;
 const user_1 = require("../dao/user");
-require("dotenv").config();
+const dotenv_1 = require("dotenv");
+(0, dotenv_1.config)();
 const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
     //defining flash message variable
@@ -27,22 +28,22 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         user = yield (0, user_1.findUser)({
             email: req.session.user["email"],
         });
+        req.session.user = user;
+        req.session.save(() => {
+            res.status(200).render("home", {
+                docTitle: "Profile",
+                path: "/",
+                Msg: msg,
+                userName: req.session.user["full_name"],
+                url: req.session.user["image_url"],
+                email: req.session.user["email"],
+                balance: req.session.user["wallet"],
+            });
+        });
     }
     catch (err) {
         return next(err);
     }
-    req.session.user = user;
-    req.session.save(() => {
-        res.status(200).render("home", {
-            docTitle: "Profile",
-            path: "/",
-            Msg: msg,
-            userName: req.session.user["full_name"],
-            url: req.session.user["image_url"],
-            email: req.session.user["email"],
-            balance: req.session.user["wallet"],
-        });
-    });
 });
 exports.getHomePage = getHomePage;
 const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -65,7 +66,7 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             fund: +req.body.fund,
             mode: "withdraw",
         }, req.env);
-        return res.status(302).redirect("/");
+        res.status(302).redirect("/");
     }
     catch (err) {
         next(err);
@@ -88,7 +89,7 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         }, req.env);
         //setting up flash message for home page
         req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
-        return res.status(302).redirect("/");
+        res.status(302).redirect("/");
     }
     catch (err) {
         next(err);
@@ -104,7 +105,7 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             fund: +req.body.fund,
             mode: "deposit",
         }, req.env);
-        return res.status(302).redirect("/");
+        res.status(302).redirect("/");
     }
     catch (err) {
         next(err);

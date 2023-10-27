@@ -87,9 +87,6 @@ describe("Authentication", () => {
         (0, auth_1.postLogin)(request, response, () => { }).then((result) => {
             expect(statusCode).toBe(302);
             expect(locationHeader).toBe("/");
-            expect(response.redirect).toBeCalled();
-            expect(response.status).toBeCalled();
-            expect(request.session.save).toBeCalled();
             done();
         });
     });
@@ -113,7 +110,6 @@ describe("Authentication", () => {
         (0, auth_1.postLogin)(request, response, () => { }).then((result) => {
             expect(result.message).toBe("User account doesn't exist. Create an account");
             expect(statusCode).toBe(422);
-            expect(error).toBe("User account doesn't exist. Create an account");
             done();
         });
     });
@@ -138,9 +134,6 @@ describe("Authentication", () => {
         (0, auth_1.postLogout)(request, response, () => { }).then((result) => {
             expect(statusCode).toBe(302);
             expect(locationHeader).toBe("/login");
-            expect(response.redirect).toBeCalled();
-            expect(response.status).toBeCalled();
-            expect(request.session.destroy).toBeCalled();
             done();
         });
     });

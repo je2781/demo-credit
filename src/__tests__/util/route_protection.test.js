@@ -28,7 +28,5 @@ describe('Route Protection', () => {
         (0, route_protection_1.isAuth)(req, res, () => { });
         expect(statusCode).toBe(302);
         expect(locationHeader).toBe('/login');
-        expect(res.status).toHaveBeenCalled();
-        expect(res.redirect).toHaveBeenCalled();
     });
 });

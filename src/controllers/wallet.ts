@@ -1,6 +1,5 @@
 import { manageFund, findUser } from "../dao/user";
 import { User } from "../types";
-require("dotenv").config();
 
 export const getHomePage = async (req: any, res: any, next: any) => {
   let user: User;
@@ -20,22 +19,23 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         email: req.session.user["email"],
       }
     );
+
+    req.session.user = user;
+    req.session.save(() => {
+      res.status(200).render("home", {
+        docTitle: "Profile",
+        path: "/",
+        Msg: msg,
+        userName: req.session.user["full_name"],
+        url: req.session.user["image_url"],
+        email: req.session.user["email"],
+        balance: req.session.user["wallet"],
+      });
+    });
   } catch (err) {
     return next(err);
   }
 
-  req.session.user = user;
-  req.session.save(() => {
-    res.status(200).render("home", {
-      docTitle: "Profile",
-      path: "/",
-      Msg: msg,
-      userName: req.session.user["full_name"],
-      url: req.session.user["image_url"],
-      email: req.session.user["email"],
-      balance: req.session.user["wallet"],
-    });
-  });
 };
 
 export const getWallet = async (req: any, res: any, next: any) => {
@@ -59,7 +59,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
       mode: "withdraw",
     }, req.env);
     
-    return res.status(302).redirect("/");
+    res.status(302).redirect("/");
   } catch (err) {
     next(err);
     return err;
@@ -81,7 +81,7 @@ export const transfer = async (req: any, res: any, next: any) => {
     }, req.env);
     //setting up flash message for home page
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
-    return res.status(302).redirect("/");
+    res.status(302).redirect("/");
   } catch (err) {
     next(err);
     return err;
@@ -97,7 +97,7 @@ export const deposit = async (req: any, res: any, next: any) => {
       mode: "deposit",
     }, req.env);
 
-    return res.status(302).redirect("/");
+    res.status(302).redirect("/");
   } catch (err) {
     next(err);
     return err;

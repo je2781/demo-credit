@@ -1,5 +1,4 @@
 import type { Knex } from "knex";
-require("dotenv").config();
 
 // Update with your config settings.
 
@@ -7,11 +6,11 @@ const config: { [key: string]: Knex.Config } = {
   development: {
     client: "mysql",
     connection: {
-      host: "127.0.0.1",
-      port: 3306,
-      user: "root",
-      password: "server1",
-      database: "demo_credit_dev",
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT!,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_DEV,
     },
     migrations: {
       directory: "./migrations",
@@ -21,11 +20,11 @@ const config: { [key: string]: Knex.Config } = {
   testing: {
     client: "mysql",
     connection: {
-      host: "127.0.0.1",
-      port: 3306,
-      user: "root",
-      password: "server1",
-      database: "demo_credit_testing",
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT!,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_TEST,
     },
     migrations: {
       directory: "./migrations",
@@ -35,11 +34,11 @@ const config: { [key: string]: Knex.Config } = {
   production: {
     client: "mysql",
     connection: {
-      host: "127.0.0.1",
-      port: 3306,
-      user: "root",
-      password: "server1",
-      database: "demo_credit",
+      host: process.env.DB_HOST,
+      port: +process.env.DB_PORT!,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_PROD,
     },
     pool: {
       min: 2,

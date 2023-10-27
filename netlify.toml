@@ -1,0 +1,13 @@
+[build]
+    functions = "src/functions"
+    command = "npm install"
+    publish =  "src/public"
+
+[dev]
+    publish = "src/public"
+    port = 3000
+
+[[redirects]]
+    to = "/.netlify/functions/api/:splat"
+    from = "/*"
+    status = 200

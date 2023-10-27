@@ -1,9 +1,20 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = exports.api = void 0;
 const body_parser_1 = __importDefault(require("body-parser"));
+const serverless_http_1 = __importDefault(require("serverless-http"));
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
@@ -73,8 +84,16 @@ app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
     next();
 });
-app.use(auth_routes_1.default);
 app.use(wallet_routes_1.default);
+app.use(auth_routes_1.default);
 app.use(error_1.getPageNotFound);
 app.use(error_1.get500Page);
-exports.default = app;
+exports.api = app;
+// Export a Lambda function handler
+const handler = (event, context) => __awaiter(void 0, void 0, void 0, function* () {
+    // Create the Serverless Http handler and pass the Express app
+    const serverlessHandler = (0, serverless_http_1.default)(app);
+    // Call the Serverless Http handler to process the Lambda event
+    return serverlessHandler(event, context);
+});
+exports.handler = handler;

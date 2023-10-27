@@ -1,14 +1,17 @@
 import bodyParser from "body-parser";
+import { Handler, Context } from "aws-lambda";
+import ServerlessHttp from "serverless-http";
+import helmet from "helmet";
+import compression from "compression";
 import express, { Application, Request, Response, NextFunction } from "express";
 import multer from "multer";
 import flash from 'connect-flash';
 import { v4 as uniqueId } from "uuid";
+import ejs from 'ejs';
 import session from 'express-session';
 const MySQLStore = require('express-mysql-session')(session);
 import path from "path";
 
-import {config} from 'dotenv';
-config();
 const options =  {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
@@ -19,7 +22,7 @@ const options =  {
 
 import authRoutes from "../routes/auth.routes";
 import walletRoutes from "../routes/wallet.routes";
-import { get500Page, getPageNotFound } from "../controllers/error";
+import { get500Page, getPageNotFound} from "../controllers/error";
 
 const app: Application = express();
 
@@ -28,6 +31,10 @@ const store = new MySQLStore(options);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
+//setting security headers for responses
+app.use(helmet());
+//compressing response bodies
+app.use(compression());
 
 //parsing body of client request - for json data
 app.use(bodyParser.json());
@@ -81,10 +88,18 @@ app.use((req: any, res: any, next: any) => {
 });
 
 
-app.use(authRoutes);
 app.use(walletRoutes);
+app.use(authRoutes);
 
 app.use(getPageNotFound);
 app.use(get500Page);
 
-export default app;
+export const api = app;
+
+// Export a Lambda function handler
+export const handler: Handler = async (event: any, context: Context) => {
+  // Create the Serverless Http handler and pass the Express app
+  const serverlessHandler = ServerlessHttp(app);
+  // Call the Serverless Http handler to process the Lambda event
+  return serverlessHandler(event, context);
+};

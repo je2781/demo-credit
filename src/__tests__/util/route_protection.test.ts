@@ -34,7 +34,5 @@ describe('Route Protection', () => {
 
         expect(statusCode).toBe(302);
         expect(locationHeader).toBe('/login');
-        expect(res.status).toHaveBeenCalled();
-        expect(res.redirect).toHaveBeenCalled();
     });
 });

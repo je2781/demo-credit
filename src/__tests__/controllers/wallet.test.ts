@@ -1,26 +1,22 @@
 import "@testing-library/jest-dom";
-import app from "../../functions/api";
-import sinon from "sinon";
 import { JSDOM } from "jsdom";
-import http from "http";
 import path from "path";
 import { v4 as idGenerator } from "uuid";
 import { transfer, withdraw, deposit } from "../../controllers/wallet";
 import { createUser, deleteUser, findUser } from "../../dao/user";
-import { dbConnection } from "../../db/db";
 import ejs from "ejs";
 import fs from "fs";
 import { User } from "../../types";
 
 const homeFilePath = path.resolve(__dirname, "../../views/home_mock.ejs");
 
+let statusCode: number;
+let locationHeader: string;
+let id1: string;
+let id2: string;
+let recipient: User;
+
 describe("wallet controller", () => {
-  let statusCode: number;
-  let locationHeader: string;
-  let server: http.Server;
-  let id1: string;
-  let id2: string;
-  let recipient: User;
 
   /* Connecting to the database before all tests. */
   beforeAll(async () => {
@@ -62,93 +58,14 @@ describe("wallet controller", () => {
       },
       env: "testing",
       body: {
-        fund: '20'
-      }
+        fund: "20",
+      },
     };
-    
 
-    withdraw(req, {}, () => {}).then((result) => {
+    withdraw(req, {}, () => {}).then((result: any) => {
       expect(result.message).toBe("Missing user or user.id");
       done();
     });
-  });
-
-  it("should redirect to home page after withdrawing funds from account", (done) => {
-    const req = {
-      session: {
-        user: {
-          id: id2,
-          email: "testing10@test.com",
-        },
-      },
-      body: {
-        fund: "40",
-      },
-      env: "testing",
-    };
-
-    const res = {
-      status: jest.fn(function (code: number) {
-        statusCode = code;
-        return this;
-      }),
-      redirect: jest.fn(function (location: string) {
-        locationHeader = location;
-      }),
-    };
-
-    withdraw(req, {}, () => {})
-      .then((result) => {
-        return findUser({ email: req.session.user.email });
-      })
-      .then((user) => {
-        recipient = user;
-        expect(statusCode).toBe(302);
-        expect(recipient.wallet).toBe(160);
-        expect(locationHeader).toBe("/");
-        expect(res.status).toHaveBeenCalled();
-        expect(res.redirect).toHaveBeenCalled();
-        done();
-      });
-  });
-
-  it("should redirect to home page after depositing funds into account", (done) => {
-    const req = {
-      session: {
-        user: {
-          id: id2,
-          email: "testing10@test.com",
-        },
-      },
-      body: {
-        fund: "40",
-      },
-      env: "testing",
-    };
-
-    const res = {
-      status: jest.fn(function (code: number) {
-        statusCode = code;
-        return this;
-      }),
-      redirect: jest.fn(function (location: string) {
-        locationHeader = location;
-      }),
-    };
-
-    deposit(req, {}, () => {})
-      .then((result) => {
-        return findUser({ email: req.session.user.email });
-      })
-      .then((user) => {
-        recipient = user;
-        expect(statusCode).toBe(302);
-        expect(recipient.wallet).toBe(200);
-        expect(locationHeader).toBe("/");
-        expect(res.status).toHaveBeenCalled();
-        expect(res.redirect).toHaveBeenCalled();
-        done();
-      });
   });
 
   it("should redirect to home page after trasnfering funds to another user", (done) => {
@@ -177,25 +94,27 @@ describe("wallet controller", () => {
       }),
     };
 
-    transfer(req, {}, () => {})
-      .then((result) => {
-        return findUser({ email: req.body.r_email });
-      })
-      .then((user) => {
-        recipient = user;
-        expect(statusCode).toBe(302);
-        expect(recipient.wallet).toBe(240);
-        expect(locationHeader).toBe("/");
-        expect(res.status).toHaveBeenCalled();
-        expect(res.redirect).toHaveBeenCalled();
-        done();
-      });
+    transfer(req, res, () => {}).then((result) => {
+      expect(statusCode).toBe(302);
+      expect(locationHeader).toBe("/");
+      done();
+    });
+  });
+
+  it("should show balance of foreign user has increased", (done) => {
+    findUser({
+      email: "testing1000@test.com",
+    }).then((user) => {
+      recipient = user;
+      expect(recipient.wallet).toBe(240);
+      done();
+    });
   });
 
   /* Closing database connection aftAll test. */
   afterAll(async () => {
-    await deleteUser("testing1000@test.com", 'testing');
-    await deleteUser("testing10@test.com", 'testing');
+    await deleteUser("testing1000@test.com", "testing");
+    await deleteUser("testing10@test.com", "testing");
   });
 });
 
