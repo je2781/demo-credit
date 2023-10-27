@@ -65,7 +65,8 @@ const fileFilter = (req: any, file: any, cb: any) => {
     cb(null, false);
   }
 };
-
+//setting security headers for responses
+app.use(helmet());
 //compressing response bodies
 app.use(compression());
 

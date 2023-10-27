@@ -12,6 +12,7 @@ const backdrop = document.querySelector(".backdrop");
 const sideDrawer = document.querySelector(".mobile-nav");
 const filledImageContent = document.querySelector(".filled-image__content");
 const blankImageContent = document.querySelector(".blank-image__content");
+const image = document.querySelector("#image");
 const menuToggle = document.querySelector("#side-menu-toggle");
 const walletDropdownToggle = document.querySelector("#toggle-wallet");
 const walletListToggle = document.querySelector("#toggle-wallet__list");
@@ -53,10 +54,6 @@ function walletListToggleClickHandler() {
         walletList.classList.remove("close");
     }
 }
-backdrop.addEventListener("click", backdropClickHandler);
-menuToggle.addEventListener("click", menuToggleClickHandler);
-walletDropdownToggle.addEventListener("click", walletDropdownToggleClickHandler);
-walletListToggle.addEventListener("click", walletListToggleClickHandler);
 function fileInputChangeHandler(input) {
     return __awaiter(this, void 0, void 0, function* () {
         const imagePreview = yield generateBase64FromImage(input.files[0]);
@@ -66,3 +63,8 @@ function fileInputChangeHandler(input) {
         filledImageContent.style.backgroundSize = 'cover';
     });
 }
+backdrop.addEventListener("click", backdropClickHandler);
+menuToggle.addEventListener("click", menuToggleClickHandler);
+walletDropdownToggle.addEventListener("click", walletDropdownToggleClickHandler);
+walletListToggle.addEventListener("click", walletListToggleClickHandler);
+image.addEventListener("change", fileInputChangeHandler.bind(this, image));
