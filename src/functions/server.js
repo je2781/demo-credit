@@ -13,12 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.handler = void 0;
-const api_1 = require("../api");
+const api_1 = __importDefault(require("../api"));
 const serverless_http_1 = __importDefault(require("serverless-http"));
 // Export a Lambda function handler
 const handler = (event, context) => __awaiter(void 0, void 0, void 0, function* () {
     // Create the Serverless Http handler and pass the Express app
-    const serverlessHandler = (0, serverless_http_1.default)(api_1.api);
+    const serverlessHandler = (0, serverless_http_1.default)(api_1.default);
     // Call the Serverless Http handler to process the Lambda event
     return serverlessHandler(event, context);
 });

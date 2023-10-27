@@ -104,4 +104,4 @@ app.use(helmet());
 //compressing response bodies
 app.use(compression());
 
-export const api = app;
+export default app;
