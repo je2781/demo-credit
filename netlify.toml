@@ -1,6 +1,6 @@
 [build]
     functions = "src/functions"
-    command = "npm install"
+    command = "node src/server.js"
     publish =  "src/public"
 
 [dev]
