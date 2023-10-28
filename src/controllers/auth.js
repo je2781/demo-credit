@@ -19,18 +19,6 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../../.env" });
-const generateBase64FromImage = (imageFile) => {
-    if (!imageFile) {
-        return new Promise((resolve, reject) => { });
-    }
-    const reader = new FileReader();
-    const promise = new Promise((resolve, reject) => {
-        reader.onload = (e) => { var _a; return resolve((_a = e.target) === null || _a === void 0 ? void 0 : _a.result); };
-        reader.onerror = (err) => reject(err);
-    });
-    reader.readAsDataURL(imageFile);
-    return promise;
-};
 const getLogin = (req, res, next) => {
     // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
     res.status(200).render("auth/auth_form.ejs", {
@@ -63,6 +51,19 @@ const getSignup = (req, res, next) => {
 };
 exports.getSignup = getSignup;
 const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    //function definition to convert image to base64 uri
+    const generateBase64FromImage = (imageFile) => {
+        if (!imageFile) {
+            return new Promise((resolve, reject) => { });
+        }
+        const reader = new FileReader();
+        const promise = new Promise((resolve, reject) => {
+            reader.onload = (e) => { var _a; return resolve((_a = e.target) === null || _a === void 0 ? void 0 : _a.result); };
+            reader.onerror = (err) => reject(err);
+        });
+        reader.readAsDataURL(imageFile);
+        return promise;
+    };
     let image;
     let cloudImageUrl;
     const email = req.body.email;
