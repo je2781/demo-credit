@@ -10,8 +10,8 @@ import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
 import { config } from "dotenv";
-config({ path: "../.env" });
 
+config({ path: "../.env" });
 
 const devOptions = {
   host: "127.0.0.1",
@@ -70,30 +70,32 @@ app.use(helmet());
 //compressing response bodies
 app.use(compression());
 
+
 //defining multer middleware for file processing
 app.use(
   multer({
     fileFilter: fileFilter,
     storage: fileStorage,
   }).single("image")
-);
-//funneling static files request to public folder
-app.use(express.static(path.join(__dirname, "public")));
-//configuring server session middleware
-app.use(
-  session({
-    secret: "3To6K1aCltNfmqi2",
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-  })
-);
+  );
+  //funneling static files request to public folder
+  app.use(express.static(path.join(__dirname, "public")));
+  //configuring server session middleware
+  app.use(
+    session({
+      secret: "3To6K1aCltNfmqi2",
+      resave: false,
+      saveUninitialized: false,
+      store: store,
+    })
+    );
 
 //initializing local variables for views
 app.use((req: any, res: any, next: any) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });
+
 
 app.use(walletRoutes);
 app.use(authRoutes);
