@@ -27,15 +27,11 @@ export const createUser = async (
   }
 };
 
-export const deleteUser = async (
-  email: string,
-  env?: string
-) => {
+export const deleteUser = async (email: string, env?: string) => {
   if (env) {
-    await dbConnection(env)("users").where('email', email).del();
+    await dbConnection(env)("users").where("email", email).del();
   } else {
-    await dbConnection()("users").where('email', email).del();
-
+    await dbConnection()("users").where("email", email).del();
   }
 };
 
@@ -89,20 +85,33 @@ export const manageFund = async (
       // Handle the case when input.foreignUserEmail is not provided.
       throw new Error("Missing foreignUserEmail");
     case "withdraw":
+      let withdrawOpResult: number;
       if (input.user && input.user.id && env) {
         extractedUser = await dbConnection(env)("users")
           .where("id", input.user.id)
           .first();
+
+        withdrawOpResult = extractedUser.wallet - input.fund;
+        if (withdrawOpResult < 0) {
+          throw new Error("You cannot put your account in the negative");
+        }
+
         return await dbConnection(env)("users")
           .where("id", input.user.id)
           .update({
-            wallet: extractedUser.wallet - input.fund,
+            wallet: withdrawOpResult,
           });
       }
       if (input.user && input.user.id) {
         extractedUser = await dbConnection()("users")
           .where("id", input.user.id)
           .first();
+
+        withdrawOpResult = extractedUser.wallet - input.fund;
+        if (withdrawOpResult < 0) {
+          throw new Error("You cannot put your account in the negative");
+        }
+
         return await dbConnection()("users")
           .where("id", input.user.id)
           .update({

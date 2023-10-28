@@ -33,7 +33,8 @@ export const getHomePage = async (req: any, res: any, next: any) => {
       });
     });
   } catch (err) {
-    return next(err);
+    next(err);
+    return err;
   }
 
 };

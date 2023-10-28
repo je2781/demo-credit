@@ -37,10 +37,10 @@ const createUser = (data, testObj) => __awaiter(void 0, void 0, void 0, function
 exports.createUser = createUser;
 const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* () {
     if (env) {
-        yield (0, db_1.dbConnection)(env)("users").where('email', email).del();
+        yield (0, db_1.dbConnection)(env)("users").where("email", email).del();
     }
     else {
-        yield (0, db_1.dbConnection)()("users").where('email', email).del();
+        yield (0, db_1.dbConnection)()("users").where("email", email).del();
     }
 });
 exports.deleteUser = deleteUser;
@@ -82,20 +82,29 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
             // Handle the case when input.foreignUserEmail is not provided.
             throw new Error("Missing foreignUserEmail");
         case "withdraw":
+            let withdrawOpResult;
             if (input.user && input.user.id && env) {
                 extractedUser = yield (0, db_1.dbConnection)(env)("users")
                     .where("id", input.user.id)
                     .first();
+                withdrawOpResult = extractedUser.wallet - input.fund;
+                if (withdrawOpResult < 0) {
+                    throw new Error("You cannot put your account in the negative");
+                }
                 return yield (0, db_1.dbConnection)(env)("users")
                     .where("id", input.user.id)
                     .update({
-                    wallet: extractedUser.wallet - input.fund,
+                    wallet: withdrawOpResult,
                 });
             }
             if (input.user && input.user.id) {
                 extractedUser = yield (0, db_1.dbConnection)()("users")
                     .where("id", input.user.id)
                     .first();
+                withdrawOpResult = extractedUser.wallet - input.fund;
+                if (withdrawOpResult < 0) {
+                    throw new Error("You cannot put your account in the negative");
+                }
                 return yield (0, db_1.dbConnection)()("users")
                     .where("id", input.user.id)
                     .update({

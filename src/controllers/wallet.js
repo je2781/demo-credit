@@ -40,7 +40,8 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         });
     }
     catch (err) {
-        return next(err);
+        next(err);
+        return err;
     }
 });
 exports.getHomePage = getHomePage;
