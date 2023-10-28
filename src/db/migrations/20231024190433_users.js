@@ -10,6 +10,7 @@ exports.up = function(knex) {
       table.string("email").notNullable();
       table.string("password").notNullable();
       table.string("image_url").notNullable();
+      table.string("image_name").notNullable();
       table.integer("wallet").notNullable();
       table.timestamps(true, true);
     });

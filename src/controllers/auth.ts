@@ -3,9 +3,9 @@ import { v4 as uniqueId } from "uuid";
 import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
 import { config } from "dotenv";
+import admin from "firebase-admin";
 
 config({ path: "../../.env" });
-
 
 export const getLogin = (req: any, res: any, next: any) => {
   // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
@@ -106,6 +106,19 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
+    if (process.env.NODE_ENV === "production") {
+      //get your bucket
+      const bucket = admin.storage().bucket();
+
+      //upload image to firebase storage
+      await bucket.upload(image.path, {
+        gzip: true,
+        destination: image.originalname,
+        metadata: {
+          cacheControl: "public, max-age=31536000",
+        },
+      });
+    }
 
     await createUser(
       {
@@ -114,6 +127,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
         fullName: fullName,
         wallet: +balance,
         imageUrl: imageUrl,
+        imageName: image.originalname
       },
       {
         env: req.env,
@@ -122,7 +136,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
     );
 
     return res.status(302).redirect("/login");
-  } catch (err: any) {
+  } catch (err) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Signup",
       mode: "signup",
@@ -172,7 +186,7 @@ export const postLogin = async (req: any, res: any, next: any) => {
     }
 
     throw new Error("invalid E-mail or password");
-  } catch (err: any) {
+  } catch (err) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Login",
       mode: "login",

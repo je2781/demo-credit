@@ -8,18 +8,13 @@ import { v4 as uniqueId } from "uuid";
 import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
-import {v2 as cloudinary} from 'cloudinary';
 import { config } from "dotenv";
+import admin from 'firebase-admin';
+import serviceAccount from '../private-key.json';
 
 config({ path: "../.env" });
 
 //setting up programmable storage cloud provider
-cloudinary.config({ 
-  cloud_name: process.env.CLOUD_NAME, 
-  api_key: process.env.CLOUD_API_KEY, 
-  api_secret: process.env.CLOUD_API_SECRET 
-});
-
 
 const devOptions = {
   host: "127.0.0.1",
@@ -34,6 +29,13 @@ import walletRoutes from "./routes/wallet.routes";
 import { get500Page, getPageNotFound } from "./controllers/error";
 
 const app: Application = express();
+
+//initialize app on firebase
+admin.initializeApp({
+	credential: admin.credential.cert(JSON.stringify(serviceAccount)),
+	storageBucket: 'gs://fir-credit-fd09b.appspot.com' //you can find in storage.
+});
+
 
 //setting up collection to store session data
 const connection = mysql.createConnection(process.env.DATABASE_URL!);

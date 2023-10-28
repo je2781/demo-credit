@@ -1,7 +1,9 @@
 import { manageFund, findUser } from "../dao/user";
 import { User } from "../types";
 import { config } from "dotenv";
-import { v2 as cloudinary } from "cloudinary";
+import admin from 'firebase-admin';
+
+
 config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
@@ -21,9 +23,15 @@ export const getHomePage = async (req: any, res: any, next: any) => {
       email: req.session.user["email"],
     });
 
-    const apiResponse = await cloudinary.search
-      .expression("resource_type:image")
-      .execute();
+    const options: any = {
+      version: 'v2',
+      action: 'read',
+      expires: Date.now() + 1000 * 60 * 60
+    };
+    //getting bucket
+    const bucket = admin.storage().bucket();
+
+    const [url] = await bucket.file(user.image_name).getSignedUrl(options);
 
     req.session.user = user;
     req.session.save(() => {
@@ -33,7 +41,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         Msg: msg,
         env: process.env.NODE_ENV,
         userName: req.session.user["full_name"],
-        url: process.env.NODE_ENV === 'production' ? apiResponse['resources'][0]['url'] : req.session.user["image_url"],
+        url: process.env.NODE_ENV === 'production' ? url : req.session.user["image_url"],
         email: req.session.user["email"],
         balance: req.session.user["wallet"],
       });

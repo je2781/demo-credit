@@ -14,6 +14,7 @@ export const createUser = async (
       full_name: data.fullName,
       wallet: data.wallet,
       image_url: data.imageUrl,
+      image_name: data.imageName
     });
   } else {
     await dbConnection()("users").insert({
@@ -23,6 +24,7 @@ export const createUser = async (
       full_name: data.fullName,
       wallet: data.wallet,
       image_url: data.imageUrl,
+      image_name: data.imageName
     });
   }
 };

@@ -68,7 +68,8 @@ function fileInputChangeHandler(input: HTMLInputElement) {
       // Upload the image to Cloudinary.
       const formData = new FormData();
       formData.append('file', new Blob([preview]));
-      formData.append('upload_preset', 'a8xlxo9b');
+      formData.append('upload_preset', 'a1wjxgxv');
+      formData.append('path', input.value);
       fetch('https://api.cloudinary.com/v1_1/dlu9ogcbc/image/upload', {
         method: 'POST',
         body: formData
