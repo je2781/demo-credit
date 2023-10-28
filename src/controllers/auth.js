@@ -116,12 +116,13 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         if (process.env.NODE_ENV === "production") {
             // retrieving image from cloud storage
             const apiResponse = yield cloudinary_1.v2.search
-                .expression("resource_type:image")
+                .expression("resource_type:image").sort_by("created_at", "desc")
                 .execute();
-            const resourcesLength = apiResponse["resources"].length;
+            const parsedRes = JSON.parse(apiResponse);
+            const resourcesLength = parsedRes["resources"].length;
             if (resourcesLength > 1) {
                 //clearing storage for new entry
-                yield cloudinary_1.v2.api.delete_resources(apiResponse["resources"].map((resource) => resource["public_id"]));
+                yield cloudinary_1.v2.api.delete_resources(parsedRes["resources"].slice(0, resourcesLength - 1).map((resource) => resource["public_id"]));
                 res.status(302).redirect("/login");
             }
         }

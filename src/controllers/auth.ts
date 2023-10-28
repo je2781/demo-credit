@@ -121,15 +121,17 @@ export const postSignup = async (req: any, res: any, next: any) => {
     if (process.env.NODE_ENV === "production") {
       // retrieving image from cloud storage
       const apiResponse = await cloudinary.search
-        .expression("resource_type:image")
+        .expression("resource_type:image").sort_by("created_at", "desc")
         .execute();
 
-      const resourcesLength = apiResponse["resources"].length;
+      const parsedRes = JSON.parse(apiResponse);
+
+      const resourcesLength = parsedRes["resources"].length;
 
       if (resourcesLength > 1) {
         //clearing storage for new entry
         await cloudinary.api.delete_resources(
-          apiResponse["resources"].map((resource: any) => resource["public_id"])
+          parsedRes["resources"].slice(0, resourcesLength - 1).map((resource: any) => resource["public_id"])
         );
 
         res.status(302).redirect("/login");

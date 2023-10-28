@@ -32,7 +32,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (process.env.NODE_ENV === "production") {
             // retrieving image from cloud storage
             const apiResponse = yield cloudinary_1.v2.search
-                .expression("resource_type:image")
+                .expression("resource_type:image").sort_by("created_at", "desc")
                 .execute();
             req.session.user = user;
             return req.session.save(() => {
@@ -42,7 +42,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     Msg: msg,
                     env: process.env.NODE_ENV,
                     userName: req.session.user["full_name"],
-                    url: apiResponse["resources"][0]["url"],
+                    url: JSON.parse(apiResponse)["resources"][0]["url"],
                     email: req.session.user["email"],
                     balance: req.session.user["wallet"],
                 });
