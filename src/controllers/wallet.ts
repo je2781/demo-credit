@@ -20,9 +20,9 @@ export const getHomePage = async (req: any, res: any, next: any) => {
   try {
     user = await findUser({
       email: req.session.user["email"],
-    }, req.env || 'development');
+    });
 
-    if (process.env.NODE_ENV === "production") {
+    if(process.env.NODE_ENV === 'production'){
       //retrieving image from cloud storage
       apiResponse = await cloudinary.search
         .expression("resource_type:image")
@@ -73,7 +73,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "withdraw",
       },
-      req.env || "development"
+      req.env
     );
 
     res.status(302).redirect("/");
@@ -98,7 +98,7 @@ export const transfer = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "withdraw",
       },
-      req.env || "development"
+      req.env
     );
     await manageFund(
       {
@@ -106,7 +106,7 @@ export const transfer = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "transfer",
       },
-      req.env || "development"
+      req.env
     );
     //setting up flash message for home page
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
@@ -126,7 +126,7 @@ export const deposit = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "deposit",
       },
-      req.env || "development"
+      req.env
     );
 
     res.status(302).redirect("/");

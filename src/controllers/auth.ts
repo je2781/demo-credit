@@ -93,7 +93,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
       {
         email: email,
       },
-      req.env || 'development'
+      req.env
     );
 
     if (user) {
@@ -113,13 +113,32 @@ export const postSignup = async (req: any, res: any, next: any) => {
         imageUrl: imageUrl,
       },
       {
-        env: req.env || 'development',
-        id: req.id || 'id',
+        env: req.env,
+        id: req.id,
       }
     );
 
+    //retrieving image from cloud storage
+    const apiResponse = await cloudinary.search
+      .expression("resource_type:image")
+      .execute();
 
-    return res.status(302).redirect("/login");
+      const resourcesLength = apiResponse["resources"].length;
+
+    if (process.env.NODE_ENV === "production") {
+      if (resourcesLength > 1) {
+        //clearing storage for new entry
+        return cloudinary.api
+          .delete_resources(
+            apiResponse["resources"]
+              .slice(0, resourcesLength - 1)
+              .map((resource: any) => resource["public_id"])
+          )
+          .then((result) => res.status(302).redirect("/login"));
+      }
+    }
+
+    res.status(302).redirect("/login");
   } catch (err) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Signup",
@@ -155,7 +174,7 @@ export const postLogin = async (req: any, res: any, next: any) => {
   }
 
   try {
-    const user = await findUser({ email: req.body.email }, req.env || 'development');
+    const user = await findUser({ email: req.body.email }, req.env);
 
     if (!user) {
       throw new Error("User account doesn't exist. Create an account");
