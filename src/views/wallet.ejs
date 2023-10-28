@@ -14,6 +14,9 @@
                 <span>$<%= balance %></span>
             </div>
             <form action="/<%= action %>" method="POST">
+                <% if(errorMsg) { %>
+                    <p class="user-message--error"><%= errorMsg %></p>
+                    <% } %>
                 <% if(action === 'transfer') { %>
                     <p>
                         <div class="form-control transfer">

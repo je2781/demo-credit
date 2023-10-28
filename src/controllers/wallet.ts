@@ -53,6 +53,7 @@ export const getWallet = async (req: any, res: any, next: any) => {
     path: "/manage-wallet",
     balance: req.session.user["wallet"],
     mode: updatedMode,
+    errorMsg: null,
     action: mode,
   });
 };
@@ -69,9 +70,15 @@ export const withdraw = async (req: any, res: any, next: any) => {
     );
 
     res.status(302).redirect("/");
-  } catch (err) {
-    next(err);
-    return err;
+  } catch (err: any) {
+    return  res.status(200).render("wallet", {
+      docTitle: 'Withdraw',
+      path: "/manage-wallet",
+      balance: req.session.user["wallet"],
+      mode: 'Withdraw',
+      errorMsg: err.message,
+      action: 'withdraw',
+    });
   }
 };
 

@@ -60,6 +60,7 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         path: "/manage-wallet",
         balance: req.session.user["wallet"],
         mode: updatedMode,
+        errorMsg: null,
         action: mode,
     });
 });
@@ -75,8 +76,14 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         res.status(302).redirect("/");
     }
     catch (err) {
-        next(err);
-        return err;
+        return res.status(200).render("wallet", {
+            docTitle: 'Withdraw',
+            path: "/manage-wallet",
+            balance: req.session.user["wallet"],
+            mode: 'Withdraw',
+            errorMsg: err.message,
+            action: 'withdraw',
+        });
     }
 });
 exports.withdraw = withdraw;
