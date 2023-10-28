@@ -1,3 +1,5 @@
+import {generateBase64FromImage} from './helper.js';
+
 document.addEventListener("DOMContentLoaded", function () {
   const backdrop = document.querySelector(".backdrop") as HTMLDivElement;
   const sideDrawer = document.querySelector(".mobile-nav") as HTMLElement;
@@ -62,12 +64,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function fileInputChangeHandler(input: HTMLInputElement) {
-    let imagePreview: any;
     generateBase64FromImage(input.files![0]).then((preview) => {
-      imagePreview = preview;
       blankImageContent.style.display = "none";
       filledImageContent.style.display = "block";
-      filledImageContent.style.backgroundImage = `url('${imagePreview}')`;
+      filledImageContent.style.backgroundImage = `url('${preview}')`;
       filledImageContent.style.backgroundSize = "cover";
     });
   }

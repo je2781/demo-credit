@@ -14,8 +14,15 @@ const uuid_1 = require("uuid");
 const express_session_1 = __importDefault(require("express-session"));
 const MySQLStore = require("express-mysql-session")(express_session_1.default);
 const path_1 = __importDefault(require("path"));
+const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../.env" });
+//setting up programmable storage cloud provider
+cloudinary_1.v2.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET
+});
 const devOptions = {
     host: "127.0.0.1",
     port: 3306,

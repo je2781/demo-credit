@@ -9,9 +9,17 @@ import { v4 as uniqueId } from "uuid";
 import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
+import {v2 as cloudinary} from 'cloudinary';
 import { config } from "dotenv";
 
 config({ path: "../.env" });
+
+//setting up programmable storage cloud provider
+cloudinary.config({ 
+  cloud_name: process.env.CLOUD_NAME, 
+  api_key: process.env.CLOUD_API_KEY, 
+  api_secret: process.env.CLOUD_API_SECRET 
+});
 
 const devOptions = {
   host: "127.0.0.1",

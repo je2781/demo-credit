@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.generateBase64FromImage = void 0;
 const generateBase64FromImage = (imageFile) => {
     if (!imageFile) {
         return new Promise((resolve, reject) => { });
@@ -11,3 +13,4 @@ const generateBase64FromImage = (imageFile) => {
     reader.readAsDataURL(imageFile);
     return promise;
 };
+exports.generateBase64FromImage = generateBase64FromImage;

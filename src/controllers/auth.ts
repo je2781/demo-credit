@@ -1,6 +1,12 @@
 import { validationResult } from "express-validator";
+import { v4 as uniqueId } from "uuid";
 import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
+import { v2 as cloudinary} from "cloudinary";
+import { generateBase64FromImage } from "../public/js/helper.js";
+import { config } from "dotenv";
+
+config({ path: "../../.env" });
 
 export const getLogin = (req: any, res: any, next: any) => {
   // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
@@ -36,6 +42,7 @@ export const getSignup = (req: any, res: any, next: any) => {
 
 export const postSignup = async (req: any, res: any, next: any) => {
   let image: any;
+  let cloudImageUrl: any;
 
   const email = req.body.email;
   const password = req.body.password;
@@ -99,13 +106,25 @@ export const postSignup = async (req: any, res: any, next: any) => {
     const imageUrl = image.path.replaceAll("\\", "/");
 
     const hashedPassword = await bcrypt.hash(password, 12);
+    if (process.env.NODE_ENV === "production") {
+      const imagePreview = await generateBase64FromImage(image);
+      //uploading image to cloud
+      const apiResponse = await cloudinary.uploader.upload(`${imagePreview}`, {
+        public_id: imageUrl,
+      });
+      cloudImageUrl = apiResponse.secure_url;
+    }
+
     await createUser(
       {
         email: email,
         password: hashedPassword,
         fullName: fullName,
         wallet: +balance,
-        imageUrl: imageUrl,
+        imageUrl:
+          process.env.NODE_ENV === "production"
+            ? cloudImageUrl
+            : imageUrl,
       },
       {
         env: req.env,
@@ -127,7 +146,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
         fullName: fullName,
         balance: balance,
       },
-      validationErrors: []
+      validationErrors: [],
     });
   }
 };

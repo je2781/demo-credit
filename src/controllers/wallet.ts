@@ -1,5 +1,8 @@
 import { manageFund, findUser } from "../dao/user";
 import { User } from "../types";
+import { config } from "dotenv";
+
+config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
   let user: User;
@@ -26,6 +29,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         docTitle: "Profile",
         path: "/",
         Msg: msg,
+        env: process.env.NODE_ENV,
         userName: req.session.user["full_name"],
         url: req.session.user["image_url"],
         email: req.session.user["email"],

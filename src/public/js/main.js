@@ -1,4 +1,6 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const helper_js_1 = require("./helper.js");
 document.addEventListener("DOMContentLoaded", function () {
     const backdrop = document.querySelector(".backdrop");
     const sideDrawer = document.querySelector(".mobile-nav");
@@ -47,12 +49,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
     function fileInputChangeHandler(input) {
-        let imagePreview;
-        generateBase64FromImage(input.files[0]).then((preview) => {
-            imagePreview = preview;
+        (0, helper_js_1.generateBase64FromImage)(input.files[0]).then((preview) => {
             blankImageContent.style.display = "none";
             filledImageContent.style.display = "block";
-            filledImageContent.style.backgroundImage = `url('${imagePreview}')`;
+            filledImageContent.style.backgroundImage = `url('${preview}')`;
             filledImageContent.style.backgroundSize = "cover";
         });
     }

@@ -1,4 +1,4 @@
-const generateBase64FromImage = (
+export const generateBase64FromImage = (
     imageFile: any
     ): Promise<string | ArrayBuffer | null | undefined> => {
       if (!imageFile) {
