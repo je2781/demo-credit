@@ -1,9 +1,7 @@
 import { manageFund, findUser } from "../dao/user";
 import { User } from "../types";
 import { config } from "dotenv";
-import admin from 'firebase-admin';
-
-
+import { v2 as cloudinary } from "cloudinary";
 config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
@@ -22,26 +20,23 @@ export const getHomePage = async (req: any, res: any, next: any) => {
     user = await findUser({
       email: req.session.user["email"],
     });
-
-    const options: any = {
-      version: 'v2',
-      action: 'read',
-      expires: Date.now() + 1000 * 60 * 60
-    };
-    //getting bucket
-    const bucket = admin.storage().bucket();
-
-    const [url] = await bucket.file(user.image_name).getSignedUrl(options);
+    //retrieving image from cloud storage
+    const apiResponse = await cloudinary.search
+      .expression("resource_type:image")
+      .execute();
 
     req.session.user = user;
-    req.session.save(() => {
+    req.session.save(async () => {
       res.status(200).render("home", {
         docTitle: "Profile",
         path: "/",
         Msg: msg,
         env: process.env.NODE_ENV,
         userName: req.session.user["full_name"],
-        url: process.env.NODE_ENV === 'production' ? url : req.session.user["image_url"],
+        url:
+          process.env.NODE_ENV === "production"
+            ? apiResponse["resources"][0]["secure_url"]
+            : req.session.user["image_url"],
         email: req.session.user["email"],
         balance: req.session.user["wallet"],
       });
@@ -78,14 +73,14 @@ export const withdraw = async (req: any, res: any, next: any) => {
     );
 
     res.status(302).redirect("/");
-  } catch (err: any) {
-    return  res.status(200).render("wallet", {
-      docTitle: 'Withdraw',
+  } catch (err) {
+    return res.status(200).render("wallet", {
+      docTitle: "Withdraw",
       path: "/manage-wallet",
       balance: req.session.user["wallet"],
-      mode: 'Withdraw',
+      mode: "Withdraw",
       errorMsg: err.message,
-      action: 'withdraw',
+      action: "withdraw",
     });
   }
 };

@@ -23,6 +23,7 @@ describe("Authentication", () => {
         imageUrl: "src/public/images/testing.jpg",
         wallet: 200,
         fullName: "testinguser",
+        imageName: "testingimage"
       },
       {
         id: id,

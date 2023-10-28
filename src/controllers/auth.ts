@@ -1,9 +1,8 @@
 import { validationResult } from "express-validator";
-import { v4 as uniqueId } from "uuid";
 import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
+import {v2 as cloudinary} from 'cloudinary';
 import { config } from "dotenv";
-import admin from "firebase-admin";
 
 config({ path: "../../.env" });
 
@@ -41,7 +40,6 @@ export const getSignup = (req: any, res: any, next: any) => {
 
 export const postSignup = async (req: any, res: any, next: any) => {
   let image: any;
-  let cloudImageUrl: any;
 
   const email = req.body.email;
   const password = req.body.password;
@@ -106,20 +104,6 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    if (process.env.NODE_ENV === "production") {
-      //get your bucket
-      const bucket = admin.storage().bucket();
-
-      //upload image to firebase storage
-      await bucket.upload(image.path, {
-        gzip: true,
-        destination: image.originalname,
-        metadata: {
-          cacheControl: "public, max-age=31536000",
-        },
-      });
-    }
-
     await createUser(
       {
         email: email,
@@ -127,13 +111,23 @@ export const postSignup = async (req: any, res: any, next: any) => {
         fullName: fullName,
         wallet: +balance,
         imageUrl: imageUrl,
-        imageName: image.originalname
+        imageName: image.originalname,
       },
       {
         env: req.env,
         id: req.id,
       }
     );
+    //retrieving image from cloud storage
+    const apiResponse = await cloudinary.search
+      .expression("resource_type:image")
+      .execute();
+    if (apiResponse["resources"].length > 0) {
+      //clearing storage for new entry
+      await cloudinary.uploader.destroy(
+        apiResponse["resources"][0]["public_id"]
+      );
+    }
 
     return res.status(302).redirect("/login");
   } catch (err) {
