@@ -119,24 +119,24 @@ export const postSignup = async (req: any, res: any, next: any) => {
     );
 
     //retrieving image from cloud storage
-    const apiResponse = await cloudinary.search
-      .expression("resource_type:image")
-      .execute();
+    // const apiResponse = await cloudinary.search
+    //   .expression("resource_type:image")
+    //   .execute();
 
-      const resourcesLength = apiResponse["resources"].length;
+    //   const resourcesLength = apiResponse["resources"].length;
 
-    if (process.env.NODE_ENV === "production") {
-      if (resourcesLength > 1) {
-        //clearing storage for new entry
-        return cloudinary.api
-          .delete_resources(
-            apiResponse["resources"]
-              .slice(0, resourcesLength - 1)
-              .map((resource: any) => resource["public_id"])
-          )
-          .then((result) => res.status(302).redirect("/login"));
-      }
-    }
+    // if (process.env.NODE_ENV === "production") {
+    //   if (resourcesLength > 1) {
+    //     //clearing storage for new entry
+    //     return cloudinary.api
+    //       .delete_resources(
+    //         apiResponse["resources"]
+    //           .slice(0, resourcesLength - 1)
+    //           .map((resource: any) => resource["public_id"])
+    //       )
+    //       .then((result) => res.status(302).redirect("/login"));
+    //   }
+    // }
 
     res.status(302).redirect("/login");
   } catch (err) {
