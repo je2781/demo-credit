@@ -1,7 +1,7 @@
 import { validationResult } from "express-validator";
 import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
-import {v2 as cloudinary} from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
 
 config({ path: "../../.env" });
@@ -117,18 +117,23 @@ export const postSignup = async (req: any, res: any, next: any) => {
         id: req.id,
       }
     );
+
     //retrieving image from cloud storage
     const apiResponse = await cloudinary.search
       .expression("resource_type:image")
       .execute();
-    if (apiResponse["resources"].length > 0) {
-      //clearing storage for new entry
-      await cloudinary.uploader.destroy(
-        apiResponse["resources"][0]["public_id"]
-      );
-    }
 
-    return res.status(302).redirect("/login");
+    const resourcesLength = apiResponse["resources"].length;
+
+    if (resourcesLength > 1) {
+      //clearing storage for new entry
+      return cloudinary.api.delete_resources(
+        apiResponse["resources"]
+          .slice(0, resourcesLength - 1)
+          .map((resource: any) => resource["public_id"])
+      ).then((result) => res.status(302).redirect("/login"));
+    }
+    res.status(302).redirect("/login");
   } catch (err) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Signup",
