@@ -114,9 +114,21 @@ export const postSignup = async (req: any, res: any, next: any) => {
     );
 
     return res.status(302).redirect("/login");
-  } catch (err) {
-    next(err);
-    return err;
+  } catch (err: any) {
+    return res.status(422).render("auth/auth_form.ejs", {
+      docTitle: "Signup",
+      mode: "signup",
+      errorMsg: err.message,
+      path: "/signup",
+      oldInput: {
+        email: email,
+        password: password,
+        confirmPassword: req.body.c_password,
+        fullName: fullName,
+        balance: balance,
+      },
+      validationErrors: []
+    });
   }
 };
 
@@ -140,18 +152,6 @@ export const postLogin = async (req: any, res: any, next: any) => {
     const user = await findUser({ email: req.body.email }, req.env);
 
     if (!user) {
-      res.status(422).render("auth/auth_form.ejs", {
-        docTitle: "Login",
-        mode: "login",
-        errorMsg: "User account doesn't exist. Create an account",
-        path: "/login",
-        oldInput: {
-          email: req.body.email,
-          password: req.body.password,
-        },
-        validationErrors: [],
-      });
-
       throw new Error("User account doesn't exist. Create an account");
     }
 
@@ -163,10 +163,12 @@ export const postLogin = async (req: any, res: any, next: any) => {
       return req.session.save(() => res.status(302).redirect("/"));
     }
 
-    res.status(422).render("auth/auth_form.ejs", {
+    throw new Error("invalid E-mail or password");
+  } catch (err: any) {
+    return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Login",
       mode: "login",
-      errorMsg: "invalid E-mail or password",
+      errorMsg: err.message,
       path: "/login",
       oldInput: {
         email: req.body.email,
@@ -174,9 +176,6 @@ export const postLogin = async (req: any, res: any, next: any) => {
       },
       validationErrors: [],
     });
-  } catch (err) {
-    next(err);
-    return err;
   }
 };
 

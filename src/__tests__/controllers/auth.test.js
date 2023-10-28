@@ -33,7 +33,7 @@ describe("Authentication", () => {
             fullName: "testinguser",
         }, {
             id: id,
-            env: 'testing'
+            env: "testing",
         });
     }));
     it("should throw error because user already registered", (done) => {
@@ -43,14 +43,23 @@ describe("Authentication", () => {
                 password: "testingpassword",
                 c_password: "testingpassword",
                 image: "/src/public/images/testing.jpg",
-                balance: '200',
+                balance: "200",
                 fullName: "testinguser",
             },
             env: "testing",
-            id: id
+            id: id,
         };
-        (0, auth_1.postSignup)(request, {}, () => { }).then((result) => {
-            expect(result.message).toBe('Email is already in use');
+        const response = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            render: jest.fn(function (view, viewParams) {
+                error = viewParams.errorMsg;
+            }),
+        };
+        (0, auth_1.postSignup)(request, response, () => { }).then((result) => {
+            expect(error).toBe("Email is already in use");
             done();
         });
     });
@@ -75,7 +84,7 @@ describe("Authentication", () => {
                 save: jest.fn(() => {
                     response.status(302);
                     response.redirect("/");
-                })
+                }),
             },
             env: "testing",
         };
@@ -108,7 +117,7 @@ describe("Authentication", () => {
             }),
         };
         (0, auth_1.postLogin)(request, response, () => { }).then((result) => {
-            expect(result.message).toBe("User account doesn't exist. Create an account");
+            expect(error).toBe("User account doesn't exist. Create an account");
             expect(statusCode).toBe(422);
             done();
         });
@@ -139,6 +148,6 @@ describe("Authentication", () => {
     });
     /* Closing database connection aftAll test. */
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield (0, user_1.deleteUser)("testing1000@test.com", 'testing');
+        yield (0, user_1.deleteUser)("testing1000@test.com", "testing");
     }));
 });

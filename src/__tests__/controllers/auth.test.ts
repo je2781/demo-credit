@@ -1,6 +1,6 @@
 import { createUser, findUser, deleteUser } from "../../dao/user";
-import { postSignup, postLogin, postLogout} from "../../controllers/auth";
-import bcrypt from 'bcryptjs';
+import { postSignup, postLogin, postLogout } from "../../controllers/auth";
+import bcrypt from "bcryptjs";
 import { v4 as idGenerator } from "uuid";
 import http from "http";
 import { dbConnection } from "../../db/db";
@@ -8,7 +8,7 @@ import { dbConnection } from "../../db/db";
 let statusCode: number;
 let locationHeader: string;
 let id: string;
-let error: string
+let error: string;
 
 describe("Authentication", () => {
   /* Connecting to the database before each test. */
@@ -26,7 +26,7 @@ describe("Authentication", () => {
       },
       {
         id: id,
-        env: 'testing'
+        env: "testing",
       }
     );
   });
@@ -38,19 +38,44 @@ describe("Authentication", () => {
         password: "testingpassword",
         c_password: "testingpassword",
         image: "/src/public/images/testing.jpg",
-        balance: '200',
+        balance: "200",
         fullName: "testinguser",
       },
       env: "testing",
-      id: id
+      id: id,
     };
-  
-    postSignup(request, {}, () => {}).then((result) => {
-      expect(result.message).toBe('Email is already in use');
+
+    const response = {
+      status: jest.fn(function (code: number) {
+        statusCode = code;
+        return this;
+      }),
+      render: jest.fn(function (
+        view: string,
+        viewParams: {
+          errorMsg: string;
+          docTitle: string;
+          mode: string;
+          path: string;
+          oldInput: {
+            email: string;
+            password: string;
+            confirmPassword: string;
+            fullName: string;
+            balance: string;
+          };
+          validationErrors: any[];
+        }
+      ) {
+        error = viewParams.errorMsg;
+      }),
+    };
+
+    postSignup(request, response, () => {}).then((result) => {
+      expect(error).toBe("Email is already in use");
       done();
     });
   });
-  
 
   it("should log in a user", (done) => {
     const response = {
@@ -74,22 +99,20 @@ describe("Authentication", () => {
         save: jest.fn(() => {
           response.status(302);
           response.redirect("/");
-        })
+        }),
       },
       env: "testing",
     };
 
-
-    bcrypt.compare = async function(s: string, hash: string){
-        return true;
-    }
+    bcrypt.compare = async function (s: string, hash: string) {
+      return true;
+    };
 
     postLogin(request, response, () => {}).then((result) => {
       expect(statusCode).toBe(302);
       expect(locationHeader).toBe("/");
       done();
     });
-
   });
 
   it("should show validation error because the user doesn't exist", (done) => {
@@ -106,29 +129,30 @@ describe("Authentication", () => {
         statusCode = code;
         return this;
       }),
-      render: jest.fn(function (view: string, viewParams: {
-        errorMsg: string;
-        docTitle: string;
-        mode: string,
-        path: string,
-        oldInput: {
-          email: string,
-          password: string,
-        },
-        validationErrors: any[],
-
-      }) {
+      render: jest.fn(function (
+        view: string,
+        viewParams: {
+          errorMsg: string;
+          docTitle: string;
+          mode: string;
+          path: string;
+          oldInput: {
+            email: string;
+            password: string;
+          };
+          validationErrors: any[];
+        }
+      ) {
         error = viewParams.errorMsg;
       }),
     };
-  
+
     postLogin(request, response, () => {}).then((result) => {
-      expect(result.message).toBe("User account doesn't exist. Create an account");
+      expect(error).toBe("User account doesn't exist. Create an account");
       expect(statusCode).toBe(422);
       done();
     });
   });
-  
 
   it("should logout when logout button is pressed", (done) => {
     const response = {
@@ -150,17 +174,15 @@ describe("Authentication", () => {
       },
     };
 
-
     postLogout(request, response, () => {}).then((result) => {
       expect(statusCode).toBe(302);
       expect(locationHeader).toBe("/login");
       done();
     });
-
   });
 
   /* Closing database connection aftAll test. */
   afterAll(async () => {
-    await deleteUser("testing1000@test.com", 'testing');
+    await deleteUser("testing1000@test.com", "testing");
   });
 });

@@ -113,8 +113,20 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         return res.status(302).redirect("/login");
     }
     catch (err) {
-        next(err);
-        return err;
+        return res.status(422).render("auth/auth_form.ejs", {
+            docTitle: "Signup",
+            mode: "signup",
+            errorMsg: err.message,
+            path: "/signup",
+            oldInput: {
+                email: email,
+                password: password,
+                confirmPassword: req.body.c_password,
+                fullName: fullName,
+                balance: balance,
+            },
+            validationErrors: []
+        });
     }
 });
 exports.postSignup = postSignup;
@@ -136,17 +148,6 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     try {
         const user = yield (0, user_1.findUser)({ email: req.body.email }, req.env);
         if (!user) {
-            res.status(422).render("auth/auth_form.ejs", {
-                docTitle: "Login",
-                mode: "login",
-                errorMsg: "User account doesn't exist. Create an account",
-                path: "/login",
-                oldInput: {
-                    email: req.body.email,
-                    password: req.body.password,
-                },
-                validationErrors: [],
-            });
             throw new Error("User account doesn't exist. Create an account");
         }
         const doMatch = yield bcryptjs_1.default.compare(req.body.password, user.password);
@@ -155,10 +156,13 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             req.session.user = user;
             return req.session.save(() => res.status(302).redirect("/"));
         }
-        res.status(422).render("auth/auth_form.ejs", {
+        throw new Error("invalid E-mail or password");
+    }
+    catch (err) {
+        return res.status(422).render("auth/auth_form.ejs", {
             docTitle: "Login",
             mode: "login",
-            errorMsg: "invalid E-mail or password",
+            errorMsg: err.message,
             path: "/login",
             oldInput: {
                 email: req.body.email,
@@ -166,10 +170,6 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
             },
             validationErrors: [],
         });
-    }
-    catch (err) {
-        next(err);
-        return err;
     }
 });
 exports.postLogin = postLogin;

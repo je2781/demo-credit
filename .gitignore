@@ -3,7 +3,7 @@
 nodemon.json
 server.key
 server.cert
-
+/.vscode
 
 
 # Local Netlify folder
