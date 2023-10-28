@@ -111,7 +111,6 @@ export const postSignup = async (req: any, res: any, next: any) => {
         fullName: fullName,
         wallet: +balance,
         imageUrl: imageUrl,
-        imageName: image.originalname,
       },
       {
         env: req.env,
