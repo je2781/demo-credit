@@ -10,7 +10,6 @@ const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
 import { config } from "dotenv";
 import admin from 'firebase-admin';
-import serviceAccount from '../private-key.json';
 
 config({ path: "../.env" });
 
@@ -32,7 +31,7 @@ const app: Application = express();
 
 //initialize app on firebase
 admin.initializeApp({
-	credential: admin.credential.cert(JSON.stringify(serviceAccount)),
+	credential: admin.credential.cert(process.env.PRIVATE_KEY!),
 	storageBucket: 'gs://fir-credit-fd09b.appspot.com' //you can find in storage.
 });
 
