@@ -77,7 +77,7 @@ const fileFilter = (req: any, file: any, cb: any) => {
 };
 
 //compressing response bodies
-// app.use(compression());
+app.use(compression());
 
 
 //defining multer middleware for file processing

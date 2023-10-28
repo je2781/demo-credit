@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const body_parser_1 = __importDefault(require("body-parser"));
 const mysql_1 = __importDefault(require("mysql"));
+const compression_1 = __importDefault(require("compression"));
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
@@ -69,7 +70,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 //compressing response bodies
-// app.use(compression());
+app.use((0, compression_1.default)());
 //defining multer middleware for file processing
 app.use((0, multer_1.default)({
     fileFilter: fileFilter,
