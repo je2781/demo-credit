@@ -4,11 +4,9 @@
     "target": "es2016",
     "module": "commonjs",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
     "lib": ["DOM"]
   },
-  "exclude": ["node_modules"],
-  "include": ["*.json"]
+  "exclude": ["node_modules"]
 }

@@ -118,28 +118,28 @@ export const postSignup = async (req: any, res: any, next: any) => {
       }
     );
 
-    //retrieving image from cloud storage
-    // const apiResponse = await cloudinary.search
-    //   .expression("resource_type:image")
-    //   .execute();
+    if (process.env.NODE_ENV === "production") {
+      // retrieving image from cloud storage
+      const apiResponse = await cloudinary.search
+        .expression("resource_type:image")
+        .execute();
 
-    //   const resourcesLength = apiResponse["resources"].length;
+      const resourcesLength = apiResponse["resources"].length;
 
-    // if (process.env.NODE_ENV === "production") {
-    //   if (resourcesLength > 1) {
-    //     //clearing storage for new entry
-    //     return cloudinary.api
-    //       .delete_resources(
-    //         apiResponse["resources"]
-    //           .slice(0, resourcesLength - 1)
-    //           .map((resource: any) => resource["public_id"])
-    //       )
-    //       .then((result) => res.status(302).redirect("/login"));
-    //   }
-    // }
+      if (resourcesLength > 1) {
+        //clearing storage for new entry
+        return cloudinary.api
+          .delete_resources(
+            apiResponse["resources"]
+              .slice(0, resourcesLength - 1)
+              .map((resource: any) => resource["public_id"])
+          )
+          .then((result) => res.status(302).redirect("/login"));
+      }
+    }
 
     res.status(302).redirect("/login");
-  } catch (err) {
+  } catch (err: any) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Signup",
       mode: "signup",
@@ -185,11 +185,11 @@ export const postLogin = async (req: any, res: any, next: any) => {
     if (doMatch) {
       req.session.isLoggedIn = true;
       req.session.user = user;
-      return req.session.save(() => res.status(302).redirect("/"));
+      req.session.save(() => res.status(302).redirect("/"));
+    } else {
+      throw new Error("invalid E-mail or password");
     }
-
-    throw new Error("invalid E-mail or password");
-  } catch (err) {
+  } catch (err: any) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Login",
       mode: "login",

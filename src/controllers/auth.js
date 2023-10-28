@@ -16,6 +16,7 @@ exports.postLogout = exports.postLogin = exports.postSignup = exports.getSignup 
 const express_validator_1 = require("express-validator");
 const user_1 = require("../dao/user");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../../.env" });
 const getLogin = (req, res, next) => {
@@ -51,7 +52,6 @@ const getSignup = (req, res, next) => {
 exports.getSignup = getSignup;
 const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let image;
-    let cloudImageUrl;
     const email = req.body.email;
     const password = req.body.password;
     const balance = req.body.balance;
@@ -113,7 +113,22 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             env: req.env,
             id: req.id,
         });
-        return res.status(302).redirect("/login");
+        if (process.env.NODE_ENV === "production") {
+            // retrieving image from cloud storage
+            const apiResponse = yield cloudinary_1.v2.search
+                .expression("resource_type:image")
+                .execute();
+            const resourcesLength = apiResponse["resources"].length;
+            if (resourcesLength > 1) {
+                //clearing storage for new entry
+                return cloudinary_1.v2.api
+                    .delete_resources(apiResponse["resources"]
+                    .slice(0, resourcesLength - 1)
+                    .map((resource) => resource["public_id"]))
+                    .then((result) => res.status(302).redirect("/login"));
+            }
+        }
+        res.status(302).redirect("/login");
     }
     catch (err) {
         return res.status(422).render("auth/auth_form.ejs", {
@@ -157,9 +172,11 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         if (doMatch) {
             req.session.isLoggedIn = true;
             req.session.user = user;
-            return req.session.save(() => res.status(302).redirect("/"));
+            req.session.save(() => res.status(302).redirect("/"));
         }
-        throw new Error("invalid E-mail or password");
+        else {
+            throw new Error("invalid E-mail or password");
+        }
     }
     catch (err) {
         return res.status(422).render("auth/auth_form.ejs", {

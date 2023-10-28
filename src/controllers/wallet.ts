@@ -7,7 +7,6 @@ config({ path: "../../.env" });
 export const getHomePage = async (req: any, res: any, next: any) => {
   let user: User;
   let apiResponse: any;
-
   //defining flash message variable
   let msg: any;
   msg = req.flash("transfer");
@@ -18,36 +17,47 @@ export const getHomePage = async (req: any, res: any, next: any) => {
   }
 
   try {
-    user = await findUser({
-      email: req.session.user["email"],
-    });
+    user = await findUser(
+      {
+        email: req.session.user["email"],
+      },
+      req.env
+    );
 
-    if(process.env.NODE_ENV === 'production'){
-      //retrieving image from cloud storage
+    if (process.env.NODE_ENV === "production") {
+      // retrieving image from cloud storage
       apiResponse = await cloudinary.search
         .expression("resource_type:image")
         .execute();
     }
 
     req.session.user = user;
-    req.session.save(async () => {
+    req.session.save(() => {
+      if (process.env.NODE_ENV === "production") {
+        return res.status(200).render("home", {
+          docTitle: "Profile",
+          path: "/",
+          Msg: msg,
+          env: process.env.NODE_ENV,
+          userName: req.session.user["full_name"],
+          url: apiResponse["resources"][0]["secure_url"],
+          email: req.session.user["email"],
+          balance: req.session.user["wallet"],
+        });
+      }
       res.status(200).render("home", {
         docTitle: "Profile",
         path: "/",
         Msg: msg,
         env: process.env.NODE_ENV,
         userName: req.session.user["full_name"],
-        url:
-          process.env.NODE_ENV === "production"
-            ? apiResponse["resources"][0]["secure_url"]
-            : req.session.user["image_url"],
+        url: req.session.user["image_url"],
         email: req.session.user["email"],
         balance: req.session.user["wallet"],
       });
     });
   } catch (err) {
     next(err);
-    return err;
   }
 };
 
@@ -77,7 +87,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
     );
 
     res.status(302).redirect("/");
-  } catch (err) {
+  } catch (err: any) {
     return res.status(200).render("wallet", {
       docTitle: "Withdraw",
       path: "/manage-wallet",
@@ -113,7 +123,6 @@ export const transfer = async (req: any, res: any, next: any) => {
     res.status(302).redirect("/");
   } catch (err) {
     next(err);
-    return err;
   }
 };
 
@@ -132,6 +141,5 @@ export const deposit = async (req: any, res: any, next: any) => {
     res.status(302).redirect("/");
   } catch (err) {
     next(err);
-    return err;
   }
 };

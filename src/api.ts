@@ -28,10 +28,6 @@ import { get500Page, getPageNotFound } from "./controllers/error";
 
 const app: Application = express();
 
-const store = new MySQLStore(
-  process.env.NODE_ENV === "production" ? {} : devOptions,
-  process.env.NODE_ENV === "production" && connection
-);
 
 if(process.env.NODE_ENV === 'production'){
   //setting up programmable storage cloud provider
@@ -41,10 +37,14 @@ if(process.env.NODE_ENV === 'production'){
     api_secret: process.env.CLOUD_API_SECRET 
   });
   //setting up collection to store session data
-  connection = mysql.createConnection(process.env.DATABASE_URL!);
+  const connection = mysql.createConnection(process.env.DATABASE_URL!);
   //connecting to pscale serverless database
   connection.connect();
 }
+const store = new MySQLStore(
+  process.env.NODE_ENV === "production" ? {} : devOptions,
+  process.env.NODE_ENV === "production" && connection
+);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
@@ -77,7 +77,7 @@ const fileFilter = (req: any, file: any, cb: any) => {
 };
 
 //compressing response bodies
-app.use(compression());
+// app.use(compression());
 
 
 //defining multer middleware for file processing
@@ -100,7 +100,7 @@ app.use(
     );
 
 //initializing local variables for views
-app.use(async (req: any, res: any, next: any) => {
+app.use((req: any, res: any, next: any) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });

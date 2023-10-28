@@ -1,20 +1,10 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const body_parser_1 = __importDefault(require("body-parser"));
 const mysql_1 = __importDefault(require("mysql"));
-const compression_1 = __importDefault(require("compression"));
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
 const connect_flash_1 = __importDefault(require("connect-flash"));
@@ -25,12 +15,7 @@ const path_1 = __importDefault(require("path"));
 const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../.env" });
-//setting up programmable storage cloud provider
-cloudinary_1.v2.config({
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.CLOUD_API_KEY,
-    api_secret: process.env.CLOUD_API_SECRET
-});
+let connection;
 const devOptions = {
     host: "127.0.0.1",
     port: 3306,
@@ -42,11 +27,19 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const wallet_routes_1 = __importDefault(require("./routes/wallet.routes"));
 const error_1 = require("./controllers/error");
 const app = (0, express_1.default)();
-//setting up collection to store session data
-const connection = mysql_1.default.createConnection(process.env.DATABASE_URL);
+if (process.env.NODE_ENV === 'production') {
+    //setting up programmable storage cloud provider
+    cloudinary_1.v2.config({
+        cloud_name: process.env.CLOUD_NAME,
+        api_key: process.env.CLOUD_API_KEY,
+        api_secret: process.env.CLOUD_API_SECRET
+    });
+    //setting up collection to store session data
+    const connection = mysql_1.default.createConnection(process.env.DATABASE_URL);
+    //connecting to pscale serverless database
+    connection.connect();
+}
 const store = new MySQLStore(process.env.NODE_ENV === "production" ? {} : devOptions, process.env.NODE_ENV === "production" && connection);
-//connecting to pscale serverless database
-connection.connect();
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
@@ -76,7 +69,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 //compressing response bodies
-app.use((0, compression_1.default)());
+// app.use(compression());
 //defining multer middleware for file processing
 app.use((0, multer_1.default)({
     fileFilter: fileFilter,
@@ -92,10 +85,10 @@ app.use((0, express_session_1.default)({
     store: store,
 }));
 //initializing local variables for views
-app.use((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
     next();
-}));
+});
 app.use(wallet_routes_1.default);
 app.use(auth_routes_1.default);
 app.use(error_1.getPageNotFound);

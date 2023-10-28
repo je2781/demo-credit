@@ -1,7 +1,6 @@
 import express from 'express';
 import { postLogin, postLogout, postSignup, getLogin, getSignup}from '../controllers/auth';
 import { check, body } from 'express-validator';
-import { findUser } from '../dao/user';
 
 const router = express.Router();
 
@@ -20,7 +19,8 @@ router.post('/signup',
 check('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), 
 body('fullName', 'Provide a name for your account').isString().trim(), 
 body('balance').trim().custom((value, {req}) => {
-    if(value < '50'){
+    const updatedValue = +value;
+    if(updatedValue < 50){
         throw new Error('You cannot start your account with less than 50');
     }
 

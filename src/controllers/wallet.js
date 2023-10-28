@@ -16,6 +16,7 @@ const cloudinary_1 = require("cloudinary");
 (0, dotenv_1.config)({ path: "../../.env" });
 const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
+    let apiResponse;
     //defining flash message variable
     let msg;
     msg = req.flash("transfer");
@@ -28,19 +29,34 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     try {
         user = yield (0, user_1.findUser)({
             email: req.session.user["email"],
-        });
-        const apiResponse = yield cloudinary_1.v2.search
-            .expression("resource_type:image")
-            .execute();
+        }, req.env);
+        if (process.env.NODE_ENV === "production") {
+            // retrieving image from cloud storage
+            apiResponse = yield cloudinary_1.v2.search
+                .expression("resource_type:image")
+                .execute();
+        }
         req.session.user = user;
         req.session.save(() => {
+            if (process.env.NODE_ENV === "production") {
+                return res.status(200).render("home", {
+                    docTitle: "Profile",
+                    path: "/",
+                    Msg: msg,
+                    env: process.env.NODE_ENV,
+                    userName: req.session.user["full_name"],
+                    url: apiResponse["resources"][0]["secure_url"],
+                    email: req.session.user["email"],
+                    balance: req.session.user["wallet"],
+                });
+            }
             res.status(200).render("home", {
                 docTitle: "Profile",
                 path: "/",
                 Msg: msg,
                 env: process.env.NODE_ENV,
                 userName: req.session.user["full_name"],
-                url: process.env.NODE_ENV === 'production' ? apiResponse['resources'][0]['url'] : req.session.user["image_url"],
+                url: req.session.user["image_url"],
                 email: req.session.user["email"],
                 balance: req.session.user["wallet"],
             });
@@ -48,7 +64,6 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
     catch (err) {
         next(err);
-        return err;
     }
 });
 exports.getHomePage = getHomePage;
@@ -77,12 +92,12 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (err) {
         return res.status(200).render("wallet", {
-            docTitle: 'Withdraw',
+            docTitle: "Withdraw",
             path: "/manage-wallet",
             balance: req.session.user["wallet"],
-            mode: 'Withdraw',
+            mode: "Withdraw",
             errorMsg: err.message,
-            action: 'withdraw',
+            action: "withdraw",
         });
     }
 });
@@ -106,7 +121,6 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (err) {
         next(err);
-        return err;
     }
 });
 exports.transfer = transfer;
@@ -122,7 +136,6 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
     catch (err) {
         next(err);
-        return err;
     }
 });
 exports.deposit = deposit;
