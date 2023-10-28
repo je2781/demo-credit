@@ -6,7 +6,6 @@ config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
   let user: User;
-  let apiResponse: any;
   //defining flash message variable
   let msg: any;
   msg = req.flash("transfer");
@@ -26,15 +25,12 @@ export const getHomePage = async (req: any, res: any, next: any) => {
 
     if (process.env.NODE_ENV === "production") {
       // retrieving image from cloud storage
-      apiResponse = await cloudinary.search
+      const apiResponse = await cloudinary.search
         .expression("resource_type:image")
         .execute();
-    }
-
-    req.session.user = user;
-    req.session.save(() => {
-      if (process.env.NODE_ENV === "production") {
-        return res.status(200).render("home", {
+      req.session.user = user;
+      return req.session.save(() => {
+        res.status(200).render("home", {
           docTitle: "Profile",
           path: "/",
           Msg: msg,
@@ -44,7 +40,11 @@ export const getHomePage = async (req: any, res: any, next: any) => {
           email: req.session.user["email"],
           balance: req.session.user["wallet"],
         });
-      }
+      });
+    }
+
+    req.session.user = user;
+    req.session.save(() => {
       res.status(200).render("home", {
         docTitle: "Profile",
         path: "/",

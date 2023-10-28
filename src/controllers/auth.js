@@ -128,7 +128,9 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                     .then((result) => res.status(302).redirect("/login"));
             }
         }
-        res.status(302).redirect("/login");
+        else {
+            res.status(302).redirect("/login");
+        }
     }
     catch (err) {
         return res.status(422).render("auth/auth_form.ejs", {

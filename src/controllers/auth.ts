@@ -136,9 +136,9 @@ export const postSignup = async (req: any, res: any, next: any) => {
           )
           .then((result) => res.status(302).redirect("/login"));
       }
+    } else {
+      res.status(302).redirect("/login");
     }
-
-    res.status(302).redirect("/login");
   } catch (err: any) {
     return res.status(422).render("auth/auth_form.ejs", {
       docTitle: "Signup",

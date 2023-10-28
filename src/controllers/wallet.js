@@ -16,7 +16,6 @@ const cloudinary_1 = require("cloudinary");
 (0, dotenv_1.config)({ path: "../../.env" });
 const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
-    let apiResponse;
     //defining flash message variable
     let msg;
     msg = req.flash("transfer");
@@ -32,24 +31,25 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         }, req.env);
         if (process.env.NODE_ENV === "production") {
             // retrieving image from cloud storage
-            apiResponse = yield cloudinary_1.v2.search
+            const apiResponse = yield cloudinary_1.v2.search
                 .expression("resource_type:image")
                 .execute();
-        }
-        req.session.user = user;
-        req.session.save(() => {
-            if (process.env.NODE_ENV === "production") {
-                return res.status(200).render("home", {
+            req.session.user = user;
+            return req.session.save(() => {
+                res.status(200).render("home", {
                     docTitle: "Profile",
                     path: "/",
                     Msg: msg,
                     env: process.env.NODE_ENV,
                     userName: req.session.user["full_name"],
-                    url: apiResponse["resources"][0]["secure_url"],
+                    url: apiResponse["resources"][0]["url"],
                     email: req.session.user["email"],
                     balance: req.session.user["wallet"],
                 });
-            }
+            });
+        }
+        req.session.user = user;
+        req.session.save(() => {
             res.status(200).render("home", {
                 docTitle: "Profile",
                 path: "/",
