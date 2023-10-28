@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deposit = exports.transfer = exports.withdraw = exports.getWallet = exports.getHomePage = void 0;
 const user_1 = require("../dao/user");
 const dotenv_1 = require("dotenv");
+const cloudinary_1 = require("cloudinary");
 (0, dotenv_1.config)({ path: "../../.env" });
 const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
@@ -28,6 +29,9 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         user = yield (0, user_1.findUser)({
             email: req.session.user["email"],
         });
+        const apiResponse = yield cloudinary_1.v2.search
+            .expression("resource_type:image")
+            .execute();
         req.session.user = user;
         req.session.save(() => {
             res.status(200).render("home", {
@@ -36,7 +40,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 Msg: msg,
                 env: process.env.NODE_ENV,
                 userName: req.session.user["full_name"],
-                url: req.session.user["image_url"],
+                url: process.env.NODE_ENV === 'production' ? apiResponse['resources'][0]['url'] : req.session.user["image_url"],
                 email: req.session.user["email"],
                 balance: req.session.user["wallet"],
             });

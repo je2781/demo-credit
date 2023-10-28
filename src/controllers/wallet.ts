@@ -1,7 +1,7 @@
 import { manageFund, findUser } from "../dao/user";
 import { User } from "../types";
 import { config } from "dotenv";
-
+import { v2 as cloudinary } from "cloudinary";
 config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
@@ -17,11 +17,13 @@ export const getHomePage = async (req: any, res: any, next: any) => {
   }
 
   try {
-    user = await findUser(
-      {
-        email: req.session.user["email"],
-      }
-    );
+    user = await findUser({
+      email: req.session.user["email"],
+    });
+
+    const apiResponse = await cloudinary.search
+      .expression("resource_type:image")
+      .execute();
 
     req.session.user = user;
     req.session.save(() => {
@@ -31,7 +33,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         Msg: msg,
         env: process.env.NODE_ENV,
         userName: req.session.user["full_name"],
-        url: req.session.user["image_url"],
+        url: process.env.NODE_ENV === 'production' ? apiResponse['resources'][0]['url'] : req.session.user["image_url"],
         email: req.session.user["email"],
         balance: req.session.user["wallet"],
       });
@@ -40,7 +42,6 @@ export const getHomePage = async (req: any, res: any, next: any) => {
     next(err);
     return err;
   }
-
 };
 
 export const getWallet = async (req: any, res: any, next: any) => {
@@ -58,12 +59,15 @@ export const getWallet = async (req: any, res: any, next: any) => {
 // Create a route for withdrawing funds
 export const withdraw = async (req: any, res: any, next: any) => {
   try {
-    await manageFund({
-      user: req.session.user,
-      fund: +req.body.fund,
-      mode: "withdraw",
-    }, req.env);
-    
+    await manageFund(
+      {
+        user: req.session.user,
+        fund: +req.body.fund,
+        mode: "withdraw",
+      },
+      req.env
+    );
+
     res.status(302).redirect("/");
   } catch (err) {
     next(err);
@@ -74,16 +78,22 @@ export const withdraw = async (req: any, res: any, next: any) => {
 // Create a route for transfering funds
 export const transfer = async (req: any, res: any, next: any) => {
   try {
-    await manageFund({
-      user: req.session.user,
-      fund: +req.body.fund,
-      mode: "withdraw",
-    }, req.env);
-    await manageFund({
-      foreignUserEmail: req.body.r_email,
-      fund: +req.body.fund,
-      mode: "transfer",
-    }, req.env);
+    await manageFund(
+      {
+        user: req.session.user,
+        fund: +req.body.fund,
+        mode: "withdraw",
+      },
+      req.env
+    );
+    await manageFund(
+      {
+        foreignUserEmail: req.body.r_email,
+        fund: +req.body.fund,
+        mode: "transfer",
+      },
+      req.env
+    );
     //setting up flash message for home page
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
     res.status(302).redirect("/");
@@ -96,11 +106,14 @@ export const transfer = async (req: any, res: any, next: any) => {
 // Create a route for adding funds
 export const deposit = async (req: any, res: any, next: any) => {
   try {
-    await manageFund({
-      user: req.session.user,
-      fund: +req.body.fund,
-      mode: "deposit",
-    }, req.env);
+    await manageFund(
+      {
+        user: req.session.user,
+        fund: +req.body.fund,
+        mode: "deposit",
+      },
+      req.env
+    );
 
     res.status(302).redirect("/");
   } catch (err) {
