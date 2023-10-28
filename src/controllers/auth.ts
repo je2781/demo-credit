@@ -4,8 +4,10 @@ import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
+import * as fs from 'fs';
 
 config({ path: "../../.env" });
+
 
 export const getLogin = (req: any, res: any, next: any) => {
   // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
@@ -40,30 +42,6 @@ export const getSignup = (req: any, res: any, next: any) => {
 };
 
 export const postSignup = async (req: any, res: any, next: any) => {
-  //function definition to convert image to base64 uri
-  const generateBase64FromImage = (
-    imageFile: any
-  ): Promise<string | ArrayBuffer | null | undefined> => {
-    if (!imageFile) {
-      return new Promise((resolve, reject) => {});
-    }
-  
-    const reader = new FileReader();
-    const promise = new Promise(
-      (
-        resolve: (result: string | ArrayBuffer | null | undefined) => void,
-        reject: (reason: any) => void
-      ) => {
-        reader.onload = (e: ProgressEvent<FileReader>) =>
-          resolve(e.target?.result);
-        reader.onerror = (err) => reject(err);
-      }
-    );
-  
-    reader.readAsDataURL(imageFile);
-    return promise;
-  };
-
   let image: any;
   let cloudImageUrl: any;
 
@@ -130,10 +108,14 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     if (process.env.NODE_ENV === "production") {
-      const imagePreview = await generateBase64FromImage(image);
+      const img = fs.readFileSync(image.path);
+
+      const base64String = Buffer.from(img).toString('base64');
+      const imagePreview = `data:image/${image.mimetype};base64,${base64String}`;
+
       //uploading image to cloud
       const apiResponse = await cloudinary.uploader.upload(`${imagePreview}`, {
-        public_id: imageUrl,
+        public_id: image.filename,
       });
       cloudImageUrl = apiResponse.secure_url;
     }
