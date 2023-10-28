@@ -12,14 +12,7 @@ import {v2 as cloudinary} from 'cloudinary';
 import { config } from "dotenv";
 
 config({ path: "../.env" });
-
-//setting up programmable storage cloud provider
-cloudinary.config({ 
-  cloud_name: process.env.CLOUD_NAME, 
-  api_key: process.env.CLOUD_API_KEY, 
-  api_secret: process.env.CLOUD_API_SECRET 
-});
-
+let connection: any;
 
 const devOptions = {
   host: "127.0.0.1",
@@ -35,14 +28,23 @@ import { get500Page, getPageNotFound } from "./controllers/error";
 
 const app: Application = express();
 
-//setting up collection to store session data
-const connection = mysql.createConnection(process.env.DATABASE_URL!);
 const store = new MySQLStore(
   process.env.NODE_ENV === "production" ? {} : devOptions,
   process.env.NODE_ENV === "production" && connection
 );
-//connecting to pscale serverless database
-connection.connect();
+
+if(process.env.NODE_ENV === 'production'){
+  //setting up programmable storage cloud provider
+  cloudinary.config({ 
+    cloud_name: process.env.CLOUD_NAME, 
+    api_key: process.env.CLOUD_API_KEY, 
+    api_secret: process.env.CLOUD_API_SECRET 
+  });
+  //setting up collection to store session data
+  connection = mysql.createConnection(process.env.DATABASE_URL!);
+  //connecting to pscale serverless database
+  connection.connect();
+}
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");

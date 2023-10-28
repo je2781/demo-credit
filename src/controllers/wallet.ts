@@ -6,6 +6,7 @@ config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
   let user: User;
+  let apiResponse: any;
 
   //defining flash message variable
   let msg: any;
@@ -19,11 +20,14 @@ export const getHomePage = async (req: any, res: any, next: any) => {
   try {
     user = await findUser({
       email: req.session.user["email"],
-    });
-    //retrieving image from cloud storage
-    const apiResponse = await cloudinary.search
-      .expression("resource_type:image")
-      .execute();
+    }, req.env || 'development');
+
+    if (process.env.NODE_ENV === "production") {
+      //retrieving image from cloud storage
+      apiResponse = await cloudinary.search
+        .expression("resource_type:image")
+        .execute();
+    }
 
     req.session.user = user;
     req.session.save(async () => {
@@ -69,7 +73,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "withdraw",
       },
-      req.env
+      req.env || "development"
     );
 
     res.status(302).redirect("/");
@@ -94,7 +98,7 @@ export const transfer = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "withdraw",
       },
-      req.env
+      req.env || "development"
     );
     await manageFund(
       {
@@ -102,7 +106,7 @@ export const transfer = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "transfer",
       },
-      req.env
+      req.env || "development"
     );
     //setting up flash message for home page
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
@@ -122,7 +126,7 @@ export const deposit = async (req: any, res: any, next: any) => {
         fund: +req.body.fund,
         mode: "deposit",
       },
-      req.env
+      req.env || "development"
     );
 
     res.status(302).redirect("/");

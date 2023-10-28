@@ -93,7 +93,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
       {
         email: email,
       },
-      req.env
+      req.env || 'development'
     );
 
     if (user) {
@@ -113,8 +113,8 @@ export const postSignup = async (req: any, res: any, next: any) => {
         imageUrl: imageUrl,
       },
       {
-        env: req.env,
-        id: req.id,
+        env: req.env || 'development',
+        id: req.id || 'id',
       }
     );
 
@@ -123,16 +123,25 @@ export const postSignup = async (req: any, res: any, next: any) => {
       .expression("resource_type:image")
       .execute();
 
-    const resourcesLength = apiResponse["resources"].length;
+      const resourcesLength = apiResponse["resources"].length;
 
-    if (resourcesLength > 1) {
-      //clearing storage for new entry
-      return cloudinary.api.delete_resources(
-        apiResponse["resources"]
-          .slice(0, resourcesLength - 1)
-          .map((resource: any) => resource["public_id"])
-      ).then((result) => res.status(302).redirect("/login"));
+    if (process.env.NODE_ENV === "production") {
+      if (resourcesLength > 1) {
+        //clearing storage for new entry
+        return cloudinary.api
+          .delete_resources(
+            apiResponse["resources"]
+              .slice(0, resourcesLength - 1)
+              .map((resource: any) => resource["public_id"])
+          )
+          .then((result) => res.status(302).redirect("/login"));
+      }
     }
+
+    await cloudinary.api.delete_resources(
+      apiResponse["resources"].map((resource: any) => resource["public_id"])
+    );
+    
     res.status(302).redirect("/login");
   } catch (err) {
     return res.status(422).render("auth/auth_form.ejs", {
@@ -169,7 +178,7 @@ export const postLogin = async (req: any, res: any, next: any) => {
   }
 
   try {
-    const user = await findUser({ email: req.body.email }, req.env);
+    const user = await findUser({ email: req.body.email }, req.env || 'development');
 
     if (!user) {
       throw new Error("User account doesn't exist. Create an account");

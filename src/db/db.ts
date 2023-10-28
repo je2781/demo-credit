@@ -2,7 +2,7 @@
 import knexFile from './knexfile';
 import knex from 'knex';
 import { config } from 'dotenv';
-config();
+config({path: '../../.env'});
 
 const environment = process.env.NODE_ENV;
 

@@ -19,7 +19,13 @@ router.get('/signup', getSignup);
 router.post('/signup', 
 check('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), 
 body('fullName', 'Provide a name for your account').isString().trim(), 
-body('balance', 'Set your starting balance').notEmpty().trim(), 
+body('balance').trim().custom((value, {req}) => {
+    if(value < '50'){
+        throw new Error('You cannot start your account with less than 50');
+    }
+
+    return true;
+}), 
 body('password', 'Password must contain at least 5 characters').trim().isLength({min: 5}), 
 body('c_password').trim().custom((value, {req}) => {
     if(value !== req.body.password){

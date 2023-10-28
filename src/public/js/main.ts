@@ -21,7 +21,6 @@ const walletDropdownToggle = document.querySelector(
   "#toggle-wallet"
 ) as HTMLElement;
 
-
 function backdropClickHandler() {
   backdrop.style.display = "none";
   sideDrawer.classList.remove("open");
@@ -63,15 +62,16 @@ function walletListToggleClickHandler() {
 
 function fileInputChangeHandler(input: HTMLInputElement) {
   generateBase64FromImage(input.files![0]).then((preview) => {
-    if(preview){
+    if (preview) {
       filledImageContent.style.backgroundImage = `url('${preview}')`;
+
       // Upload the image to Cloudinary.
       const formData = new FormData();
-      formData.append('file', new Blob([preview]));
-      formData.append('upload_preset', 'byxqm07e');
-      fetch('https://api.cloudinary.com/v1_1/dekb51fji/image/upload', {
-        method: 'POST',
-        body: formData
+      formData.append("file", new Blob([preview]));
+      formData.append("upload_preset", "byxqm07e");
+      fetch("https://api.cloudinary.com/v1_1/dekb51fji/image/upload", {
+        method: "POST",
+        body: formData,
       });
     }
   });
@@ -87,4 +87,3 @@ walletDropdownToggle.addEventListener(
   walletDropdownToggleClickHandler
 );
 walletListToggle.addEventListener("click", walletListToggleClickHandler);
-
