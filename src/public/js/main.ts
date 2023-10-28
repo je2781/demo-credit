@@ -65,15 +65,6 @@ function fileInputChangeHandler(input: HTMLInputElement) {
   generateBase64FromImage(input.files![0]).then((preview) => {
     if(preview){
       filledImageContent.style.backgroundImage = `url('${preview}')`;
-      // Upload the image to Cloudinary.
-      const formData = new FormData();
-      formData.append('file', new Blob([preview]));
-      formData.append('upload_preset', 'a1wjxgxv');
-      formData.append('path', input.value);
-      fetch('https://api.cloudinary.com/v1_1/dlu9ogcbc/image/upload', {
-        method: 'POST',
-        body: formData
-      });
     }
   });
   blankImageContent.style.display = "none";
