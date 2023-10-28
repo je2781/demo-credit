@@ -40,7 +40,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
           Msg: msg,
           env: process.env.NODE_ENV,
           userName: req.session.user["full_name"],
-          url: apiResponse["resources"][0]["secure_url"],
+          url: apiResponse["resources"][0]["url"],
           email: req.session.user["email"],
           balance: req.session.user["wallet"],
         });
