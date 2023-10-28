@@ -1,10 +1,18 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const body_parser_1 = __importDefault(require("body-parser"));
-const helmet_1 = __importDefault(require("helmet"));
 const mysql_1 = __importDefault(require("mysql"));
 const compression_1 = __importDefault(require("compression"));
 const express_1 = __importDefault(require("express"));
@@ -67,8 +75,6 @@ const fileFilter = (req, file, cb) => {
         cb(null, false);
     }
 };
-//setting security headers for responses
-app.use((0, helmet_1.default)());
 //compressing response bodies
 app.use((0, compression_1.default)());
 //defining multer middleware for file processing
@@ -86,10 +92,10 @@ app.use((0, express_session_1.default)({
     store: store,
 }));
 //initializing local variables for views
-app.use((req, res, next) => {
+app.use((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     res.locals.isAuthenticated = req.session.isLoggedIn;
     next();
-});
+}));
 app.use(wallet_routes_1.default);
 app.use(auth_routes_1.default);
 app.use(error_1.getPageNotFound);

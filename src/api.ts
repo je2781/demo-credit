@@ -1,5 +1,4 @@
 import bodyParser from "body-parser";
-import helmet from "helmet";
 import mysql from "mysql";
 import compression from "compression";
 import express, { Application} from "express";
@@ -20,6 +19,7 @@ cloudinary.config({
   api_key: process.env.CLOUD_API_KEY, 
   api_secret: process.env.CLOUD_API_SECRET 
 });
+
 
 const devOptions = {
   host: "127.0.0.1",
@@ -73,8 +73,7 @@ const fileFilter = (req: any, file: any, cb: any) => {
     cb(null, false);
   }
 };
-//setting security headers for responses
-app.use(helmet());
+
 //compressing response bodies
 app.use(compression());
 
@@ -99,7 +98,7 @@ app.use(
     );
 
 //initializing local variables for views
-app.use((req: any, res: any, next: any) => {
+app.use(async (req: any, res: any, next: any) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });

@@ -2,11 +2,33 @@ import { validationResult } from "express-validator";
 import { v4 as uniqueId } from "uuid";
 import { createUser, findUser } from "../dao/user";
 import bcrypt from "bcryptjs";
-import { v2 as cloudinary} from "cloudinary";
-import { generateBase64FromImage } from "../public/js/helper.js";
+import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
 
 config({ path: "../../.env" });
+
+const generateBase64FromImage = (
+  imageFile: any
+): Promise<string | ArrayBuffer | null | undefined> => {
+  if (!imageFile) {
+    return new Promise((resolve, reject) => {});
+  }
+
+  const reader = new FileReader();
+  const promise = new Promise(
+    (
+      resolve: (result: string | ArrayBuffer | null | undefined) => void,
+      reject: (reason: any) => void
+    ) => {
+      reader.onload = (e: ProgressEvent<FileReader>) =>
+        resolve(e.target?.result);
+      reader.onerror = (err) => reject(err);
+    }
+  );
+
+  reader.readAsDataURL(imageFile);
+  return promise;
+};
 
 export const getLogin = (req: any, res: any, next: any) => {
   // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
@@ -122,9 +144,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
         fullName: fullName,
         wallet: +balance,
         imageUrl:
-          process.env.NODE_ENV === "production"
-            ? cloudImageUrl
-            : imageUrl,
+          process.env.NODE_ENV === "production" ? cloudImageUrl : imageUrl,
       },
       {
         env: req.env,

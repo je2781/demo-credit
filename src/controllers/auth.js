@@ -17,9 +17,20 @@ const express_validator_1 = require("express-validator");
 const user_1 = require("../dao/user");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const cloudinary_1 = require("cloudinary");
-const helper_js_1 = require("../public/js/helper.js");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../../.env" });
+const generateBase64FromImage = (imageFile) => {
+    if (!imageFile) {
+        return new Promise((resolve, reject) => { });
+    }
+    const reader = new FileReader();
+    const promise = new Promise((resolve, reject) => {
+        reader.onload = (e) => { var _a; return resolve((_a = e.target) === null || _a === void 0 ? void 0 : _a.result); };
+        reader.onerror = (err) => reject(err);
+    });
+    reader.readAsDataURL(imageFile);
+    return promise;
+};
 const getLogin = (req, res, next) => {
     // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
     res.status(200).render("auth/auth_form.ejs", {
@@ -106,7 +117,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         const imageUrl = image.path.replaceAll("\\", "/");
         const hashedPassword = yield bcryptjs_1.default.hash(password, 12);
         if (process.env.NODE_ENV === "production") {
-            const imagePreview = yield (0, helper_js_1.generateBase64FromImage)(image);
+            const imagePreview = yield generateBase64FromImage(image);
             //uploading image to cloud
             const apiResponse = yield cloudinary_1.v2.uploader.upload(`${imagePreview}`, {
                 public_id: imageUrl,
@@ -118,9 +129,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             password: hashedPassword,
             fullName: fullName,
             wallet: +balance,
-            imageUrl: process.env.NODE_ENV === "production"
-                ? cloudImageUrl
-                : imageUrl,
+            imageUrl: process.env.NODE_ENV === "production" ? cloudImageUrl : imageUrl,
         }, {
             env: req.env,
             id: req.id,
