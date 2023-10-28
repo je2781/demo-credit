@@ -42,7 +42,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     Msg: msg,
                     env: process.env.NODE_ENV,
                     userName: req.session.user["full_name"],
-                    url: JSON.parse(apiResponse)["resources"][0]["url"],
+                    url: apiResponse["resources"][0]["url"],
                     email: req.session.user["email"],
                     balance: req.session.user["wallet"],
                 });

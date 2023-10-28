@@ -118,11 +118,10 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             const apiResponse = yield cloudinary_1.v2.search
                 .expression("resource_type:image").sort_by("created_at", "desc")
                 .execute();
-            const parsedRes = JSON.parse(apiResponse);
-            const resourcesLength = parsedRes["resources"].length;
+            const resourcesLength = apiResponse["resources"].length;
             if (resourcesLength > 1) {
                 //clearing storage for new entry
-                yield cloudinary_1.v2.api.delete_resources(parsedRes["resources"].slice(0, resourcesLength - 1).map((resource) => resource["public_id"]));
+                yield cloudinary_1.v2.api.delete_resources(apiResponse["resources"].slice(0, resourcesLength - 1).map((resource) => resource["public_id"]));
                 res.status(302).redirect("/login");
             }
         }

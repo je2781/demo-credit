@@ -124,14 +124,12 @@ export const postSignup = async (req: any, res: any, next: any) => {
         .expression("resource_type:image").sort_by("created_at", "desc")
         .execute();
 
-      const parsedRes = JSON.parse(apiResponse);
-
-      const resourcesLength = parsedRes["resources"].length;
+      const resourcesLength = apiResponse["resources"].length;
 
       if (resourcesLength > 1) {
         //clearing storage for new entry
         await cloudinary.api.delete_resources(
-          parsedRes["resources"].slice(0, resourcesLength - 1).map((resource: any) => resource["public_id"])
+          apiResponse["resources"].slice(0, resourcesLength - 1).map((resource: any) => resource["public_id"])
         );
 
         res.status(302).redirect("/login");
