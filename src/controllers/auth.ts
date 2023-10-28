@@ -128,13 +128,11 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
       if (resourcesLength > 1) {
         //clearing storage for new entry
-        return cloudinary.api
-          .delete_resources(
-            apiResponse["resources"]
-              .slice(0, resourcesLength - 1)
-              .map((resource: any) => resource["public_id"])
-          )
-          .then((result) => res.status(302).redirect("/login"));
+        await cloudinary.api.delete_resources(
+          apiResponse["resources"].map((resource: any) => resource["public_id"])
+        );
+
+        res.status(302).redirect("/login");
       }
     } else {
       res.status(302).redirect("/login");

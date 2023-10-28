@@ -121,11 +121,8 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             const resourcesLength = apiResponse["resources"].length;
             if (resourcesLength > 1) {
                 //clearing storage for new entry
-                return cloudinary_1.v2.api
-                    .delete_resources(apiResponse["resources"]
-                    .slice(0, resourcesLength - 1)
-                    .map((resource) => resource["public_id"]))
-                    .then((result) => res.status(302).redirect("/login"));
+                yield cloudinary_1.v2.api.delete_resources(apiResponse["resources"].map((resource) => resource["public_id"]));
+                res.status(302).redirect("/login");
             }
         }
         else {
