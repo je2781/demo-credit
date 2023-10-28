@@ -138,10 +138,6 @@ export const postSignup = async (req: any, res: any, next: any) => {
       }
     }
 
-    await cloudinary.api.delete_resources(
-      apiResponse["resources"].map((resource: any) => resource["public_id"])
-    );
-    
     res.status(302).redirect("/login");
   } catch (err) {
     return res.status(422).render("auth/auth_form.ejs", {
