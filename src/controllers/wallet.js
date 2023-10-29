@@ -76,6 +76,10 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         docTitle: updatedMode,
         path: "/manage-wallet",
         balance: req.session.user["wallet"],
+        oldInput: {
+            recName: '',
+            recEmail: ''
+        },
         mode: updatedMode,
         errorMsg: null,
         action: mode,
@@ -93,7 +97,7 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         res.status(302).redirect("/");
     }
     catch (err) {
-        return res.status(200).render("wallet", {
+        return res.status(500).render("wallet", {
             docTitle: "Withdraw",
             path: "/manage-wallet",
             balance: req.session.user["wallet"],
@@ -122,10 +126,14 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         res.status(302).redirect("/");
     }
     catch (err) {
-        return res.status(200).render("wallet", {
+        return res.status(500).render("wallet", {
             docTitle: "Transfer",
             path: "/manage-wallet",
             balance: req.session.user["wallet"],
+            oldInput: {
+                recName: req.body.r_name,
+                recEmail: req.body.r_email
+            },
             mode: "Transfer",
             errorMsg: err.message,
             action: "transfer",

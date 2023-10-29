@@ -73,6 +73,7 @@ describe("Authentication", () => {
 
     postSignup(request, response, () => {}).then((result) => {
       expect(error).toBe("Email is already in use");
+      expect(statusCode).toBe(422);
       done();
     });
   });

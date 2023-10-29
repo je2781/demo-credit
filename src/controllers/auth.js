@@ -122,7 +122,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             yield (0, user_1.updateUser)({
                 email: email,
                 publicId: apiResponse["resources"][resourcesLength - 1]['public_id']
-            });
+            }, req.env);
         }
         else {
             res.status(302).redirect("/login");

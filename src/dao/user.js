@@ -47,12 +47,12 @@ exports.deleteUser = deleteUser;
 const updateUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
     if (env) {
         yield (0, db_1.dbConnection)(env)("users").where("email", input.email).update({
-            cloudinary_public_id: input.publicId,
+            cloudinary_public_id: input.publicId
         });
     }
     else {
         yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
-            cloudinary_public_id: input.publicId,
+            cloudinary_public_id: input.publicId
         });
     }
 });

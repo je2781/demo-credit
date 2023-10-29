@@ -1,18 +1,19 @@
 import bodyParser from "body-parser";
 import mysql from "mysql";
 import compression from "compression";
-import express, { Application} from "express";
+import express, { Application } from "express";
 import multer from "multer";
 import flash from "connect-flash";
 import { v4 as uniqueId } from "uuid";
 import session from "express-session";
 const MySQLStore = require("express-mysql-session")(session);
 import path from "path";
-import {v2 as cloudinary} from 'cloudinary';
+import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
 
 config({ path: "../.env" });
 let connection: any;
+let store: any;
 
 const devOptions = {
   host: "127.0.0.1",
@@ -28,23 +29,21 @@ import { get500Page, getPageNotFound } from "./controllers/error";
 
 const app: Application = express();
 
-
-if(process.env.NODE_ENV === 'production'){
+if (process.env.NODE_ENV === "production") {
   //setting up programmable storage cloud provider
-  cloudinary.config({ 
-    cloud_name: process.env.CLOUD_NAME, 
-    api_key: process.env.CLOUD_API_KEY, 
-    api_secret: process.env.CLOUD_API_SECRET 
+  cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET,
   });
   //setting up collection to store session data
   connection = mysql.createConnection(process.env.DATABASE_URL!);
   //connecting to pscale serverless database
   connection.connect();
+  store = new MySQLStore({}, connection);
 }
-const store = new MySQLStore(
-  process.env.NODE_ENV === "production" ? {} : devOptions,
-  process.env.NODE_ENV === "production" && connection
-);
+
+store = new MySQLStore(devOptions);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
@@ -79,32 +78,30 @@ const fileFilter = (req: any, file: any, cb: any) => {
 //compressing response bodies
 app.use(compression());
 
-
 //defining multer middleware for file processing
 app.use(
   multer({
     fileFilter: fileFilter,
     storage: fileStorage,
   }).single("image")
-  );
-  //funneling static files request to public folder
-  app.use(express.static(path.join(__dirname, "public")));
-  //configuring server session middleware
-  app.use(
-    session({
-      secret: "3To6K1aCltNfmqi2",
-      resave: false,
-      saveUninitialized: false,
-      store: store,
-    })
-    );
+);
+//funneling static files request to public folder
+app.use(express.static(path.join(__dirname, "public")));
+//configuring server session middleware
+app.use(
+  session({
+    secret: "3To6K1aCltNfmqi2",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
 
 //initializing local variables for views
 app.use((req: any, res: any, next: any) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   next();
 });
-
 
 app.use(walletRoutes);
 app.use(authRoutes);

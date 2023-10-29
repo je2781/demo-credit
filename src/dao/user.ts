@@ -35,17 +35,14 @@ export const deleteUser = async (email: string, env?: string) => {
   }
 };
 
-export const updateUser = async (
-  input: { email: string; publicId: string },
-  env?: string
-) => {
+export const updateUser = async (input: {email: string, publicId: string}, env?: string) => {
   if (env) {
     await dbConnection(env)("users").where("email", input.email).update({
-      cloudinary_public_id: input.publicId,
+      cloudinary_public_id: input.publicId
     });
   } else {
     await dbConnection()("users").where("email", input.email).update({
-      cloudinary_public_id: input.publicId,
+      cloudinary_public_id: input.publicId
     });
   }
 };
@@ -82,7 +79,7 @@ export const manageFund = async (
           .where("email", input.foreignUserEmail)
           .first();
 
-        if (!extractedUser) {
+        if(!extractedUser){
           throw new Error("your receipient account doesn't exist");
         }
 
@@ -101,11 +98,11 @@ export const manageFund = async (
         extractedUser = await dbConnection()("users")
           .where("email", input.foreignUserEmail)
           .first();
-
-        if (!extractedUser) {
-          throw new Error("your receipient account doesn't exist");
-        }
-
+          
+          if(!extractedUser){
+            throw new Error("your receipient account doesn't exist");
+          }
+          
         await dbConnection()("users")
           .where("email", input.foreignUserEmail)
           .update({

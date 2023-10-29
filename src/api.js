@@ -17,6 +17,7 @@ const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../.env" });
 let connection;
+let store;
 const devOptions = {
     host: "127.0.0.1",
     port: 3306,
@@ -28,19 +29,20 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const wallet_routes_1 = __importDefault(require("./routes/wallet.routes"));
 const error_1 = require("./controllers/error");
 const app = (0, express_1.default)();
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
     //setting up programmable storage cloud provider
     cloudinary_1.v2.config({
         cloud_name: process.env.CLOUD_NAME,
         api_key: process.env.CLOUD_API_KEY,
-        api_secret: process.env.CLOUD_API_SECRET
+        api_secret: process.env.CLOUD_API_SECRET,
     });
     //setting up collection to store session data
     connection = mysql_1.default.createConnection(process.env.DATABASE_URL);
     //connecting to pscale serverless database
     connection.connect();
+    store = new MySQLStore({}, connection);
 }
-const store = new MySQLStore(process.env.NODE_ENV === "production" ? {} : devOptions, process.env.NODE_ENV === "production" && connection);
+store = new MySQLStore(devOptions);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");

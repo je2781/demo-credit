@@ -74,6 +74,10 @@ export const getWallet = async (req: any, res: any, next: any) => {
     docTitle: updatedMode,
     path: "/manage-wallet",
     balance: req.session.user["wallet"],
+    oldInput: {
+      recName: '',
+      recEmail: ''
+    },
     mode: updatedMode,
     errorMsg: null,
     action: mode,
@@ -93,7 +97,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
 
     res.status(302).redirect("/");
   } catch (err: any) {
-    return res.status(200).render("wallet", {
+    return res.status(500).render("wallet", {
       docTitle: "Withdraw",
       path: "/manage-wallet",
       balance: req.session.user["wallet"],
@@ -127,10 +131,14 @@ export const transfer = async (req: any, res: any, next: any) => {
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
     res.status(302).redirect("/");
   } catch (err: any) {
-    return res.status(200).render("wallet", {
+    return res.status(500).render("wallet", {
       docTitle: "Transfer",
       path: "/manage-wallet",
       balance: req.session.user["wallet"],
+      oldInput: {
+        recName: req.body.r_name,
+        recEmail: req.body.r_email
+      },
       mode: "Transfer",
       errorMsg: err.message,
       action: "transfer",

@@ -14,9 +14,32 @@ let statusCode: number;
 let locationHeader: string;
 let id1: string;
 let id2: string;
-let recipient: User;
+let error: string;
 
 describe("wallet controller", () => {
+
+  const response = {
+    status: jest.fn(function (code: number) {
+      statusCode = code;
+      return this;
+    }),
+    render: jest.fn(function (
+      view: string,
+      viewParams: {
+        errorMsg: string;
+        docTitle: string;
+        mode: string;
+        path: string;
+        oldInput: {
+          recName: string;
+          recEmail: string;
+        };
+        action: string;
+      }
+    ) {
+      error = viewParams.errorMsg;
+    }),
+  };
 
   /* Connecting to the database before all tests. */
   beforeAll(async () => {
@@ -62,8 +85,8 @@ describe("wallet controller", () => {
       },
     };
 
-    withdraw(req, {}, () => {}).then((result: any) => {
-      expect(result.message).toBe("Missing user or user.id");
+    withdraw(req, response, () => {}).then((result: any) => {
+      expect(error).toBe("Missing user or user.id");
       done();
     });
   });
@@ -84,17 +107,8 @@ describe("wallet controller", () => {
       env: "testing",
     };
 
-    const res = {
-      status: jest.fn(function (code: number) {
-        statusCode = code;
-        return this;
-      }),
-      redirect: jest.fn(function (location: string) {
-        locationHeader = location;
-      }),
-    };
 
-    transfer(req, res, () => {}).then((result) => {
+    transfer(req, response, () => {}).then((result) => {
       expect(statusCode).toBe(302);
       expect(locationHeader).toBe("/");
       done();
@@ -102,11 +116,16 @@ describe("wallet controller", () => {
   });
 
   it("should show balance of foreign user has increased", (done) => {
+    const req = {
+      body: {
+        email: "testing1000@test.com"
+      },
+      env: 'testing'
+    }
     findUser({
-      email: "testing1000@test.com",
-    }).then((user) => {
-      recipient = user;
-      expect(recipient.wallet).toBe(240);
+      email: req.body.email,
+    }, req.env).then((user) => {
+      expect(user.wallet).toBe(240);
       done();
     });
   });
@@ -118,80 +137,3 @@ describe("wallet controller", () => {
   });
 });
 
-// describe("Success page", () => {
-//   let dom: JSDOM;
-//   let container: HTMLElement;
-
-//   // Define your dynamic data
-//   const dynamicData = {
-//     isAuthenticated: true,
-//     docTitle: "Success",
-//     path: "/logout",
-//     shortId: "hJHFq8awtUUPXeseHpBfyY",
-//   };
-
-//   beforeAll((done) => {
-//     fs.readFile(successFilePath, "utf8", (err, template) => {
-//       if (err) {
-//         return done(err);
-//       }
-
-//       // Render the EJS template with the dynamic data
-//       const renderedHtml = ejs.render(template, dynamicData);
-//       dom = new JSDOM(renderedHtml, { runScripts: "dangerously" });
-//       container = dom.window.document.body;
-
-//       done();
-//     });
-//   });
-
-//   test("should show links and badge", () => {
-//     // Check if container is defined before using querySelector
-//     expect(container).toBeDefined();
-//     expect(container.querySelector(".fa-circle-check")).toBeInTheDocument();
-//     expect(container.querySelector("a[href^='/decode']")).toBeInTheDocument();
-//     expect(
-//       container.querySelector("a[href^='/statistic']")
-//     ).toBeInTheDocument();
-//   });
-// });
-
-// describe("Home page", () => {
-//   let dom: JSDOM;
-//   let container: HTMLElement;
-
-//   // Define your dynamic data
-//   const dynamicData = {
-//     isAuthenticated: true,
-//     Msg: null,
-//     docTitle: "Profile",
-//     path: "/logout",
-//     validationErrors: [],
-//     url: 'src/public/images/testing.jpg',
-//     userName: 'John Pope',
-//     email: 'testing10@test.com',
-//     balance: '399'
-//   };
-
-//   beforeAll((done) => {
-//     fs.readFile(homeFilePath, "utf8", (err, template) => {
-//       if (err) {
-//         return done(err);
-//       }
-
-//       // Render the EJS template with the dynamic data
-//       const renderedHtml = ejs.render(template, dynamicData);
-//       dom = new JSDOM(renderedHtml, { runScripts: "dangerously" });
-//       container = dom.window.document.body;
-
-//       done();
-//     });
-//   });
-
-//   test("should show url form with elements", () => {
-//     // Check if container is defined before using querySelector
-//     expect(container).toBeDefined();
-//     expect(container.querySelector(".profile-image")).toBeInTheDocument();
-//     expect(container.querySelector(".profile__item")).toBeInTheDocument();
-//   });
-// });
