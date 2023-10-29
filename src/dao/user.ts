@@ -40,7 +40,7 @@ export const updateUser = async (input: {
   publicId: string;
 }) => {
   await dbConnection()("users").where("email", input.email).update({
-    cloudinary_public_id: input.publicId,
+    cloudinary_asset_id: input.publicId,
   });
 };
 
