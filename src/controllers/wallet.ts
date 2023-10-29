@@ -31,7 +31,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         .execute();
 
       const currentUserRecource = apiResponse["resources"].find(
-        (resource: any) => resource["public_id"] === user.cloudinary_public_id
+        (resource: any) => resource["asset_id"] === user.cloudinary_asset_id
       );
       req.session.user = user;
       return req.session.save(() => {

@@ -128,7 +128,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
       await updateUser({
         email: email,
-        publicId: apiResponse["resources"][resourcesLength -1 ]['public_id']
+        publicId: apiResponse["resources"][resourcesLength -1 ]['asset_id']
       })
       res.status(302).redirect("/login");
 

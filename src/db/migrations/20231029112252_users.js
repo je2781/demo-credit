@@ -11,7 +11,7 @@ exports.up = function (knex) {
         table.string("password").notNullable();
         table.string("image_url").notNullable();
         table.integer("wallet").notNullable();
-        table.string("cloudinary_public_id").nullable().unique();
+        table.string("cloudinary_asset_id").nullable().unique();
         table.timestamps(true, true);
       });
   };

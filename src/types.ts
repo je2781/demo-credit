@@ -1,5 +1,5 @@
 export type User = Record<
-  "image_url" | "full_name" | "email" | "wallet" | "password" | "id" | "cloudinary_public_id" ,
+  "image_url" | "full_name" | "email" | "wallet" | "password" | "id" | "cloudinary_asset_id" ,
   any
 >;
 
@@ -9,5 +9,5 @@ export interface createUserProps {
     wallet: number;
     password: string;
     imageUrl: string;
-    cloudinaryPublicId?: string;
+    cloudinaryAssetId?: string;
   }

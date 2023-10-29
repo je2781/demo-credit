@@ -35,7 +35,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 .expression("resource_type:image")
                 .sort_by("created_at", "desc")
                 .execute();
-            const currentUserRecource = apiResponse["resources"].find((resource) => resource["public_id"] === user.cloudinary_public_id);
+            const currentUserRecource = apiResponse["resources"].find((resource) => resource["asset_id"] === user.cloudinary_asset_id);
             req.session.user = user;
             return req.session.save(() => {
                 res.status(200).render("home", {
