@@ -124,11 +124,9 @@ export const postSignup = async (req: any, res: any, next: any) => {
         .expression("resource_type:image").sort_by("created_at", "desc")
         .execute();
       
-      const resourcesLength = apiResponse["resources"].length;
-
       await updateUser({
         email: email,
-        assetId: apiResponse["resources"][resourcesLength]['asset_id']
+        assetId: apiResponse["resources"][0]['asset_id']
       })
       res.status(302).redirect("/login");
 

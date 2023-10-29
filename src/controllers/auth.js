@@ -118,10 +118,9 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             const apiResponse = yield cloudinary_1.v2.search
                 .expression("resource_type:image").sort_by("created_at", "desc")
                 .execute();
-            const resourcesLength = apiResponse["resources"].length;
             yield (0, user_1.updateUser)({
                 email: email,
-                assetId: apiResponse["resources"][resourcesLength]['asset_id']
+                assetId: apiResponse["resources"][0]['asset_id']
             });
             res.status(302).redirect("/login");
         }
