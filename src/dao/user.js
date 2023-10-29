@@ -44,17 +44,10 @@ const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteUser = deleteUser;
-const updateUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
-    if (env) {
-        yield (0, db_1.dbConnection)(env)("users").where("email", input.email).update({
-            cloudinary_public_id: input.publicId
-        });
-    }
-    else {
-        yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
-            cloudinary_public_id: input.publicId
-        });
-    }
+const updateUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
+        cloudinary_public_id: input.publicId,
+    });
 });
 exports.updateUser = updateUser;
 const findUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () {

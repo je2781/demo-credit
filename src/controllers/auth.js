@@ -119,10 +119,11 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                 .expression("resource_type:image").sort_by("created_at", "desc")
                 .execute();
             const resourcesLength = apiResponse["resources"].length;
-            (0, user_1.updateUser)({
+            yield (0, user_1.updateUser)({
                 email: email,
                 publicId: apiResponse["resources"][resourcesLength - 1]['public_id']
-            }, req.env).then((_) => res.status(302).redirect("/login"));
+            });
+            res.status(302).redirect("/login");
         }
         else {
             res.status(302).redirect("/login");
