@@ -37,10 +37,10 @@ export const deleteUser = async (email: string, env?: string) => {
 
 export const updateUser = async (input: {
   email: string;
-  publicId: string;
+  assetId: string;
 }) => {
   await dbConnection()("users").where("email", input.email).update({
-    cloudinary_asset_id: input.publicId,
+    cloudinary_asset_id: input.assetId,
   });
 };
 

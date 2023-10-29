@@ -45,6 +45,7 @@ if (process.env.NODE_ENV === "production") {
 } else {
   store = new MySQLStore(devOptions);
 }
+
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");

@@ -121,7 +121,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
             const resourcesLength = apiResponse["resources"].length;
             yield (0, user_1.updateUser)({
                 email: email,
-                publicId: apiResponse["resources"][resourcesLength - 1]['asset_id']
+                assetId: apiResponse["resources"][resourcesLength]['asset_id']
             });
             res.status(302).redirect("/login");
         }

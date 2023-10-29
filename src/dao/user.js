@@ -46,7 +46,7 @@ const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* (
 exports.deleteUser = deleteUser;
 const updateUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
-        cloudinary_asset_id: input.publicId,
+        cloudinary_asset_id: input.assetId,
     });
 });
 exports.updateUser = updateUser;
