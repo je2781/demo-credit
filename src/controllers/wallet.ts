@@ -27,7 +27,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
       // retrieving image from cloud storage
       const apiResponse = await cloudinary.search
         .expression("resource_type:image")
-        .sort_by("created_at", "desc")
+        .sort_by("created_at", "asc")
         .execute();
 
       const currentUserRecource = apiResponse["resources"].find(

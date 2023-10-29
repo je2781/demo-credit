@@ -121,12 +121,14 @@ export const postSignup = async (req: any, res: any, next: any) => {
     if (process.env.NODE_ENV === "production") {
       // retrieving image from cloud storage
       const apiResponse = await cloudinary.search
-        .expression("resource_type:image").sort_by("created_at", "desc")
+        .expression("resource_type:image").sort_by("created_at", "asc")
         .execute();
       
+      const resourcesLength = apiResponse["resources"].length;
+
       await updateUser({
         email: email,
-        assetId: apiResponse["resources"][0]['asset_id']
+        assetId: apiResponse["resources"][resourcesLength - 1]['asset_id']
       })
       res.status(302).redirect("/login");
 

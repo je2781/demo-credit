@@ -33,7 +33,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
             // retrieving image from cloud storage
             const apiResponse = yield cloudinary_1.v2.search
                 .expression("resource_type:image")
-                .sort_by("created_at", "desc")
+                .sort_by("created_at", "asc")
                 .execute();
             const currentUserRecource = apiResponse["resources"].find((resource) => resource["asset_id"] === user.cloudinary_asset_id);
             req.session.user = user;
