@@ -36,6 +36,7 @@ if (process.env.NODE_ENV === "production") {
     api_key: process.env.CLOUD_API_KEY,
     api_secret: process.env.CLOUD_API_SECRET,
   });
+
   //setting up collection to store session data
   connection = mysql.createConnection(process.env.DATABASE_URL!);
   //connecting to pscale serverless database
