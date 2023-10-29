@@ -41,9 +41,9 @@ if (process.env.NODE_ENV === "production") {
   //connecting to pscale serverless database
   connection.connect();
   store = new MySQLStore({}, connection);
+} else {
+  store = new MySQLStore(devOptions);
 }
-
-store = new MySQLStore(devOptions);
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");

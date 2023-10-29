@@ -42,7 +42,9 @@ if (process.env.NODE_ENV === "production") {
     connection.connect();
     store = new MySQLStore({}, connection);
 }
-store = new MySQLStore(devOptions);
+else {
+    store = new MySQLStore(devOptions);
+}
 //express app config settings
 app.set("view engine", "ejs");
 app.set("views", "src/views");
