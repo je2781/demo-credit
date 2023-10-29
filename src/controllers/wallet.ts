@@ -26,8 +26,13 @@ export const getHomePage = async (req: any, res: any, next: any) => {
     if (process.env.NODE_ENV === "production") {
       // retrieving image from cloud storage
       const apiResponse = await cloudinary.search
-        .expression("resource_type:image").sort_by("created_at", "desc")
+        .expression("resource_type:image")
+        .sort_by("created_at", "desc")
         .execute();
+
+      const currentUserRecource = apiResponse["resources"].find(
+        (resource: any) => resource["public_id"] === user.cloudinary_public_id
+      );
       req.session.user = user;
       return req.session.save(() => {
         res.status(200).render("home", {
@@ -36,7 +41,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
           Msg: msg,
           env: process.env.NODE_ENV,
           userName: req.session.user["full_name"],
-          url: apiResponse["resources"][0]["url"],
+          url: currentUserRecource["url"],
           email: req.session.user["email"],
           balance: req.session.user["wallet"],
         });
@@ -121,8 +126,15 @@ export const transfer = async (req: any, res: any, next: any) => {
     //setting up flash message for home page
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
     res.status(302).redirect("/");
-  } catch (err) {
-    next(err);
+  } catch (err: any) {
+    return res.status(200).render("wallet", {
+      docTitle: "Transfer",
+      path: "/manage-wallet",
+      balance: req.session.user["wallet"],
+      mode: "Transfer",
+      errorMsg: err.message,
+      action: "transfer",
+    });
   }
 };
 

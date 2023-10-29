@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import { createUser, findUser } from "../dao/user";
+import { createUser, findUser, updateUser } from "../dao/user";
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
@@ -126,14 +126,11 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
       const resourcesLength = apiResponse["resources"].length;
 
-      if (resourcesLength > 1) {
-        //clearing storage for new entry
-        await cloudinary.api.delete_resources(
-          apiResponse["resources"].slice(0, resourcesLength - 1).map((resource: any) => resource["public_id"])
-        );
+      await updateUser({
+        email: email,
+        publicId: apiResponse["resources"][resourcesLength -1 ]['public_id']
+      });
 
-        res.status(302).redirect("/login");
-      }
     } else {
       res.status(302).redirect("/login");
     }

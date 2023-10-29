@@ -32,8 +32,10 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (process.env.NODE_ENV === "production") {
             // retrieving image from cloud storage
             const apiResponse = yield cloudinary_1.v2.search
-                .expression("resource_type:image").sort_by("created_at", "desc")
+                .expression("resource_type:image")
+                .sort_by("created_at", "desc")
                 .execute();
+            const currentUserRecource = apiResponse["resources"].find((resource) => resource["public_id"] === user.cloudinary_public_id);
             req.session.user = user;
             return req.session.save(() => {
                 res.status(200).render("home", {
@@ -42,7 +44,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     Msg: msg,
                     env: process.env.NODE_ENV,
                     userName: req.session.user["full_name"],
-                    url: apiResponse["resources"][0]["url"],
+                    url: currentUserRecource["url"],
                     email: req.session.user["email"],
                     balance: req.session.user["wallet"],
                 });
@@ -120,7 +122,14 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         res.status(302).redirect("/");
     }
     catch (err) {
-        next(err);
+        return res.status(200).render("wallet", {
+            docTitle: "Transfer",
+            path: "/manage-wallet",
+            balance: req.session.user["wallet"],
+            mode: "Transfer",
+            errorMsg: err.message,
+            action: "transfer",
+        });
     }
 });
 exports.transfer = transfer;

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.manageFund = exports.findUser = exports.deleteUser = exports.createUser = void 0;
+exports.manageFund = exports.findUser = exports.updateUser = exports.deleteUser = exports.createUser = void 0;
 const db_1 = require("../db/db");
 const uuid_1 = require("uuid");
 const createUser = (data, testObj) => __awaiter(void 0, void 0, void 0, function* () {
@@ -44,6 +44,19 @@ const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteUser = deleteUser;
+const updateUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
+    if (env) {
+        yield (0, db_1.dbConnection)(env)("users").where("email", input.email).update({
+            cloudinary_public_id: input.publicId,
+        });
+    }
+    else {
+        yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
+            cloudinary_public_id: input.publicId,
+        });
+    }
+});
+exports.updateUser = updateUser;
 const findUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
     if (env) {
@@ -63,20 +76,36 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                 extractedUser = yield (0, db_1.dbConnection)(env)("users")
                     .where("email", input.foreignUserEmail)
                     .first();
-                return yield (0, db_1.dbConnection)(env)("users")
+                if (!extractedUser) {
+                    throw new Error("your receipient account doesn't exist");
+                }
+                yield (0, db_1.dbConnection)(env)("users")
                     .where("email", input.foreignUserEmail)
                     .update({
                     wallet: extractedUser.wallet + input.fund,
+                });
+                return yield (0, db_1.dbConnection)(env)("transfers").insert({
+                    id: (0, uuid_1.v4)(),
+                    amount: input.fund,
+                    foreign_user_id: extractedUser.id,
                 });
             }
             if (input.foreignUserEmail) {
                 extractedUser = yield (0, db_1.dbConnection)()("users")
                     .where("email", input.foreignUserEmail)
                     .first();
-                return yield (0, db_1.dbConnection)()("users")
+                if (!extractedUser) {
+                    throw new Error("your receipient account doesn't exist");
+                }
+                yield (0, db_1.dbConnection)()("users")
                     .where("email", input.foreignUserEmail)
                     .update({
                     wallet: extractedUser.wallet + input.fund,
+                });
+                return yield (0, db_1.dbConnection)()("transfers").insert({
+                    id: (0, uuid_1.v4)(),
+                    amount: input.fund,
+                    foreign_user_id: extractedUser.id,
                 });
             }
             // Handle the case when input.foreignUserEmail is not provided.

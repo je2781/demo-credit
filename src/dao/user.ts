@@ -35,6 +35,21 @@ export const deleteUser = async (email: string, env?: string) => {
   }
 };
 
+export const updateUser = async (
+  input: { email: string; publicId: string },
+  env?: string
+) => {
+  if (env) {
+    await dbConnection(env)("users").where("email", input.email).update({
+      cloudinary_public_id: input.publicId,
+    });
+  } else {
+    await dbConnection()("users").where("email", input.email).update({
+      cloudinary_public_id: input.publicId,
+    });
+  }
+};
+
 export const findUser = async (
   input: { email: string },
   env?: string
@@ -66,21 +81,41 @@ export const manageFund = async (
         extractedUser = await dbConnection(env)("users")
           .where("email", input.foreignUserEmail)
           .first();
-        return await dbConnection(env)("users")
+
+        if (!extractedUser) {
+          throw new Error("your receipient account doesn't exist");
+        }
+
+        await dbConnection(env)("users")
           .where("email", input.foreignUserEmail)
           .update({
             wallet: extractedUser.wallet + input.fund,
           });
+        return await dbConnection(env)("transfers").insert({
+          id: idGenerator(),
+          amount: input.fund,
+          foreign_user_id: extractedUser.id,
+        });
       }
       if (input.foreignUserEmail) {
         extractedUser = await dbConnection()("users")
           .where("email", input.foreignUserEmail)
           .first();
-        return await dbConnection()("users")
+
+        if (!extractedUser) {
+          throw new Error("your receipient account doesn't exist");
+        }
+
+        await dbConnection()("users")
           .where("email", input.foreignUserEmail)
           .update({
             wallet: extractedUser.wallet + input.fund,
           });
+        return await dbConnection()("transfers").insert({
+          id: idGenerator(),
+          amount: input.fund,
+          foreign_user_id: extractedUser.id,
+        });
       }
       // Handle the case when input.foreignUserEmail is not provided.
       throw new Error("Missing foreignUserEmail");

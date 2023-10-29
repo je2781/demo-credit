@@ -4,14 +4,13 @@
  */
 exports.up = function(knex) {
     return knex.schema
-    .createTable("users", (table) => {
+    .createTable("transfers", (table) => {
       table.string("id").notNullable().primary().unique();
-      table.string("full_name").notNullable();
-      table.string("email").notNullable();
-      table.string("password").notNullable();
-      table.string("image_url").notNullable();
-      table.integer("wallet").notNullable();
+      table.integer("amount").notNullable();
+      table.string("foreign_user_id").notNullable().unique();
+      table.string("user_id").notNullable().unique();
       table.timestamps(true, true);
+    //   table.foreign("user_id").references('id').inTable('users');
     });
 };
 
@@ -20,6 +19,5 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-    return knex.schema.dropTableIfExists('users');
-
+    return knex.schema.dropTableIfExists("transfers");
 };
