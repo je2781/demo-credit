@@ -12,7 +12,7 @@ Democredit
 ## development
 I started with the views, then moved onto the api design, and finished off with the test suites. To manage authentication I used a stateful data storage system (sessions/cookies), rather than tokens, because the views are being served to the client.
 
-I also used a rendering template to design a frontend for the service, so all endpoints return a view.
+I also used a rendering template to design a frontend for the service, __so all endpoints return a view__.
 
 ## How to run the app
 
@@ -20,7 +20,7 @@ Run (npm run start:dev) from the main directory to compile for development. To t
 
 Running all test suites at the same time, would require a large test timeout (because of tests accessing the database at the same time), and the test time would be prolonged. Some tests will also fail by timing out, or failing to access the database. 
 
-__Make sure you have MySQL community server/workbench installed, and update the database from the db directory using (npx knex migrate:latest --env testing), to create the testing tables on MySQl local instance__
+__Make sure to you have MySQL community server/workbench installed, and update the database from the db directory using (npx knex migrate:latest --env testing), to create the testing tables on MySQl local instance__
 
 ## The Database and relationships
 
