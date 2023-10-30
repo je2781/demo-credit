@@ -11,7 +11,7 @@ router.post('/login', (0, express_validator_1.body)('email').isEmail().withMessa
 router.post('/logout', auth_1.postLogout);
 router.get('/login', auth_1.getLogin);
 router.get('/signup', auth_1.getSignup);
-router.post('/signup', (0, express_validator_1.check)('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), (0, express_validator_1.body)('fullName', 'Provide a name for your account').isString().trim(), (0, express_validator_1.body)('balance').trim().custom((value, { req }) => {
+router.post('/signup', (0, express_validator_1.check)('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), (0, express_validator_1.body)('full_name', 'Provide a name for your account').isString().trim(), (0, express_validator_1.body)('balance').trim().custom((value, { req }) => {
     const updatedValue = +value;
     if (updatedValue < 50) {
         throw new Error('You cannot start your account with less than 50');
