@@ -24,7 +24,7 @@ __Make sure to you have MySQL community server/workbench installed, and update t
 
 ## The Database and relationships
 
-The knexjs ORM was used to translate queries for MySql(on local machine), and PlanetScale (for production). The migrations created were users, and transfers; which housed the user data, and user transfer data. See below for the relationships between the entities in the database. PlanetScale doesn't allow foreign key constraints, so I improvised, by inserting the user_id into the transfers table, for every user transfer. See E-R diagram below for relationships between the entities.
+The knexjs ORM was used to translate queries for MySql(on local machine), and PlanetScale (for production). The migrations created were users, and transfers; which housed the user data, and user transfer data. PlanetScale doesn't allow foreign key constraints, so I improvised, by inserting the user_id into the transfers table, for every user transfer. See E-R diagram below for relationships between the entities.
 
 [![demo credit ER diagram](/demo_credit.drawio.png?raw=true)](#erdiagram)
 
