@@ -13,7 +13,7 @@ exports.manageFund = exports.findUser = exports.updateUser = exports.deleteTrans
 const db_1 = require("../db/db");
 const uuid_1 = require("uuid");
 const createUser = (data, testObj) => __awaiter(void 0, void 0, void 0, function* () {
-    if (testObj && testObj) {
+    if (testObj && testObj.env === "testing") {
         yield (0, db_1.dbConnection)(testObj.env)("users").insert({
             id: testObj.id,
             email: data.email,

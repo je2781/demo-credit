@@ -6,7 +6,7 @@ export const createUser = async (
   data: createUserProps,
   testObj?: { env: string; id: string }
 ) => {
-  if (testObj && testObj) {
+  if (testObj && testObj.env === "testing") {
     await dbConnection(testObj.env)("users").insert({
       id: testObj.id,
       email: data.email,

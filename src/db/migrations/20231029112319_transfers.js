@@ -2,10 +2,12 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
+const {v4:idGenerator} = require('uuid');
+
 exports.up = function(knex) {
     return knex.schema
     .createTable("transfers", (table) => {
-      table.string("id").notNullable().primary().unique();
+      table.string("id").primary().unique().defaultTo(idGenerator()); 
       table.integer("amount").notNullable();
       table.string("foreign_user_id").notNullable();
       table.string("user_id").notNullable().unique();
