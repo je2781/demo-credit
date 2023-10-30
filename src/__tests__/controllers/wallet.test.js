@@ -8,16 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-require("@testing-library/jest-dom");
-const path_1 = __importDefault(require("path"));
 const uuid_1 = require("uuid");
 const wallet_1 = require("../../controllers/wallet");
 const user_1 = require("../../dao/user");
-const homeFilePath = path_1.default.resolve(__dirname, "../../views/home_mock.ejs");
 let statusCode;
 let locationHeader;
 let id1;

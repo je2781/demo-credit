@@ -1,14 +1,6 @@
-import "@testing-library/jest-dom";
-import { JSDOM } from "jsdom";
-import path from "path";
 import { v4 as idGenerator } from "uuid";
 import { transfer, withdraw, deposit } from "../../controllers/wallet";
 import { createUser, deleteTransfer, deleteUser, findUser } from "../../dao/user";
-import ejs from "ejs";
-import fs from "fs";
-import { User } from "../../types";
-
-const homeFilePath = path.resolve(__dirname, "../../views/home_mock.ejs");
 
 let statusCode: number;
 let locationHeader: string;
@@ -258,3 +250,4 @@ describe("wallet controller", () => {
 
   });
 });
+

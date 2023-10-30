@@ -7,118 +7,119 @@
     <title><%= docTitle %></title>
     <link rel="stylesheet" href="/css/main.css">
     <link rel="stylesheet" href="/fontawesome/css/all.min.css" />
+    <script src="/js/helper.js"></script>
     <link rel="stylesheet" href="/css/form.css">
 </head>
 <body>
     <div class="backdrop"></div>
-    <header class="main-header">
-    <a class="brand__nav" data-testid="navbar-brand" href="/">
-        <span>Demo-Credit</span>
-        <i class="fa-solid fa-credit-card"></i>
-    </a>
-    <i
-        class="fa-solid fa-bars"
-        id="side-menu-toggle"
-        data-testid="navber-toggle"
-    ></i>
-    <div class="manage-wallet__dropdown">
-        <ul class="manage-wallet__list-items">
-        <li class="manage-wallet__item">
-            <a href="/manage-wallet/?mode=deposit">Deposit</a>
-        </li>
-        <li class="manage-wallet__item">
-            <a href="/manage-wallet/?mode=transfer">Transfer</a>
-        </li>
-        <li class="manage-wallet__item">
-            <a href="/manage-wallet/?mode=withdraw">Withdraw</a>
-        </li>
-        </ul>
-    </div>
-    <nav class="main-header__nav">
-        <ul class="main-header__item-list">
-        <% if (!isAuthenticated) { %>
-        <li class="main-header__item">
-            <a href="/login" class="<%= path === '/login' ? 'active' : '' %>"
-            >Login</a
-            >
-        </li>
-        <li class="main-header__item">
-            <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>"
-            >Signup</a
-            >
-        </li>
-        <% } else { %>
-        <li class="main-header__item" id="toggle-wallet">
-            <span style="display: flex;">
+<header class="main-header">
+  <a class="brand__nav" data-testid="navbar-brand" href="/">
+    <span>Demo-Credit</span>
+    <i class="fa-solid fa-credit-card"></i>
+  </a>
+  <i
+    class="fa-solid fa-bars"
+    id="side-menu-toggle"
+    data-testid="navber-toggle"
+  ></i>
+  <div class="manage-wallet__dropdown">
+    <ul class="manage-wallet__list-items">
+      <li class="manage-wallet__item">
+        <a href="/manage-wallet/?mode=deposit">Deposit</a>
+      </li>
+      <li class="manage-wallet__item">
+        <a href="/manage-wallet/?mode=transfer">Transfer</a>
+      </li>
+      <li class="manage-wallet__item">
+        <a href="/manage-wallet/?mode=withdraw">Withdraw</a>
+      </li>
+    </ul>
+  </div>
+  <nav class="main-header__nav">
+    <ul class="main-header__item-list">
+      <% if (!isAuthenticated) { %>
+      <li class="main-header__item">
+        <a href="/login" class="<%= path === '/login' ? 'active' : '' %>"
+          >Login</a
+        >
+      </li>
+      <li class="main-header__item">
+        <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>"
+          >Signup</a
+        >
+      </li>
+      <% } else { %>
+      <li class="main-header__item" id="toggle-wallet">
+        <span style="display: flex;">
+          <button class="<%= path === '/manage-wallet' ? 'active' : '' %>">
+            Manage Wallet
+            <i
+              class="fa-solid fa-sort-down"
+              style="color: white; font-size: 16px; vertical-align: super;"
+            ></i>
+          </button>
+        </span>
+      </li>
+      <li class="main-header__item">
+        <form action="/logout" method="POST">
+          <button
+            type="submit"
+            class="<%= path === '/logout' ? 'active' : '' %>"
+          >
+            Logout
+          </button>
+        </form>
+      </li>
+      <% } %>
+    </ul>
+  </nav>
+</header>
+<nav class="mobile-nav">
+  <ul class="mobile-nav__item-list">
+    <% if (!isAuthenticated) { %>
+    <li class="mobile-nav__item">
+      <a href="/login" class="<%= path === '/login' ? 'active' : '' %>"
+        >Login</a
+      >
+    </li>
+    <li class="mobile-nav__item">
+      <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>"
+        >Signup</a
+      >
+    </li>
+    <% } else { %>
+    <li class="mobile-nav__item" id="toggle-wallet__list">
+        <span style="display: flex;">
             <button class="<%= path === '/manage-wallet' ? 'active' : '' %>">
-                Manage Wallet
-                <i
+              Manage Wallet
+              <i
                 class="fa-solid fa-sort-down"
                 style="color: white; font-size: 16px; vertical-align: super;"
-                ></i>
+              ></i>
             </button>
-            </span>
-        </li>
-        <li class="main-header__item">
-            <form action="/logout" method="POST">
-            <button
-                type="submit"
-                class="<%= path === '/logout' ? 'active' : '' %>"
-            >
-                Logout
-            </button>
-            </form>
-        </li>
-        <% } %>
-        </ul>
-    </nav>
-    </header>
-    <nav class="mobile-nav">
-    <ul class="mobile-nav__item-list">
-        <% if (!isAuthenticated) { %>
-        <li class="mobile-nav__item">
-        <a href="/login" class="<%= path === '/login' ? 'active' : '' %>"
-            >Login</a
-        >
-        </li>
-        <li class="mobile-nav__item">
-        <a href="/signup" class="<%= path === '/signup' ? 'active' : '' %>"
-            >Signup</a
-        >
-        </li>
-        <% } else { %>
-        <li class="mobile-nav__item" id="toggle-wallet__list">
-            <span style="display: flex;">
-                <button class="<%= path === '/manage-wallet' ? 'active' : '' %>">
-                Manage Wallet
-                <i
-                    class="fa-solid fa-sort-down"
-                    style="color: white; font-size: 16px; vertical-align: super;"
-                ></i>
-                </button>
-            </span>
-        </li>
-        <ul class="mobile-nav__manage-wallet__item-list">
-        <li class="mobile-nav__manage-wallet__item">
-            <a href="/manage-wallet/?mode=deposit">Deposit</a>
-        </li>
-        <li class="mobile-nav__manage-wallet__item">
-            <a href="/manage-wallet/?mode=transfer">Transfer</a>
-        </li>
-        <li class="mobile-nav__manage-wallet__item">
-            <a href="/manage-wallet/?mode=withdraw">Withdraw</a>
-        </li>
-        </ul>
-        <li class="mobile-nav__item">
-        <form action="/logout" method="POST">
-            <button type="submit" class="<%= path === '/logout' ? 'active' : '' %>">
-            Logout
-            </button>
-        </form>
-        </li>
-        <% } %>
+        </span>
+    </li>
+    <ul class="mobile-nav__manage-wallet__item-list">
+      <li class="mobile-nav__manage-wallet__item">
+        <a href="/manage-wallet/?mode=deposit">Deposit</a>
+      </li>
+      <li class="mobile-nav__manage-wallet__item">
+        <a href="/manage-wallet/?mode=transfer">Transfer</a>
+      </li>
+      <li class="mobile-nav__manage-wallet__item">
+        <a href="/manage-wallet/?mode=withdraw">Withdraw</a>
+      </li>
     </ul>
-    </nav>
+    <li class="mobile-nav__item">
+      <form action="/logout" method="POST">
+        <button type="submit" class="<%= path === '/logout' ? 'active' : '' %>">
+          Logout
+        </button>
+      </form>
+    </li>
+    <% } %>
+  </ul>
+</nav>
 
 
     <main>
@@ -130,7 +131,11 @@
         </h1>
         <div class="card">
             <div class="profile-image__container">
-                <img class="profile-image" src="<%= url.replaceAll('src/public', '') %>" alt="profile pic"/>
+                <% if(env === 'production') { %>
+                    <img class="profile-image" src="<%= url %>" alt="profile pic"/>
+                <% } else { %>
+                    <img class="profile-image" src="<%= url.replaceAll('src/public', '') %>" alt="profile pic"/>
+                <% } %>   
             </div>
             <div class="profile__item">
                 <label class="icon">
@@ -152,12 +157,10 @@
             </div>
         </div>
     </main>
-    <script src="/js/helper.js">
+
+    <script src="/js/main.js" >
 
     </script>
-    <script src="/js/main.js">
-
-    </script>
-</body>
-</html>
+    </body>
+    </html>
 
