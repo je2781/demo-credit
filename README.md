@@ -20,7 +20,7 @@ Run (npm run start:dev) from the main directory to compile for development. To t
 
 Running all test suites at the same time, would require a large test timeout (because of tests accessing the database at the same time), and the test time would be prolonged. Some tests will also fail by timing out, or failing to access the database. 
 
-__Make sure to you have MySQL community server/workbench installed, and update the database from the db directory using (npx knex migrate:latest --env testing), to create the testing tables on MySQl local instance__
+__Make sure you have MySQL community server/workbench installed, and update the database from the db directory using (npx knex migrate:latest --env testing), to create the testing tables on MySQl local instance__
 
 ## The Database and relationships
 
