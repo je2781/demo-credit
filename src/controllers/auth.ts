@@ -44,7 +44,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
   const password = req.body.password;
   const balance = req.body.balance;
   image = req.body.image;
-  const fullName = req.body.fullName;
+  const fullName = req.body.full_name;
 
   if (req.file) {
     image = req.file;

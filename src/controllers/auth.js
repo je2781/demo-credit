@@ -55,7 +55,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     const password = req.body.password;
     const balance = req.body.balance;
     image = req.body.image;
-    const fullName = req.body.fullName;
+    const fullName = req.body.full_name;
     if (req.file) {
         image = req.file;
     }
