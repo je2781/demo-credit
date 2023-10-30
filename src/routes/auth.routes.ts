@@ -17,7 +17,7 @@ router.get('/signup', getSignup);
 
 router.post('/signup', 
 check('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), 
-body('full_name', 'Provide a name for your account').isEmpty().isString().trim(), 
+body('full_name', 'Provide a name for your account').isEmpty(), 
 body('balance').trim().custom((value, {req}) => {
     const updatedValue = +value;
     if(updatedValue < 50){
