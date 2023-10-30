@@ -2,7 +2,7 @@
 title: Democredit
 description: lending app
 author: Joshua Eze
-created:  2023 Oct 29
+created:  2023 Oct 24
 updated: 2023 Oct 30
 ---
 
