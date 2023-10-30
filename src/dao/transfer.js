@@ -58,7 +58,7 @@ const createTransfer = (data, env) => __awaiter(void 0, void 0, void 0, function
         yield (0, db_1.dbConnection)(env)("transfers").insert({
             id: (0, uuid_1.v4)(),
             amount: data.amount,
-            foreign_user_id: data.foreignId,
+            foreign_user_id: data.foreignUserId,
             user_id: data.userId,
         });
     }
@@ -66,7 +66,7 @@ const createTransfer = (data, env) => __awaiter(void 0, void 0, void 0, function
         yield (0, db_1.dbConnection)()("transfers").insert({
             id: (0, uuid_1.v4)(),
             amount: data.amount,
-            foreign_user_id: data.foreignId,
+            foreign_user_id: data.foreignUserId,
             user_id: data.userId,
         });
     }

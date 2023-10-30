@@ -48,21 +48,21 @@ export const findTransfer = async (
 };
 
 export const createTransfer = async (
-  data: { amount: number; foreignId: string; userId: string },
+  data: transferProps,
   env?: string
 ) => {
   if (env) {
     await dbConnection(env)("transfers").insert({
       id: idGenerator(),
       amount: data.amount,
-      foreign_user_id: data.foreignId,
+      foreign_user_id: data.foreignUserId,
       user_id: data.userId,
     });
   } else {
     await dbConnection()("transfers").insert({
       id: idGenerator(),
       amount: data.amount,
-      foreign_user_id: data.foreignId,
+      foreign_user_id: data.foreignUserId,
       user_id: data.userId,
     });
   }

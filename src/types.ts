@@ -20,4 +20,5 @@ export interface createUserProps {
 export interface transferProps {
     foreignUserId: string;
     userId: string;
+    amount: number;
   }

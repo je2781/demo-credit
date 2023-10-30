@@ -86,7 +86,7 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                 if (!extractedTransfer) {
                     return yield (0, transfer_1.createTransfer)({
                         amount: input.fund,
-                        foreignId: extractedUser.id,
+                        foreignUserId: extractedUser.id,
                         userId: input.user.id,
                     }, env);
                 }
@@ -115,7 +115,7 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                 if (!extractedTransfer) {
                     return yield (0, transfer_1.createTransfer)({
                         amount: input.fund,
-                        foreignId: extractedUser.id,
+                        foreignUserId: extractedUser.id,
                         userId: input.user.id,
                     });
                 }

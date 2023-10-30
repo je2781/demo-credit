@@ -2,8 +2,7 @@ import { createUser, findUser, deleteUser } from "../../dao/user";
 import { postSignup, postLogin, postLogout } from "../../controllers/auth";
 import bcrypt from "bcryptjs";
 import { v4 as idGenerator } from "uuid";
-import http from "http";
-import { dbConnection } from "../../db/db";
+
 
 let statusCode: number;
 let locationHeader: string;

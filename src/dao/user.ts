@@ -93,7 +93,7 @@ export const manageFund = async (
           return await createTransfer(
             {
               amount: input.fund,
-              foreignId: extractedUser.id,
+              foreignUserId: extractedUser.id,
               userId: input.user.id,
             },
             env
@@ -132,7 +132,7 @@ export const manageFund = async (
             return await createTransfer(
               {
                 amount: input.fund,
-                foreignId: extractedUser.id,
+                foreignUserId: extractedUser.id,
                 userId: input.user.id,
               }
             );
