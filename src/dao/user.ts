@@ -1,215 +1,219 @@
 import { dbConnection } from "../db/db";
 import { v4 as idGenerator } from "uuid";
 import { User, createUserProps } from "../types";
-import { createTransfer, findTransfer, updateTransfer } from "./transfer";
+import transferDAO from "./transfer";
+class UserDAO {
+  createUser = async (
+    data: createUserProps,
+    testObj?: { env: string; id: string }
+  ) => {
+    if (testObj && testObj.env === "testing") {
+      await dbConnection(testObj.env)("users").insert({
+        id: testObj.id,
+        email: data.email,
+        password: data.password,
+        full_name: data.fullName,
+        wallet: data.wallet,
+        image_url: data.imageUrl,
+      });
+    } else {
+      await dbConnection()("users").insert({
+        id: idGenerator(),
+        email: data.email,
+        password: data.password,
+        full_name: data.fullName,
+        wallet: data.wallet,
+        image_url: data.imageUrl,
+      });
+    }
+  };
 
-export const createUser = async (
-  data: createUserProps,
-  testObj?: { env: string; id: string }
-) => {
-  if (testObj && testObj.env === "testing") {
-    await dbConnection(testObj.env)("users").insert({
-      id: testObj.id,
-      email: data.email,
-      password: data.password,
-      full_name: data.fullName,
-      wallet: data.wallet,
-      image_url: data.imageUrl,
+  deleteUser = async (email: string, env?: string) => {
+    if (env) {
+      await dbConnection(env)("users").where("email", email).del();
+    } else {
+      await dbConnection()("users").where("email", email).del();
+    }
+  };
+
+  updateUser = async (input: { email: string; assetId: string }) => {
+    await dbConnection()("users").where("email", input.email).update({
+      cloudinary_asset_id: input.assetId,
     });
-  } else {
-    await dbConnection()("users").insert({
-      id: idGenerator(),
-      email: data.email,
-      password: data.password,
-      full_name: data.fullName,
-      wallet: data.wallet,
-      image_url: data.imageUrl,
-    });
-  }
-};
+  };
 
-export const deleteUser = async (email: string, env?: string) => {
-  if (env) {
-    await dbConnection(env)("users").where("email", email).del();
-  } else {
-    await dbConnection()("users").where("email", email).del();
-  }
-};
+  findUser = async (input: { email: string }, env?: string): Promise<User> => {
+    let user: any;
+    if (env) {
+      user = await dbConnection(env)("users")
+        .where("email", input.email)
+        .first();
+    } else {
+      user = await dbConnection()("users").where("email", input.email).first();
+    }
 
-export const updateUser = async (input: { email: string; assetId: string }) => {
-  await dbConnection()("users").where("email", input.email).update({
-    cloudinary_asset_id: input.assetId,
-  });
-};
+    return user;
+  };
 
-export const findUser = async (
-  input: { email: string },
-  env?: string
-): Promise<User> => {
-  let user: any;
-  if (env) {
-    user = await dbConnection(env)("users").where("email", input.email).first();
-  } else {
-    user = await dbConnection()("users").where("email", input.email).first();
-  }
+  manageFund = async (
+    input: {
+      foreignUser?: { name: string; email: string };
+      user?: User;
+      fund: number;
+      mode: string;
+    },
+    env?: string
+  ) => {
+    let extractedUser: any;
+    let extractedTransfer: any;
 
-  return user;
-};
+    switch (input.mode) {
+      case "transfer":
+        if (input.foreignUser && env && input.user) {
+          extractedUser = await dbConnection(env)("users")
+            .where("email", input.foreignUser.email)
+            .first();
 
-export const manageFund = async (
-  input: {
-    foreignUser?: { name: string; email: string };
-    user?: User;
-    fund: number;
-    mode: string;
-  },
-  env?: string
-) => {
-  let extractedUser: any;
-  let extractedTransfer: any;
+          if (!extractedUser) {
+            throw new Error("your receipient account doesn't exist");
+          }
 
-  switch (input.mode) {
-    case "transfer":
-      if (input.foreignUser && env && input.user) {
-        extractedUser = await dbConnection(env)("users")
-          .where("email", input.foreignUser.email)
-          .first();
-
-        if (!extractedUser) {
-          throw new Error("your receipient account doesn't exist");
-        }
-
-        await dbConnection(env)("users")
-          .where("email", input.foreignUser.email)
-          .update({
-            wallet: extractedUser.wallet + input.fund,
-          });
-        //updating transfers table
-        const extractedTransfer = await findTransfer({
-          foreignId: extractedUser.id,
-        }, env);
-
-        if (!extractedTransfer) {
-          return await createTransfer(
+          await dbConnection(env)("users")
+            .where("email", input.foreignUser.email)
+            .update({
+              wallet: extractedUser.wallet + input.fund,
+            });
+          //updating transfers table
+          const extractedTransfer = await transferDAO.findTransfer(
             {
-              amount: input.fund,
-              foreignUserId: extractedUser.id,
-              userId: input.user.id,
+              foreignId: extractedUser.id,
             },
             env
           );
-        }
-
-        return await updateTransfer(
-          {
-            transfer: extractedTransfer,
-            fund: input.fund,
-            foreignId: extractedUser.id,
-          },
-          env
-        );
-      }
-      if (input.foreignUser && input.user) {
-        extractedUser = await dbConnection()("users")
-          .where("email", input.foreignUser.email)
-          .first();
-
-        if (!extractedUser) {
-          throw new Error("your receipient account doesn't exist");
-        }
-
-        await dbConnection()("users")
-          .where("email", input.foreignUser.email)
-          .update({
-            wallet: extractedUser.wallet + input.fund,
-          });
-        //updating transfers table
-        const extractedTransfer = await findTransfer({
-          foreignId: extractedUser.id,
-        }, env);
 
           if (!extractedTransfer) {
-            return await createTransfer(
+            return await transferDAO.createTransfer(
               {
                 amount: input.fund,
                 foreignUserId: extractedUser.id,
                 userId: input.user.id,
-              }
+              },
+              env
             );
           }
-  
-          return await updateTransfer(
+
+          return await transferDAO.updateTransfer(
             {
               transfer: extractedTransfer,
               fund: input.fund,
               foreignId: extractedUser.id,
-            }
-          );
-      }
-      // Handle the case when input.foreignUserEmail is not provided.
-      throw new Error("Missing foreignUserEmail");
-    case "withdraw":
-      let withdrawOpResult: number;
-      if (input.user && input.user.id && env) {
-        extractedUser = await dbConnection(env)("users")
-          .where("id", input.user.id)
-          .first();
-
-        withdrawOpResult = extractedUser.wallet - input.fund;
-        if (withdrawOpResult < 0) {
-          throw new Error(
-            `You cannot put your account in the red. choose a lower amount`
+            },
+            env
           );
         }
+        if (input.foreignUser && input.user) {
+          extractedUser = await dbConnection()("users")
+            .where("email", input.foreignUser.email)
+            .first();
 
-        return await dbConnection(env)("users")
-          .where("id", input.user.id)
-          .update({
-            wallet: withdrawOpResult,
-          });
-      }
-      if (input.user && input.user.id) {
-        extractedUser = await dbConnection()("users")
-          .where("id", input.user.id)
-          .first();
+          if (!extractedUser) {
+            throw new Error("your receipient account doesn't exist");
+          }
 
-        withdrawOpResult = extractedUser.wallet - input.fund;
-        if (withdrawOpResult < 0) {
-          throw new Error(
-            `You cannot put your account in the red. choose a lower amount`
+          await dbConnection()("users")
+            .where("email", input.foreignUser.email)
+            .update({
+              wallet: extractedUser.wallet + input.fund,
+            });
+          //updating transfers table
+          const extractedTransfer = await transferDAO.findTransfer(
+            {
+              foreignId: extractedUser.id,
+            },
+            env
           );
-        }
 
-        return await dbConnection()("users")
-          .where("id", input.user.id)
-          .update({
-            wallet: extractedUser.wallet - input.fund,
+          if (!extractedTransfer) {
+            return await transferDAO.createTransfer({
+              amount: input.fund,
+              foreignUserId: extractedUser.id,
+              userId: input.user.id,
+            });
+          }
+
+          return await transferDAO.updateTransfer({
+            transfer: extractedTransfer,
+            fund: input.fund,
+            foreignId: extractedUser.id,
           });
-      }
-      // Handle the case when input.user or input.user.id is not provided.
-      throw new Error("Missing user or user.id");
-    default:
-      if (input.user && input.user.id && env) {
-        extractedUser = await dbConnection(env)("users")
-          .where("id", input.user.id)
-          .first();
-        return await dbConnection(env)("users")
-          .where("id", input.user.id)
-          .update({
-            wallet: extractedUser.wallet + input.fund,
-          });
-      }
-      if (input.user && input.user.id) {
-        extractedUser = await dbConnection()("users")
-          .where("id", input.user.id)
-          .first();
-        return await dbConnection()("users")
-          .where("id", input.user.id)
-          .update({
-            wallet: extractedUser.wallet + input.fund,
-          });
-      }
-      // Handle the case when input.user or input.user.id is not provided.
-      throw new Error("Missing user or user.id");
-  }
-};
+        }
+        // Handle the case when input.foreignUserEmail is not provided.
+        throw new Error("Missing foreignUserEmail");
+      case "withdraw":
+        let withdrawOpResult: number;
+        if (input.user && input.user.id && env) {
+          extractedUser = await dbConnection(env)("users")
+            .where("id", input.user.id)
+            .first();
+
+          withdrawOpResult = extractedUser.wallet - input.fund;
+          if (withdrawOpResult < 0) {
+            throw new Error(
+              `You cannot put your account in the red. choose a lower amount`
+            );
+          }
+
+          return await dbConnection(env)("users")
+            .where("id", input.user.id)
+            .update({
+              wallet: withdrawOpResult,
+            });
+        }
+        if (input.user && input.user.id) {
+          extractedUser = await dbConnection()("users")
+            .where("id", input.user.id)
+            .first();
+
+          withdrawOpResult = extractedUser.wallet - input.fund;
+          if (withdrawOpResult < 0) {
+            throw new Error(
+              `You cannot put your account in the red. choose a lower amount`
+            );
+          }
+
+          return await dbConnection()("users")
+            .where("id", input.user.id)
+            .update({
+              wallet: extractedUser.wallet - input.fund,
+            });
+        }
+        // Handle the case when input.user or input.user.id is not provided.
+        throw new Error("Missing user or user.id");
+      default:
+        if (input.user && input.user.id && env) {
+          extractedUser = await dbConnection(env)("users")
+            .where("id", input.user.id)
+            .first();
+          return await dbConnection(env)("users")
+            .where("id", input.user.id)
+            .update({
+              wallet: extractedUser.wallet + input.fund,
+            });
+        }
+        if (input.user && input.user.id) {
+          extractedUser = await dbConnection()("users")
+            .where("id", input.user.id)
+            .first();
+          return await dbConnection()("users")
+            .where("id", input.user.id)
+            .update({
+              wallet: extractedUser.wallet + input.fund,
+            });
+        }
+        // Handle the case when input.user or input.user.id is not provided.
+        throw new Error("Missing user or user.id");
+    }
+  };
+}
+
+export default new UserDAO();

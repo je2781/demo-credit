@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_1 = require("../../dao/user");
+const user_1 = __importDefault(require("../../dao/user"));
 const auth_1 = require("../../controllers/auth");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const uuid_1 = require("uuid");
@@ -25,7 +25,7 @@ describe("Authentication", () => {
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
         id = (0, uuid_1.v4)();
         //creating test user record
-        yield (0, user_1.createUser)({
+        yield user_1.default.createUser({
             email: "testing1000@test.com",
             password: "testingpassword",
             imageUrl: "src/public/images/testing.jpg",
@@ -149,6 +149,6 @@ describe("Authentication", () => {
     });
     /* Closing database connection aftAll test. */
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield (0, user_1.deleteUser)("testing1000@test.com", "testing");
+        yield user_1.default.deleteUser("testing1000@test.com", "testing");
     }));
 });

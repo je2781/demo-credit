@@ -1,7 +1,7 @@
 import { v4 as idGenerator } from "uuid";
 import { transfer, withdraw, deposit } from "../../controllers/wallet";
-import { createUser, deleteUser, findUser } from "../../dao/user";
-import { deleteTransfer } from "../../dao/transfer";
+import userDAO from "../../dao/user";
+import transferDAO from "../../dao/transfer";
 
 let statusCode: number;
 let locationHeader: string;
@@ -15,7 +15,7 @@ describe("wallet controller", () => {
     //creating test user records
     id1 = idGenerator();
     id2 = idGenerator();
-    await createUser(
+    await userDAO.createUser(
       {
         email: "testing1000@test.com",
         password: "testingpassword",
@@ -28,7 +28,7 @@ describe("wallet controller", () => {
         env: "testing",
       }
     );
-    await createUser(
+    await userDAO.createUser(
       {
         email: "testing10@test.com",
         password: "testpassword",
@@ -155,7 +155,7 @@ describe("wallet controller", () => {
     };
 
     withdraw(req, res, () => {}).then((result) => {
-      findUser({
+      userDAO.findUser({
         email: req.session.user.email,
       }, req.env).then((currentUser) => {
         expect(currentUser.wallet).toBe(100);
@@ -191,7 +191,7 @@ describe("wallet controller", () => {
     };
 
     deposit(req, res, () => {}).then((result) => {
-      findUser({
+      userDAO.findUser({
         email: req.session.user['email'],
       }, req.env).then((currentUser) => {
         expect(currentUser.wallet).toBe(500);
@@ -230,7 +230,7 @@ describe("wallet controller", () => {
     };
 
     transfer(req, res, () => {}).then((result) => {
-      findUser({
+      userDAO.findUser({
         email: req.body.r_email,
       }, req.env).then((receipient) => {
         expect(receipient.wallet).toBe(540);
@@ -245,9 +245,9 @@ describe("wallet controller", () => {
 
   /* Closing database connection aftAll test. */
   afterAll(async () => {
-    await deleteUser("testing1000@test.com", "testing");
-    await deleteUser("testing10@test.com", "testing");
-    await deleteTransfer(id2, 'testing');
+    await userDAO.deleteUser("testing1000@test.com", "testing");
+    await userDAO.deleteUser("testing10@test.com", "testing");
+    await transferDAO.deleteTransfer(id2, 'testing');
 
   });
 });

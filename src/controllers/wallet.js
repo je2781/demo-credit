@@ -8,9 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deposit = exports.transfer = exports.withdraw = exports.getWallet = exports.getHomePage = void 0;
-const user_1 = require("../dao/user");
+const user_1 = __importDefault(require("../dao/user"));
 const dotenv_1 = require("dotenv");
 const cloudinary_1 = require("cloudinary");
 (0, dotenv_1.config)({ path: "../../.env" });
@@ -26,7 +29,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         msg = null;
     }
     try {
-        user = yield (0, user_1.findUser)({
+        user = yield user_1.default.findUser({
             email: req.session.user["email"],
         }, req.env);
         if (process.env.NODE_ENV === "production") {
@@ -84,7 +87,7 @@ exports.getWallet = getWallet;
 // Create a route for withdrawing funds
 const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, user_1.manageFund)({
+        yield user_1.default.manageFund({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "withdraw",
@@ -115,12 +118,12 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             req.body.r_name === req.session.user["full_name"]) {
             throw new Error("your receipient account doesn't have that name or email");
         }
-        yield (0, user_1.manageFund)({
+        yield user_1.default.manageFund({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "withdraw",
         }, req.env);
-        yield (0, user_1.manageFund)({
+        yield user_1.default.manageFund({
             foreignUser: {
                 name: req.body.r_name,
                 email: req.body.r_email,
@@ -152,7 +155,7 @@ exports.transfer = transfer;
 // Create a route for adding funds
 const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield (0, user_1.manageFund)({
+        yield user_1.default.manageFund({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "deposit",

@@ -1,5 +1,5 @@
 import { validationResult } from "express-validator";
-import { createUser, findUser, updateUser } from "../dao/user";
+import userDAO from "../dao/user";
 import bcrypt from "bcryptjs";
 import { v2 as cloudinary } from "cloudinary";
 import { config } from "dotenv";
@@ -88,7 +88,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
   try {
     //checking for duplicate user accounts
-    const user = await findUser(
+    const user = await userDAO.findUser(
       {
         email: email,
       },
@@ -103,7 +103,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await createUser(
+    await userDAO.createUser(
       {
         email: email,
         password: hashedPassword,
@@ -125,7 +125,7 @@ export const postSignup = async (req: any, res: any, next: any) => {
       
       const resourcesLength = apiResponse["resources"].length;
 
-      await updateUser({
+      await userDAO.updateUser({
         email: email,
         assetId: apiResponse["resources"][resourcesLength - 1]['asset_id']
       })
@@ -170,7 +170,7 @@ export const postLogin = async (req: any, res: any, next: any) => {
   }
 
   try {
-    const user = await findUser({ email: req.body.email }, req.env);
+    const user = await userDAO.findUser({ email: req.body.email }, req.env);
 
     if (!user) {
       throw new Error("User account doesn't exist. Create an account");
