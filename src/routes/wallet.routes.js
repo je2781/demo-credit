@@ -9,7 +9,7 @@ const express_validator_1 = require("express-validator");
 const route_protection_1 = require("../util/route_protection");
 const router = express_1.default.Router();
 // POST /wallet/transfer
-router.post("/transfer", route_protection_1.isAuth, (0, express_validator_1.body)('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), (0, express_validator_1.body)('fullName', "Enter your recipients's name").isEmpty(), (0, express_validator_1.body)('fund').custom((value, { req }) => {
+router.post("/transfer", route_protection_1.isAuth, (0, express_validator_1.body)('r_email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(), (0, express_validator_1.body)('r_name', "Enter your recipients's name").isEmpty(), (0, express_validator_1.body)('fund').custom((value, { req }) => {
     if (parseInt(value) < 50) {
         throw new Error("Enter a value greater than 50");
     }

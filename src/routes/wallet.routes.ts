@@ -10,8 +10,8 @@ const router = express.Router();
 router.post(
   "/transfer",
   isAuth,
-  body('email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(),
-  body('fullName', "Enter your recipients's name").isEmpty(),
+  body('r_email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(),
+  body('r_name', "Enter your recipients's name").isEmpty(),
   body('fund').custom((value, {req}) => {
     if(parseInt(value) < 50){
         throw new Error("Enter a value greater than 50");
