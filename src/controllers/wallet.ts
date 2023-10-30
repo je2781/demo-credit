@@ -75,8 +75,8 @@ export const getWallet = async (req: any, res: any, next: any) => {
     path: "/manage-wallet",
     balance: req.session.user["wallet"],
     oldInput: {
-      recName: '',
-      recEmail: ''
+      recName: "",
+      recEmail: "",
     },
     mode: updatedMode,
     errorMsg: null,
@@ -102,6 +102,10 @@ export const withdraw = async (req: any, res: any, next: any) => {
       path: "/manage-wallet",
       balance: req.session.user["wallet"],
       mode: "Withdraw",
+      oldInput: {
+        recName: req.body.r_name,
+        recEmail: req.body.r_email,
+      },
       errorMsg: err.message,
       action: "withdraw",
     });
@@ -111,6 +115,16 @@ export const withdraw = async (req: any, res: any, next: any) => {
 // Create a route for transfering funds
 export const transfer = async (req: any, res: any, next: any) => {
   try {
+    //checking for wrong transfer details
+    if (
+      req.body.r_email === req.session.user["email"] ||
+      req.body.r_name === req.session.user["full_name"]
+    ) {
+      throw new Error(
+        "your receipient account doesn't have that name or email"
+      );
+    }
+
     await manageFund(
       {
         user: req.session.user,
@@ -121,7 +135,11 @@ export const transfer = async (req: any, res: any, next: any) => {
     );
     await manageFund(
       {
-        foreignUserEmail: req.body.r_email,
+        foreignUser: {
+          name: req.body.r_name,
+          email: req.body.r_email,
+        },
+        user: req.session.user,
         fund: +req.body.fund,
         mode: "transfer",
       },
@@ -137,7 +155,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       balance: req.session.user["wallet"],
       oldInput: {
         recName: req.body.r_name,
-        recEmail: req.body.r_email
+        recEmail: req.body.r_email,
       },
       mode: "Transfer",
       errorMsg: err.message,

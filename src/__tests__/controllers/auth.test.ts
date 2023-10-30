@@ -12,7 +12,7 @@ let error: string;
 
 describe("Authentication", () => {
   /* Connecting to the database before each test. */
-  beforeAll(async () => {
+  beforeAll( async() => {
     id = idGenerator();
 
     //creating test user record
@@ -183,7 +183,7 @@ describe("Authentication", () => {
   });
 
   /* Closing database connection aftAll test. */
-  afterAll(async () => {
+  afterAll(async() => {
     await deleteUser("testing1000@test.com", "testing");
   });
 });

@@ -1,28 +1,37 @@
 ---
 title: Democredit
-description: credit infrastructure for lenders
+description: lending app
 author: Joshua Eze
 created:  2023 Oct 29
-
+updated: 2023 OCt 30
 ---
 
 Democredit
 =========
 
-## Getting started with Democredit
+## development
+I started with the views, then moved onto the api design, and finished off with the test suites. To manage authentication I used a stateful data storage system (sessions/cookies), rather than tokens, because the views are being served to the client.
 
-To manage authentication I used a stateful data storage system (sessions/cookies), rather than tokens. 
-It's preferable, when making a small app that doesn't require users' activity and data being recorded infinitely.
+I also used a rendering template to design a frontend for the service, so not all endpoints redirect after its business logic has been executed.
 
 ## How to run the app
 
-I also used a rendering template to design a frontend for the service, so not all endpoints return json.
-Run (npm start) from the main directory to compile for dev. To test run (npm t). While running tests, the timeout had to be set at 800s because of the multiple CRUD operations performed on the database. The tests for transfers, withdraws, and deposits would have taken 15mins to complete, so only tests for transfer is performed.
+Run (npm run start:dev) from the main directory to compile for development. To test, navigate to the respective __tests__ sub-folder and run (npm t 'name of test script'). The approach of executing individual test suites, is to mitigate jest tendency not to follow order in test execution. Tests that require asynchronous processes, like database connection, execute concurrently with other tests. That means multiple tests could be accessing the database at the same time, which could increase the test time.
+
+Running all test suites at the same time, would require a large test timeout (because of tests accessing the database at the same time), and the test time would be prolonged. Some tests will also fail by timing out, or failing to access the database. 
 
 ## The Database and relationships
 
-The knexjs ORM was used to translate queries for local MySql and PlanetScale (for production). The migrations created were users, and transfers, to house the user data, and user transfer data. See below for the relationships between the entities in the databse.
+The knexjs ORM was used to translate queries for MySql(on local machine), and PlanetScale (for production). The migrations created were users, and transfers; which housed the user data, and user transfer data. See below for the relationships between the entities in the database. PlanetScale doesn't allow foreign key constraints, so I improvised, by inserting the user_id into the transfers table, for every user transfer. See E-R diagram below for relationships between the entities.
 
 [![demo credit ER diagram](/demo_credit.drawio.png?raw=true)](#erdiagram)
+
+## Deployment
+
+Heroku was used for deployment (see production URL below), while the cloudinary nodejs sdk was used to upload/download user images, as Heroku doesn't store user generated files.
+
+https://joshua-eze-lendsqr-be-test-d68fed4092b4.herokuapp.com.
+
+
 
 

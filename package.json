@@ -7,8 +7,7 @@
     "node": "18.16.0"
   },
   "scripts": {
-    "test": "jest --testTimeout=800000",
-    "start": "node src/functions/server.js",
+    "test": "jest --testTimeout=50000",
     "start:dev": "nodemon src/functions/server.js"
   },
   "author": "Joshua Eze",

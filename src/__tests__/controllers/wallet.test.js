@@ -24,15 +24,6 @@ let id1;
 let id2;
 let error;
 describe("wallet controller", () => {
-    const response = {
-        status: jest.fn(function (code) {
-            statusCode = code;
-            return this;
-        }),
-        render: jest.fn(function (view, viewParams) {
-            error = viewParams.errorMsg;
-        }),
-    };
     /* Connecting to the database before all tests. */
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
         //creating test user records
@@ -62,26 +53,131 @@ describe("wallet controller", () => {
     it("should throw an error if accessing the database fails", (done) => {
         const req = {
             session: {
-                user: undefined,
+                user: {},
             },
             env: "testing",
             body: {
                 fund: "20",
             },
         };
-        (0, wallet_1.withdraw)(req, response, () => { }).then((result) => {
+        const res = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            render: jest.fn(function (view, viewParams) {
+                error = viewParams.errorMsg;
+            }),
+        };
+        (0, wallet_1.withdraw)(req, res, () => { }).then((result) => {
+            expect(statusCode).toBe(500);
             expect(error).toBe("Missing user or user.id");
             done();
         });
     });
-    it("should redirect to home page after trasnfering funds to another user", (done) => {
+    it("should throw an error if user withdraws outside their balance", (done) => {
+        const req = {
+            session: {
+                user: {
+                    id: id1,
+                    email: "testing1000@test.com",
+                },
+            },
+            env: "testing",
+            body: {
+                fund: "300",
+            },
+        };
+        const res = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            render: jest.fn(function (view, viewParams) {
+                error = viewParams.errorMsg;
+            }),
+        };
+        (0, wallet_1.withdraw)(req, res, () => { }).then((result) => {
+            expect(statusCode).toBe(500);
+            expect(error).toBe("You cannot put your account in the red. choose a lower amount");
+            done();
+        });
+    });
+    it("should redirect to home page after withdrawing from account", (done) => {
+        const req = {
+            session: {
+                user: {
+                    id: id1,
+                    email: "testing1000@test.com",
+                },
+            },
+            body: {
+                fund: "100",
+            },
+            env: "testing",
+        };
+        const res = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            redirect: jest.fn(function (location) {
+                locationHeader = location;
+            }),
+        };
+        (0, wallet_1.withdraw)(req, res, () => { }).then((result) => {
+            (0, user_1.findUser)({
+                email: req.session.user.email,
+            }, req.env).then((currentUser) => {
+                expect(currentUser.wallet).toBe(100);
+                expect(statusCode).toBe(302);
+                expect(locationHeader).toBe("/");
+                done();
+            });
+        });
+    });
+    it("should redirect to home page after depositing into account", (done) => {
+        const req = {
+            session: {
+                user: {
+                    id: id1,
+                    email: "testing1000@test.com",
+                },
+            },
+            body: {
+                fund: "400",
+            },
+            env: "testing",
+        };
+        const res = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            redirect: jest.fn(function (location) {
+                locationHeader = location;
+            }),
+        };
+        (0, wallet_1.deposit)(req, res, () => { }).then((result) => {
+            (0, user_1.findUser)({
+                email: req.session.user['email'],
+            }, req.env).then((currentUser) => {
+                expect(currentUser.wallet).toBe(500);
+                expect(statusCode).toBe(302);
+                expect(locationHeader).toBe("/");
+                done();
+            });
+        });
+    });
+    it("should redirect to home page after transfering funds to another user", (done) => {
         const req = {
             session: {
                 user: {
                     id: id2,
-                    email: "testing10test.com",
+                    email: "testing10@test.com",
                 },
             },
+            flash: jest.fn(function (name, message) { }),
             body: {
                 fund: "40",
                 r_email: "testing1000@test.com",
@@ -89,29 +185,30 @@ describe("wallet controller", () => {
             },
             env: "testing",
         };
-        (0, wallet_1.transfer)(req, response, () => { }).then((result) => {
-            expect(statusCode).toBe(302);
-            expect(locationHeader).toBe("/");
-            done();
-        });
-    });
-    it("should show balance of foreign user has increased", (done) => {
-        const req = {
-            body: {
-                email: "testing1000@test.com"
-            },
-            env: 'testing'
+        const res = {
+            status: jest.fn(function (code) {
+                statusCode = code;
+                return this;
+            }),
+            redirect: jest.fn(function (location) {
+                locationHeader = location;
+            }),
         };
-        (0, user_1.findUser)({
-            email: req.body.email,
-        }, req.env).then((user) => {
-            expect(user.wallet).toBe(240);
-            done();
+        (0, wallet_1.transfer)(req, res, () => { }).then((result) => {
+            (0, user_1.findUser)({
+                email: req.body.r_email,
+            }, req.env).then((receipient) => {
+                expect(receipient.wallet).toBe(540);
+                expect(statusCode).toBe(302);
+                expect(locationHeader).toBe("/");
+                done();
+            });
         });
     });
     /* Closing database connection aftAll test. */
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, user_1.deleteUser)("testing1000@test.com", "testing");
         yield (0, user_1.deleteUser)("testing10@test.com", "testing");
+        yield (0, user_1.deleteTransfer)(id2, 'testing');
     }));
 });

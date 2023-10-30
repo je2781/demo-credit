@@ -77,8 +77,8 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         path: "/manage-wallet",
         balance: req.session.user["wallet"],
         oldInput: {
-            recName: '',
-            recEmail: ''
+            recName: "",
+            recEmail: "",
         },
         mode: updatedMode,
         errorMsg: null,
@@ -102,6 +102,10 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             path: "/manage-wallet",
             balance: req.session.user["wallet"],
             mode: "Withdraw",
+            oldInput: {
+                recName: req.body.r_name,
+                recEmail: req.body.r_email,
+            },
             errorMsg: err.message,
             action: "withdraw",
         });
@@ -111,13 +115,22 @@ exports.withdraw = withdraw;
 // Create a route for transfering funds
 const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        //checking for wrong transfer details
+        if (req.body.r_email === req.session.user["email"] ||
+            req.body.r_name === req.session.user["full_name"]) {
+            throw new Error("your receipient account doesn't have that name or email");
+        }
         yield (0, user_1.manageFund)({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "withdraw",
         }, req.env);
         yield (0, user_1.manageFund)({
-            foreignUserEmail: req.body.r_email,
+            foreignUser: {
+                name: req.body.r_name,
+                email: req.body.r_email,
+            },
+            user: req.session.user,
             fund: +req.body.fund,
             mode: "transfer",
         }, req.env);
@@ -132,7 +145,7 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             balance: req.session.user["wallet"],
             oldInput: {
                 recName: req.body.r_name,
-                recEmail: req.body.r_email
+                recEmail: req.body.r_email,
             },
             mode: "Transfer",
             errorMsg: err.message,

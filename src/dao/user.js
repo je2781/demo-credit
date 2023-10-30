@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.manageFund = exports.findUser = exports.updateUser = exports.deleteUser = exports.createUser = void 0;
+exports.manageFund = exports.findUser = exports.updateUser = exports.deleteTransfer = exports.deleteUser = exports.createUser = void 0;
 const db_1 = require("../db/db");
 const uuid_1 = require("uuid");
 const createUser = (data, testObj) => __awaiter(void 0, void 0, void 0, function* () {
-    if (testObj && testObj.env === "testing") {
+    if (testObj && testObj) {
         yield (0, db_1.dbConnection)(testObj.env)("users").insert({
             id: testObj.id,
             email: data.email,
@@ -44,6 +44,15 @@ const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteUser = deleteUser;
+const deleteTransfer = (userId, env) => __awaiter(void 0, void 0, void 0, function* () {
+    if (env) {
+        yield (0, db_1.dbConnection)(env)("transfers").where("user_id", userId).del();
+    }
+    else {
+        yield (0, db_1.dbConnection)()("transfers").where("user_id", userId).del();
+    }
+});
+exports.deleteTransfer = deleteTransfer;
 const updateUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
         cloudinary_asset_id: input.assetId,
@@ -63,42 +72,67 @@ const findUser = (input, env) => __awaiter(void 0, void 0, void 0, function* () 
 exports.findUser = findUser;
 const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* () {
     let extractedUser;
+    let extractedTransfer;
     switch (input.mode) {
         case "transfer":
-            if (input.foreignUserEmail && env) {
+            if (input.foreignUser && env && input.user) {
                 extractedUser = yield (0, db_1.dbConnection)(env)("users")
-                    .where("email", input.foreignUserEmail)
+                    .where("email", input.foreignUser.email)
                     .first();
                 if (!extractedUser) {
                     throw new Error("your receipient account doesn't exist");
                 }
                 yield (0, db_1.dbConnection)(env)("users")
-                    .where("email", input.foreignUserEmail)
+                    .where("email", input.foreignUser.email)
                     .update({
                     wallet: extractedUser.wallet + input.fund,
                 });
-                return yield (0, db_1.dbConnection)(env)("transfers").insert({
-                    id: (0, uuid_1.v4)(),
-                    amount: input.fund,
-                    foreign_user_id: extractedUser.id,
+                //updating transfers table
+                const extractedTransfer = yield (0, db_1.dbConnection)(env)("transfers")
+                    .where("foreign_user_id", extractedUser.id)
+                    .first();
+                if (!extractedTransfer) {
+                    return yield (0, db_1.dbConnection)(env)("transfers").insert({
+                        id: (0, uuid_1.v4)(),
+                        amount: input.fund,
+                        foreign_user_id: extractedUser.id,
+                        user_id: input.user.id,
+                    });
+                }
+                return yield (0, db_1.dbConnection)(env)("transfers")
+                    .where("foreign_user_id", extractedUser.id)
+                    .update({
+                    amount: extractedTransfer.amount + input.fund,
                 });
             }
-            if (input.foreignUserEmail) {
+            if (input.foreignUser && input.user) {
                 extractedUser = yield (0, db_1.dbConnection)()("users")
-                    .where("email", input.foreignUserEmail)
+                    .where("email", input.foreignUser.email)
                     .first();
                 if (!extractedUser) {
                     throw new Error("your receipient account doesn't exist");
                 }
                 yield (0, db_1.dbConnection)()("users")
-                    .where("email", input.foreignUserEmail)
+                    .where("email", input.foreignUser.email)
                     .update({
                     wallet: extractedUser.wallet + input.fund,
                 });
-                return yield (0, db_1.dbConnection)()("transfers").insert({
-                    id: (0, uuid_1.v4)(),
-                    amount: input.fund,
-                    foreign_user_id: extractedUser.id,
+                //updating transfers table
+                const extractedTransfer = yield (0, db_1.dbConnection)()("transfers")
+                    .where("foreign_user_id", extractedUser.id)
+                    .first();
+                if (!extractedTransfer) {
+                    return yield (0, db_1.dbConnection)()("transfers").insert({
+                        id: (0, uuid_1.v4)(),
+                        amount: input.fund,
+                        foreign_user_id: extractedUser.id,
+                        user_id: input.user.id,
+                    });
+                }
+                return yield (0, db_1.dbConnection)()("transfers")
+                    .where("foreign_user_id", extractedUser.id)
+                    .update({
+                    amount: extractedTransfer.amount + input.fund,
                 });
             }
             // Handle the case when input.foreignUserEmail is not provided.
@@ -111,7 +145,7 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                     .first();
                 withdrawOpResult = extractedUser.wallet - input.fund;
                 if (withdrawOpResult < 0) {
-                    throw new Error("You cannot put your account in the negative");
+                    throw new Error(`You cannot put your account in the red. choose a lower amount`);
                 }
                 return yield (0, db_1.dbConnection)(env)("users")
                     .where("id", input.user.id)
@@ -125,7 +159,7 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                     .first();
                 withdrawOpResult = extractedUser.wallet - input.fund;
                 if (withdrawOpResult < 0) {
-                    throw new Error("You cannot put your account in the negative");
+                    throw new Error(`You cannot put your account in the red. choose a lower amount`);
                 }
                 return yield (0, db_1.dbConnection)()("users")
                     .where("id", input.user.id)

@@ -20,7 +20,6 @@ const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
 (0, dotenv_1.config)({ path: "../../.env" });
 const getLogin = (req, res, next) => {
-    // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
     res.status(200).render("auth/auth_form.ejs", {
         docTitle: "Login",
         mode: "login",

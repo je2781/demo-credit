@@ -25,6 +25,7 @@ describe("Auth Form", () => {
             password: "testPassowrd",
             confirmPassword: "testPassowrd",
             fullName: "John Doe",
+            balance: "344",
         },
     };
     beforeAll((done) => {

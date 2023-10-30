@@ -6,7 +6,7 @@ export const createUser = async (
   data: createUserProps,
   testObj?: { env: string; id: string }
 ) => {
-  if (testObj && testObj.env === "testing") {
+  if (testObj && testObj) {
     await dbConnection(testObj.env)("users").insert({
       id: testObj.id,
       email: data.email,
@@ -35,10 +35,15 @@ export const deleteUser = async (email: string, env?: string) => {
   }
 };
 
-export const updateUser = async (input: {
-  email: string;
-  assetId: string;
-}) => {
+export const deleteTransfer = async (userId: string, env?: string) => {
+  if (env) {
+    await dbConnection(env)("transfers").where("user_id", userId).del();
+  } else {
+    await dbConnection()("transfers").where("user_id", userId).del();
+  }
+};
+
+export const updateUser = async (input: { email: string; assetId: string }) => {
   await dbConnection()("users").where("email", input.email).update({
     cloudinary_asset_id: input.assetId,
   });
@@ -60,7 +65,7 @@ export const findUser = async (
 
 export const manageFund = async (
   input: {
-    foreignUserEmail?: string;
+    foreignUser?: { name: string; email: string };
     user?: User;
     fund: number;
     mode: string;
@@ -68,12 +73,14 @@ export const manageFund = async (
   env?: string
 ) => {
   let extractedUser: any;
+  let extractedTransfer: any;
 
   switch (input.mode) {
     case "transfer":
-      if (input.foreignUserEmail && env) {
+      if (input.foreignUser && env && input.user) {
+
         extractedUser = await dbConnection(env)("users")
-          .where("email", input.foreignUserEmail)
+          .where("email", input.foreignUser.email)
           .first();
 
         if (!extractedUser) {
@@ -81,19 +88,34 @@ export const manageFund = async (
         }
 
         await dbConnection(env)("users")
-          .where("email", input.foreignUserEmail)
+          .where("email", input.foreignUser.email)
           .update({
             wallet: extractedUser.wallet + input.fund,
           });
-        return await dbConnection(env)("transfers").insert({
-          id: idGenerator(),
-          amount: input.fund,
-          foreign_user_id: extractedUser.id,
-        });
+        //updating transfers table
+        const extractedTransfer = await dbConnection(env)("transfers")
+          .where("foreign_user_id", extractedUser.id)
+          .first();
+
+        if (!extractedTransfer) {
+          return await dbConnection(env)("transfers").insert({
+            id: idGenerator(),
+            amount: input.fund,
+            foreign_user_id: extractedUser.id,
+            user_id: input.user.id,
+          });
+        }
+        
+        return await dbConnection(env)("transfers")
+          .where("foreign_user_id", extractedUser.id)
+          .update({
+            amount: extractedTransfer.amount + input.fund,
+          });
       }
-      if (input.foreignUserEmail) {
+      if (input.foreignUser && input.user) {
+
         extractedUser = await dbConnection()("users")
-          .where("email", input.foreignUserEmail)
+          .where("email", input.foreignUser.email)
           .first();
 
         if (!extractedUser) {
@@ -101,15 +123,29 @@ export const manageFund = async (
         }
 
         await dbConnection()("users")
-          .where("email", input.foreignUserEmail)
+          .where("email", input.foreignUser.email)
           .update({
             wallet: extractedUser.wallet + input.fund,
           });
-        return await dbConnection()("transfers").insert({
-          id: idGenerator(),
-          amount: input.fund,
-          foreign_user_id: extractedUser.id,
-        });
+        //updating transfers table
+        const extractedTransfer = await dbConnection()("transfers")
+          .where("foreign_user_id", extractedUser.id)
+          .first();
+
+        if (!extractedTransfer) {
+          return await dbConnection()("transfers").insert({
+            id: idGenerator(),
+            amount: input.fund,
+            foreign_user_id: extractedUser.id,
+            user_id: input.user.id,
+          });
+        }
+
+        return await dbConnection()("transfers")
+          .where("foreign_user_id", extractedUser.id)
+          .update({
+            amount: extractedTransfer.amount + input.fund,
+          });
       }
       // Handle the case when input.foreignUserEmail is not provided.
       throw new Error("Missing foreignUserEmail");
@@ -122,7 +158,9 @@ export const manageFund = async (
 
         withdrawOpResult = extractedUser.wallet - input.fund;
         if (withdrawOpResult < 0) {
-          throw new Error("You cannot put your account in the negative");
+          throw new Error(
+            `You cannot put your account in the red. choose a lower amount`
+          );
         }
 
         return await dbConnection(env)("users")
@@ -138,7 +176,9 @@ export const manageFund = async (
 
         withdrawOpResult = extractedUser.wallet - input.fund;
         if (withdrawOpResult < 0) {
-          throw new Error("You cannot put your account in the negative");
+          throw new Error(
+            `You cannot put your account in the red. choose a lower amount`
+          );
         }
 
         return await dbConnection()("users")

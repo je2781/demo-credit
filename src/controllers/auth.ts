@@ -7,7 +7,6 @@ import { config } from "dotenv";
 config({ path: "../../.env" });
 
 export const getLogin = (req: any, res: any, next: any) => {
-  // const isLoggedIn = req.get('Cookie').split(':')[1].trim().split('=')[1] === 'true';
 
   res.status(200).render("auth/auth_form.ejs", {
     docTitle: "Login",
