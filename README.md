@@ -12,7 +12,7 @@ Democredit
 ## development
 I started with the views, then moved onto the api design, and finished off with the test suites. To manage authentication I used a stateful data storage system (sessions/cookies), rather than tokens, because the views are being served to the client.
 
-I also used a rendering template to design a frontend for the service, so not all endpoints redirect after its business logic has been executed.
+I also used a rendering template to design a frontend for the service, so all endpoints return a view.
 
 ## How to run the app
 
