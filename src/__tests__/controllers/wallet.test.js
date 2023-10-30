@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
 const wallet_1 = require("../../controllers/wallet");
 const user_1 = require("../../dao/user");
+const transfer_1 = require("../../dao/transfer");
 let statusCode;
 let locationHeader;
 let id1;
@@ -203,6 +204,6 @@ describe("wallet controller", () => {
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
         yield (0, user_1.deleteUser)("testing1000@test.com", "testing");
         yield (0, user_1.deleteUser)("testing10@test.com", "testing");
-        yield (0, user_1.deleteTransfer)(id2, 'testing');
+        yield (0, transfer_1.deleteTransfer)(id2, 'testing');
     }));
 });

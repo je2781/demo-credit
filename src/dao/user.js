@@ -9,9 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.manageFund = exports.findUser = exports.updateUser = exports.deleteTransfer = exports.deleteUser = exports.createUser = void 0;
+exports.manageFund = exports.findUser = exports.updateUser = exports.deleteUser = exports.createUser = void 0;
 const db_1 = require("../db/db");
 const uuid_1 = require("uuid");
+const transfer_1 = require("./transfer");
 const createUser = (data, testObj) => __awaiter(void 0, void 0, void 0, function* () {
     if (testObj && testObj.env === "testing") {
         yield (0, db_1.dbConnection)(testObj.env)("users").insert({
@@ -44,15 +45,6 @@ const deleteUser = (email, env) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.deleteUser = deleteUser;
-const deleteTransfer = (userId, env) => __awaiter(void 0, void 0, void 0, function* () {
-    if (env) {
-        yield (0, db_1.dbConnection)(env)("transfers").where("user_id", userId).del();
-    }
-    else {
-        yield (0, db_1.dbConnection)()("transfers").where("user_id", userId).del();
-    }
-});
-exports.deleteTransfer = deleteTransfer;
 const updateUser = (input) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, db_1.dbConnection)()("users").where("email", input.email).update({
         cloudinary_asset_id: input.assetId,
@@ -88,22 +80,21 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                     wallet: extractedUser.wallet + input.fund,
                 });
                 //updating transfers table
-                const extractedTransfer = yield (0, db_1.dbConnection)(env)("transfers")
-                    .where("foreign_user_id", extractedUser.id)
-                    .first();
+                const extractedTransfer = yield (0, transfer_1.findTransfer)({
+                    foreignId: extractedUser.id,
+                }, env);
                 if (!extractedTransfer) {
-                    return yield (0, db_1.dbConnection)(env)("transfers").insert({
-                        id: (0, uuid_1.v4)(),
+                    return yield (0, transfer_1.createTransfer)({
                         amount: input.fund,
-                        foreign_user_id: extractedUser.id,
-                        user_id: input.user.id,
-                    });
+                        foreignId: extractedUser.id,
+                        userId: input.user.id,
+                    }, env);
                 }
-                return yield (0, db_1.dbConnection)(env)("transfers")
-                    .where("foreign_user_id", extractedUser.id)
-                    .update({
-                    amount: extractedTransfer.amount + input.fund,
-                });
+                return yield (0, transfer_1.updateTransfer)({
+                    transfer: extractedTransfer,
+                    fund: input.fund,
+                    foreignId: extractedUser.id,
+                }, env);
             }
             if (input.foreignUser && input.user) {
                 extractedUser = yield (0, db_1.dbConnection)()("users")
@@ -118,21 +109,20 @@ const manageFund = (input, env) => __awaiter(void 0, void 0, void 0, function* (
                     wallet: extractedUser.wallet + input.fund,
                 });
                 //updating transfers table
-                const extractedTransfer = yield (0, db_1.dbConnection)()("transfers")
-                    .where("foreign_user_id", extractedUser.id)
-                    .first();
+                const extractedTransfer = yield (0, transfer_1.findTransfer)({
+                    foreignId: extractedUser.id,
+                }, env);
                 if (!extractedTransfer) {
-                    return yield (0, db_1.dbConnection)()("transfers").insert({
-                        id: (0, uuid_1.v4)(),
+                    return yield (0, transfer_1.createTransfer)({
                         amount: input.fund,
-                        foreign_user_id: extractedUser.id,
-                        user_id: input.user.id,
+                        foreignId: extractedUser.id,
+                        userId: input.user.id,
                     });
                 }
-                return yield (0, db_1.dbConnection)()("transfers")
-                    .where("foreign_user_id", extractedUser.id)
-                    .update({
-                    amount: extractedTransfer.amount + input.fund,
+                return yield (0, transfer_1.updateTransfer)({
+                    transfer: extractedTransfer,
+                    fund: input.fund,
+                    foreignId: extractedUser.id,
                 });
             }
             // Handle the case when input.foreignUserEmail is not provided.

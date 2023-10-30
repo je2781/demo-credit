@@ -1,6 +1,7 @@
 import { v4 as idGenerator } from "uuid";
 import { transfer, withdraw, deposit } from "../../controllers/wallet";
-import { createUser, deleteTransfer, deleteUser, findUser } from "../../dao/user";
+import { createUser, deleteUser, findUser } from "../../dao/user";
+import { deleteTransfer } from "../../dao/transfer";
 
 let statusCode: number;
 let locationHeader: string;

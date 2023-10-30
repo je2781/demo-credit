@@ -1,6 +1,7 @@
 import { dbConnection } from "../db/db";
 import { v4 as idGenerator } from "uuid";
 import { User, createUserProps } from "../types";
+import { createTransfer, findTransfer, updateTransfer } from "./transfer";
 
 export const createUser = async (
   data: createUserProps,
@@ -32,14 +33,6 @@ export const deleteUser = async (email: string, env?: string) => {
     await dbConnection(env)("users").where("email", email).del();
   } else {
     await dbConnection()("users").where("email", email).del();
-  }
-};
-
-export const deleteTransfer = async (userId: string, env?: string) => {
-  if (env) {
-    await dbConnection(env)("transfers").where("user_id", userId).del();
-  } else {
-    await dbConnection()("transfers").where("user_id", userId).del();
   }
 };
 
@@ -78,7 +71,6 @@ export const manageFund = async (
   switch (input.mode) {
     case "transfer":
       if (input.foreignUser && env && input.user) {
-
         extractedUser = await dbConnection(env)("users")
           .where("email", input.foreignUser.email)
           .first();
@@ -93,27 +85,31 @@ export const manageFund = async (
             wallet: extractedUser.wallet + input.fund,
           });
         //updating transfers table
-        const extractedTransfer = await dbConnection(env)("transfers")
-          .where("foreign_user_id", extractedUser.id)
-          .first();
+        const extractedTransfer = await findTransfer({
+          foreignId: extractedUser.id,
+        }, env);
 
         if (!extractedTransfer) {
-          return await dbConnection(env)("transfers").insert({
-            id: idGenerator(),
-            amount: input.fund,
-            foreign_user_id: extractedUser.id,
-            user_id: input.user.id,
-          });
+          return await createTransfer(
+            {
+              amount: input.fund,
+              foreignId: extractedUser.id,
+              userId: input.user.id,
+            },
+            env
+          );
         }
-        
-        return await dbConnection(env)("transfers")
-          .where("foreign_user_id", extractedUser.id)
-          .update({
-            amount: extractedTransfer.amount + input.fund,
-          });
+
+        return await updateTransfer(
+          {
+            transfer: extractedTransfer,
+            fund: input.fund,
+            foreignId: extractedUser.id,
+          },
+          env
+        );
       }
       if (input.foreignUser && input.user) {
-
         extractedUser = await dbConnection()("users")
           .where("email", input.foreignUser.email)
           .first();
@@ -128,24 +124,27 @@ export const manageFund = async (
             wallet: extractedUser.wallet + input.fund,
           });
         //updating transfers table
-        const extractedTransfer = await dbConnection()("transfers")
-          .where("foreign_user_id", extractedUser.id)
-          .first();
+        const extractedTransfer = await findTransfer({
+          foreignId: extractedUser.id,
+        }, env);
 
-        if (!extractedTransfer) {
-          return await dbConnection()("transfers").insert({
-            id: idGenerator(),
-            amount: input.fund,
-            foreign_user_id: extractedUser.id,
-            user_id: input.user.id,
-          });
-        }
-
-        return await dbConnection()("transfers")
-          .where("foreign_user_id", extractedUser.id)
-          .update({
-            amount: extractedTransfer.amount + input.fund,
-          });
+          if (!extractedTransfer) {
+            return await createTransfer(
+              {
+                amount: input.fund,
+                foreignId: extractedUser.id,
+                userId: input.user.id,
+              }
+            );
+          }
+  
+          return await updateTransfer(
+            {
+              transfer: extractedTransfer,
+              fund: input.fund,
+              foreignId: extractedUser.id,
+            }
+          );
       }
       // Handle the case when input.foreignUserEmail is not provided.
       throw new Error("Missing foreignUserEmail");
