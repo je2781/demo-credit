@@ -187,7 +187,8 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             mode: "Deposit",
             errorMsg: errors.array()[0].msg,
             path: "/manage-wallet",
-            action: "deposit"
+            action: "deposit",
+            balance: req.session.user['wallet'],
         });
     }
     try {

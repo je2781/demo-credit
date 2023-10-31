@@ -196,7 +196,8 @@ export const deposit = async (req: any, res: any, next: any) => {
       mode: "Deposit",
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
-      action: "deposit"
+      action: "deposit",
+      balance: req.session.user['wallet'],
     });
   }
   try {
