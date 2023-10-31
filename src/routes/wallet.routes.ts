@@ -11,7 +11,7 @@ router.post(
   "/transfer",
   isAuth,
   body('r_email').isEmail().withMessage('Please enter a valid E-mail!').normalizeEmail(),
-  body('r_name', "Enter your recipients's name").trim().isEmpty(),
+  body('r_name').trim().isEmpty().withMessage("Enter your recipients's name"),
   body('fund').trim().custom((value, {req}) => {
     if(parseInt(value) < 50){
         throw new Error("Enter a value greater than 50");
