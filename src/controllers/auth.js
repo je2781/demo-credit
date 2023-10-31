@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postLogout = exports.postLogin = exports.postSignup = exports.getSignup = exports.getLogin = void 0;
 const express_validator_1 = require("express-validator");
-const user_1 = __importDefault(require("../dao/user"));
+const lending_service_1 = __importDefault(require("../service/lending-service"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const cloudinary_1 = require("cloudinary");
 const dotenv_1 = require("dotenv");
@@ -94,7 +94,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     }
     try {
         //checking for duplicate user accounts
-        const user = yield user_1.default.findUser({
+        const user = yield lending_service_1.default.findUser({
             email: email,
         }, req.env);
         if (user) {
@@ -102,7 +102,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         }
         const imageUrl = image.path.replaceAll("\\", "/");
         const hashedPassword = yield bcryptjs_1.default.hash(password, 12);
-        yield user_1.default.createUser({
+        yield lending_service_1.default.createUser({
             email: email,
             password: hashedPassword,
             fullName: fullName,
@@ -118,7 +118,7 @@ const postSignup = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
                 .expression("resource_type:image").sort_by("created_at", "asc")
                 .execute();
             const resourcesLength = apiResponse["resources"].length;
-            yield user_1.default.updateUser({
+            yield lending_service_1.default.updateUser({
                 email: email,
                 assetId: apiResponse["resources"][resourcesLength - 1]['asset_id']
             });
@@ -162,7 +162,7 @@ const postLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         });
     }
     try {
-        const user = yield user_1.default.findUser({ email: req.body.email }, req.env);
+        const user = yield lending_service_1.default.findUser({ email: req.body.email }, req.env);
         if (!user) {
             throw new Error("User account doesn't exist. Create an account");
         }

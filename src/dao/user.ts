@@ -7,7 +7,7 @@ class UserDAO {
     data: createUserProps,
     testObj?: { env: string; id: string }
   ) => {
-    if (testObj && testObj.env === "testing") {
+    if (testObj && testObj.env) {
       await dbConnection(testObj.env)("users").insert({
         id: testObj.id,
         email: data.email,
@@ -43,7 +43,7 @@ class UserDAO {
   };
 
   findUser = async (input: { email: string }, env?: string): Promise<User> => {
-    let user: any;
+    let user: User;
     if (env) {
       user = await dbConnection(env)("users")
         .where("email", input.email)

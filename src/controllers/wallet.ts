@@ -1,4 +1,4 @@
-import userDAO from "../dao/user";
+import lendingService from "../service/lending-service";
 import { User } from "../types";
 import { config } from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
@@ -16,7 +16,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
   }
 
   try {
-    user = await userDAO.findUser(
+    user = await lendingService.findUser(
       {
         email: req.session.user["email"],
       },
@@ -81,7 +81,7 @@ export const getWallet = async (req: any, res: any, next: any) => {
 // Create a route for withdrawing funds
 export const withdraw = async (req: any, res: any, next: any) => {
   try {
-    await userDAO.manageFund(
+    await lendingService.manageFund(
       {
         user: req.session.user,
         fund: +req.body.fund,
@@ -120,7 +120,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       );
     }
 
-    await userDAO.manageFund(
+    await lendingService.manageFund(
       {
         user: req.session.user,
         fund: +req.body.fund,
@@ -128,7 +128,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       },
       req.env
     );
-    await userDAO.manageFund(
+    await lendingService.manageFund(
       {
         foreignUser: {
           name: req.body.r_name,
@@ -144,7 +144,7 @@ export const transfer = async (req: any, res: any, next: any) => {
     req.flash("transfer", `transfer to ${req.body.r_name} was successful`);
     res.status(302).redirect("/");
   } catch (err: any) {
-    return res.status(500).render("wallet", {
+    return res.status(422).render("wallet", {
       docTitle: "Transfer",
       path: "/manage-wallet",
       balance: req.session.user["wallet"],
@@ -162,7 +162,7 @@ export const transfer = async (req: any, res: any, next: any) => {
 // Create a route for adding funds
 export const deposit = async (req: any, res: any, next: any) => {
   try {
-    await userDAO.manageFund(
+    await lendingService.manageFund(
       {
         user: req.session.user,
         fund: +req.body.fund,

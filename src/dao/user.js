@@ -18,7 +18,7 @@ const transfer_1 = __importDefault(require("./transfer"));
 class UserDAO {
     constructor() {
         this.createUser = (data, testObj) => __awaiter(this, void 0, void 0, function* () {
-            if (testObj && testObj.env === "testing") {
+            if (testObj && testObj.env) {
                 yield (0, db_1.dbConnection)(testObj.env)("users").insert({
                     id: testObj.id,
                     email: data.email,

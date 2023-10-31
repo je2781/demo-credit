@@ -5,7 +5,7 @@ const get500Page = (error, req, res, next) => {
     res.status(500).render('500', {
         docTitle: 'Server Error',
         path: '/500',
-        msg: error.message
+        msg: 'internal server error'
     });
 };
 exports.get500Page = get500Page;

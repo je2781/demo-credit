@@ -14,8 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const uuid_1 = require("uuid");
 const wallet_1 = require("../../controllers/wallet");
-const user_1 = __importDefault(require("../../dao/user"));
-const transfer_1 = __importDefault(require("../../dao/transfer"));
+const lending_service_1 = __importDefault(require("../../service/lending-service"));
 let statusCode;
 let locationHeader;
 let id1;
@@ -27,7 +26,7 @@ describe("wallet controller", () => {
         //creating test user records
         id1 = (0, uuid_1.v4)();
         id2 = (0, uuid_1.v4)();
-        yield user_1.default.createUser({
+        yield lending_service_1.default.createUser({
             email: "testing1000@test.com",
             password: "testingpassword",
             imageUrl: "src/public/images/testing.jpg",
@@ -37,7 +36,7 @@ describe("wallet controller", () => {
             id: id1,
             env: "testing",
         });
-        yield user_1.default.createUser({
+        yield lending_service_1.default.createUser({
             email: "testing10@test.com",
             password: "testpassword",
             imageUrl: "src/public/images/test.jpg",
@@ -124,7 +123,7 @@ describe("wallet controller", () => {
             }),
         };
         (0, wallet_1.withdraw)(req, res, () => { }).then((result) => {
-            user_1.default.findUser({
+            lending_service_1.default.findUser({
                 email: req.session.user.email,
             }, req.env).then((currentUser) => {
                 expect(currentUser.wallet).toBe(100);
@@ -157,7 +156,7 @@ describe("wallet controller", () => {
             }),
         };
         (0, wallet_1.deposit)(req, res, () => { }).then((result) => {
-            user_1.default.findUser({
+            lending_service_1.default.findUser({
                 email: req.session.user['email'],
             }, req.env).then((currentUser) => {
                 expect(currentUser.wallet).toBe(500);
@@ -193,7 +192,7 @@ describe("wallet controller", () => {
             }),
         };
         (0, wallet_1.transfer)(req, res, () => { }).then((result) => {
-            user_1.default.findUser({
+            lending_service_1.default.findUser({
                 email: req.body.r_email,
             }, req.env).then((receipient) => {
                 expect(receipient.wallet).toBe(540);
@@ -205,8 +204,8 @@ describe("wallet controller", () => {
     });
     /* Closing database connection aftAll test. */
     afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield user_1.default.deleteUser("testing1000@test.com", "testing");
-        yield user_1.default.deleteUser("testing10@test.com", "testing");
-        yield transfer_1.default.deleteTransfer(id2, 'testing');
+        yield lending_service_1.default.deleteUser("testing1000@test.com", "testing");
+        yield lending_service_1.default.deleteUser("testing10@test.com", "testing");
+        yield lending_service_1.default.deleteTransfer(id2, 'testing');
     }));
 });
