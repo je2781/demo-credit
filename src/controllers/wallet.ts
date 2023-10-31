@@ -2,6 +2,7 @@ import lendingService from "../service/lending-service";
 import { User } from "../types";
 import { config } from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
+import { validationResult } from "express-validator";
 config({ path: "../../.env" });
 
 export const getHomePage = async (req: any, res: any, next: any) => {
@@ -68,7 +69,6 @@ export const getWallet = async (req: any, res: any, next: any) => {
   res.status(200).render("wallet", {
     docTitle: updatedMode,
     path: "/manage-wallet",
-    balance: req.session.user["wallet"],
     oldInput: {
       recName: "",
       recEmail: "",
@@ -76,10 +76,22 @@ export const getWallet = async (req: any, res: any, next: any) => {
     mode: updatedMode,
     errorMsg: null,
     action: mode,
+    validationErrors: []
   });
 };
 // Create a route for withdrawing funds
 export const withdraw = async (req: any, res: any, next: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("wallet", {
+      docTitle: "Withdraw",
+      mode: "Withdraw",
+      errorMsg: errors.array()[0].msg,
+      path: "/manage-wallet",
+      action: "withdraw",
+    });
+  }
+
   try {
     await lendingService.manageFund(
       {
@@ -95,12 +107,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
     return res.status(500).render("wallet", {
       docTitle: "Withdraw",
       path: "/manage-wallet",
-      balance: req.session.user["wallet"],
       mode: "Withdraw",
-      oldInput: {
-        recName: req.body.r_name,
-        recEmail: req.body.r_email,
-      },
       errorMsg: err.message,
       action: "withdraw",
     });
@@ -109,6 +116,22 @@ export const withdraw = async (req: any, res: any, next: any) => {
 
 // Create a route for transfering funds
 export const transfer = async (req: any, res: any, next: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("wallet", {
+      docTitle: "Transfer",
+      mode: "Transfer",
+      errorMsg: errors.array()[0].msg,
+      path: "/manage-wallet",
+      oldInput: {
+        recName: req.body.r_name,
+        recEmail: req.body.r_email,
+      },
+      action: "transfer",
+      validationErrors: errors.array(),
+    });
+  }
+
   try {
     //checking for wrong transfer details
     if (
@@ -147,7 +170,6 @@ export const transfer = async (req: any, res: any, next: any) => {
     return res.status(422).render("wallet", {
       docTitle: "Transfer",
       path: "/manage-wallet",
-      balance: req.session.user["wallet"],
       oldInput: {
         recName: req.body.r_name,
         recEmail: req.body.r_email,
@@ -155,12 +177,23 @@ export const transfer = async (req: any, res: any, next: any) => {
       mode: "Transfer",
       errorMsg: err.message,
       action: "transfer",
+      validationErrors: []
     });
   }
 };
 
 // Create a route for adding funds
 export const deposit = async (req: any, res: any, next: any) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).render("wallet", {
+      docTitle: "Deposit",
+      mode: "Deposit",
+      errorMsg: errors.array()[0].msg,
+      path: "/manage-wallet",
+      action: "deposit"
+    });
+  }
   try {
     await lendingService.manageFund(
       {

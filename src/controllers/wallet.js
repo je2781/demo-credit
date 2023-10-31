@@ -16,6 +16,7 @@ exports.deposit = exports.transfer = exports.withdraw = exports.getWallet = expo
 const lending_service_1 = __importDefault(require("../service/lending-service"));
 const dotenv_1 = require("dotenv");
 const cloudinary_1 = require("cloudinary");
+const express_validator_1 = require("express-validator");
 (0, dotenv_1.config)({ path: "../../.env" });
 const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
@@ -73,7 +74,6 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     res.status(200).render("wallet", {
         docTitle: updatedMode,
         path: "/manage-wallet",
-        balance: req.session.user["wallet"],
         oldInput: {
             recName: "",
             recEmail: "",
@@ -81,11 +81,22 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         mode: updatedMode,
         errorMsg: null,
         action: mode,
+        validationErrors: []
     });
 });
 exports.getWallet = getWallet;
 // Create a route for withdrawing funds
 const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render("wallet", {
+            docTitle: "Withdraw",
+            mode: "Withdraw",
+            errorMsg: errors.array()[0].msg,
+            path: "/manage-wallet",
+            action: "withdraw",
+        });
+    }
     try {
         yield lending_service_1.default.manageFund({
             user: req.session.user,
@@ -98,12 +109,7 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         return res.status(500).render("wallet", {
             docTitle: "Withdraw",
             path: "/manage-wallet",
-            balance: req.session.user["wallet"],
             mode: "Withdraw",
-            oldInput: {
-                recName: req.body.r_name,
-                recEmail: req.body.r_email,
-            },
             errorMsg: err.message,
             action: "withdraw",
         });
@@ -112,6 +118,21 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
 exports.withdraw = withdraw;
 // Create a route for transfering funds
 const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render("wallet", {
+            docTitle: "Transfer",
+            mode: "Transfer",
+            errorMsg: errors.array()[0].msg,
+            path: "/manage-wallet",
+            oldInput: {
+                recName: req.body.r_name,
+                recEmail: req.body.r_email,
+            },
+            action: "transfer",
+            validationErrors: errors.array(),
+        });
+    }
     try {
         //checking for wrong transfer details
         if (req.body.r_email === req.session.user["email"] ||
@@ -140,7 +161,6 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         return res.status(422).render("wallet", {
             docTitle: "Transfer",
             path: "/manage-wallet",
-            balance: req.session.user["wallet"],
             oldInput: {
                 recName: req.body.r_name,
                 recEmail: req.body.r_email,
@@ -148,12 +168,23 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             mode: "Transfer",
             errorMsg: err.message,
             action: "transfer",
+            validationErrors: []
         });
     }
 });
 exports.transfer = transfer;
 // Create a route for adding funds
 const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render("wallet", {
+            docTitle: "Deposit",
+            mode: "Deposit",
+            errorMsg: errors.array()[0].msg,
+            path: "/manage-wallet",
+            action: "deposit"
+        });
+    }
     try {
         yield lending_service_1.default.manageFund({
             user: req.session.user,
