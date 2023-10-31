@@ -76,7 +76,6 @@ export const getWallet = async (req: any, res: any, next: any) => {
     mode: updatedMode,
     errorMsg: null,
     action: mode,
-    validationErrors: []
   });
 };
 // Create a route for withdrawing funds
@@ -128,7 +127,6 @@ export const transfer = async (req: any, res: any, next: any) => {
         recEmail: req.body.r_email,
       },
       action: "transfer",
-      validationErrors: errors.array(),
     });
   }
 
@@ -177,7 +175,6 @@ export const transfer = async (req: any, res: any, next: any) => {
       mode: "Transfer",
       errorMsg: err.message,
       action: "transfer",
-      validationErrors: []
     });
   }
 };

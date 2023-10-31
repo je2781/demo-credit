@@ -81,7 +81,6 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         mode: updatedMode,
         errorMsg: null,
         action: mode,
-        validationErrors: []
     });
 });
 exports.getWallet = getWallet;
@@ -130,7 +129,6 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 recEmail: req.body.r_email,
             },
             action: "transfer",
-            validationErrors: errors.array(),
         });
     }
     try {
@@ -168,7 +166,6 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             mode: "Transfer",
             errorMsg: err.message,
             action: "transfer",
-            validationErrors: []
         });
     }
 });

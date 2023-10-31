@@ -23,7 +23,6 @@
                             <label for="r_name">Recipient's Name</label>
                             <input 
                             type="text" 
-                            class="<%= validationErrors.find(e => e.path === 'r_name') ? 'invalid' : '' %>"
                             name="r_name" 
                             value="<%= oldInput.recName %>"
                             id="r_name" />
@@ -34,7 +33,6 @@
                             <label for="r_email">Recipient's Email</label>
                             <input 
                             type="text" 
-                            class="<%= validationErrors.find(e => e.path === 'r_email') ? 'invalid' : '' %>"
                             name="r_email" 
                             value="<%= oldInput.recEmail %>"
                             id="r_email"/>
