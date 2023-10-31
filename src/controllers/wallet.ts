@@ -76,6 +76,8 @@ export const getWallet = async (req: any, res: any, next: any) => {
     mode: updatedMode,
     errorMsg: null,
     action: mode,
+    balance: req.session.user['wallet'],
+    validationErrors: []
   });
 };
 // Create a route for withdrawing funds
@@ -88,6 +90,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
       action: "withdraw",
+      balance: req.session.user['wallet'],
     });
   }
 
@@ -109,6 +112,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
       mode: "Withdraw",
       errorMsg: err.message,
       action: "withdraw",
+      balance: req.session.user['wallet']
     });
   }
 };
@@ -127,6 +131,8 @@ export const transfer = async (req: any, res: any, next: any) => {
         recEmail: req.body.r_email,
       },
       action: "transfer",
+      validationErrors: errors.array(),
+      balance: req.session.user['wallet']
     });
   }
 
@@ -175,6 +181,8 @@ export const transfer = async (req: any, res: any, next: any) => {
       mode: "Transfer",
       errorMsg: err.message,
       action: "transfer",
+      balance: req.session.user['wallet'],
+      validationErrors: []
     });
   }
 };
