@@ -77,6 +77,7 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         oldInput: {
             recName: "",
             recEmail: "",
+            fund: ''
         },
         mode: updatedMode,
         errorMsg: null,
@@ -95,6 +96,9 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             mode: "Withdraw",
             errorMsg: errors.array()[0].msg,
             path: "/manage-wallet",
+            oldInput: {
+                fund: req.body.fund
+            },
             action: "withdraw",
             balance: req.session.user['wallet'],
         });
@@ -113,6 +117,9 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             path: "/manage-wallet",
             mode: "Withdraw",
             errorMsg: err.message,
+            oldInput: {
+                fund: req.body.fund
+            },
             action: "withdraw",
             balance: req.session.user['wallet']
         });
@@ -131,6 +138,7 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             oldInput: {
                 recName: req.body.r_name,
                 recEmail: req.body.r_email,
+                fund: req.body.fund
             },
             action: "transfer",
             validationErrors: errors.array(),
@@ -168,6 +176,7 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             oldInput: {
                 recName: req.body.r_name,
                 recEmail: req.body.r_email,
+                fund: req.body.fund
             },
             mode: "Transfer",
             errorMsg: err.message,
@@ -185,6 +194,9 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         return res.status(422).render("wallet", {
             docTitle: "Deposit",
             mode: "Deposit",
+            oldInput: {
+                fund: req.body.fund
+            },
             errorMsg: errors.array()[0].msg,
             path: "/manage-wallet",
             action: "deposit",

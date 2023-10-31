@@ -72,6 +72,7 @@ export const getWallet = async (req: any, res: any, next: any) => {
     oldInput: {
       recName: "",
       recEmail: "",
+      fund: ''
     },
     mode: updatedMode,
     errorMsg: null,
@@ -89,6 +90,9 @@ export const withdraw = async (req: any, res: any, next: any) => {
       mode: "Withdraw",
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
+      oldInput: {
+        fund: req.body.fund
+       },
       action: "withdraw",
       balance: req.session.user['wallet'],
     });
@@ -111,6 +115,9 @@ export const withdraw = async (req: any, res: any, next: any) => {
       path: "/manage-wallet",
       mode: "Withdraw",
       errorMsg: err.message,
+      oldInput: {
+        fund: req.body.fund
+       },
       action: "withdraw",
       balance: req.session.user['wallet']
     });
@@ -129,6 +136,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       oldInput: {
         recName: req.body.r_name,
         recEmail: req.body.r_email,
+        fund: req.body.fund
       },
       action: "transfer",
       validationErrors: errors.array(),
@@ -177,6 +185,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       oldInput: {
         recName: req.body.r_name,
         recEmail: req.body.r_email,
+        fund: req.body.fund
       },
       mode: "Transfer",
       errorMsg: err.message,
@@ -194,6 +203,9 @@ export const deposit = async (req: any, res: any, next: any) => {
     return res.status(422).render("wallet", {
       docTitle: "Deposit",
       mode: "Deposit",
+      oldInput: {
+       fund: req.body.fund
+      },
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
       action: "deposit",
