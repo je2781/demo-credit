@@ -29,7 +29,7 @@ export interface transferProps {
   amount: number;
 }
 
-export interface LendingServiceImpl {
+export interface WalletServiceImpl {
   createUser: (
     data: createUserProps,
     testObj: { env: string; id: string }

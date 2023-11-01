@@ -1,4 +1,4 @@
-import lendingService from "../service/lending-service";
+import walletService from "../service/wallet-service";
 import { User } from "../types";
 import { config } from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
@@ -17,7 +17,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
   }
 
   try {
-    user = await lendingService.findUser(
+    user = await walletService.findUser(
       {
         email: req.session.user["email"],
       },
@@ -99,7 +99,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
   }
 
   try {
-    await lendingService.manageFund(
+    await walletService.manageFund(
       {
         user: req.session.user,
         fund: +req.body.fund,
@@ -155,7 +155,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       );
     }
 
-    await lendingService.manageFund(
+    await walletService.manageFund(
       {
         user: req.session.user,
         fund: +req.body.fund,
@@ -163,7 +163,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       },
       req.env
     );
-    await lendingService.manageFund(
+    await walletService.manageFund(
       {
         foreignUser: {
           name: req.body.r_name,
@@ -213,7 +213,7 @@ export const deposit = async (req: any, res: any, next: any) => {
     });
   }
   try {
-    await lendingService.manageFund(
+    await walletService.manageFund(
       {
         user: req.session.user,
         fund: +req.body.fund,

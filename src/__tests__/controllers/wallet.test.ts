@@ -1,6 +1,6 @@
 import { v4 as idGenerator } from "uuid";
 import { transfer, withdraw, deposit } from "../../controllers/wallet";
-import lendingService from "../../service/lending-service";
+import lendingService from "../../service/wallet-service";
 
 let statusCode: number;
 let locationHeader: string;

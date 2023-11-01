@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deposit = exports.transfer = exports.withdraw = exports.getWallet = exports.getHomePage = void 0;
-const lending_service_1 = __importDefault(require("../service/lending-service"));
+const wallet_service_1 = __importDefault(require("../service/wallet-service"));
 const dotenv_1 = require("dotenv");
 const cloudinary_1 = require("cloudinary");
 const express_validator_1 = require("express-validator");
@@ -30,7 +30,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         msg = null;
     }
     try {
-        user = yield lending_service_1.default.findUser({
+        user = yield wallet_service_1.default.findUser({
             email: req.session.user["email"],
         }, req.env);
         if (process.env.NODE_ENV === "production") {
@@ -104,7 +104,7 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         });
     }
     try {
-        yield lending_service_1.default.manageFund({
+        yield wallet_service_1.default.manageFund({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "withdraw",
@@ -151,12 +151,12 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             req.body.r_name === req.session.user["full_name"]) {
             throw new Error("your receipient account doesn't have that name or email");
         }
-        yield lending_service_1.default.manageFund({
+        yield wallet_service_1.default.manageFund({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "withdraw",
         }, req.env);
-        yield lending_service_1.default.manageFund({
+        yield wallet_service_1.default.manageFund({
             foreignUser: {
                 name: req.body.r_name,
                 email: req.body.r_email,
@@ -204,7 +204,7 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
     try {
-        yield lending_service_1.default.manageFund({
+        yield wallet_service_1.default.manageFund({
             user: req.session.user,
             fund: +req.body.fund,
             mode: "deposit",
