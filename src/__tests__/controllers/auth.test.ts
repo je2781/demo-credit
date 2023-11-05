@@ -1,4 +1,4 @@
-import userDAO from "../../dao/user";
+import walletService from "../../service/wallet-service";
 import { postSignup, postLogin, postLogout } from "../../controllers/auth";
 import bcrypt from "bcryptjs";
 import { v4 as idGenerator } from "uuid";
@@ -15,7 +15,7 @@ describe("Authentication", () => {
     id = idGenerator();
 
     //creating test user record
-    await userDAO.createUser(
+    await walletService.createUser(
       {
         email: "testing1000@test.com",
         password: "testingpassword",
@@ -183,6 +183,6 @@ describe("Authentication", () => {
 
   /* Closing database connection aftAll test. */
   afterAll(async() => {
-    await userDAO.deleteUser("testing1000@test.com", "testing");
+    await walletService.deleteUser("testing1000@test.com", "testing");
   });
 });
