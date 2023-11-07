@@ -161,7 +161,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       req.body.r_name === req.session.user["full_name"]) && !extractedUser
     ) {
       throw new Error(
-        "your receipient account doesn't exist"
+        "your recipient account doesn't exist"
       );
     }
 
