@@ -1,1 +1,1 @@
-web: node src/functions/server.js
+web: node src/build/functions/server.js

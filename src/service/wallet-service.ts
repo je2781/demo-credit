@@ -4,9 +4,11 @@ import {
   User,
   createUserProps,
   transferProps,
+  auditProps,
 } from "../types";
 import UserDAO from "../dao/user";
 import TransferDAO from "../dao/transfer";
+import AuditDAO from "../dao/audit";
 
 class WalletService implements WalletServiceImpl {
   async createUser(
@@ -59,6 +61,19 @@ class WalletService implements WalletServiceImpl {
 
   async createTransfer(data: transferProps, env?: string) {
     await TransferDAO.createTransfer(data, env);
+  }
+
+  async debit(data: auditProps, env?: string) {
+    await AuditDAO.debit(data, env);
+  }
+
+  async credit(data: auditProps, env?: string) {
+    await AuditDAO.credit(data, env);
+  }
+
+  
+  async deleteAudit(userId: string, env?: string) {
+    await AuditDAO.deleteAudit(userId, env);
   }
 }
 

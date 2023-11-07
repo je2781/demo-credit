@@ -18,7 +18,7 @@ describe("wallet controller", () => {
       {
         email: "testing1000@test.com",
         password: "testingpassword",
-        imageUrl: "src/public/images/testing.jpg",
+        imageUrl: "src/build/public/images/testing.jpg",
         wallet: 200,
         fullName: "testinguser",
       },
@@ -31,7 +31,7 @@ describe("wallet controller", () => {
       {
         email: "testing10@test.com",
         password: "testpassword",
-        imageUrl: "src/public/images/test.jpg",
+        imageUrl: "src/build/public/images/test.jpg",
         wallet: 200,
         fullName: "testuser",
       },
@@ -42,7 +42,7 @@ describe("wallet controller", () => {
     );
   });
 
-  it("should throw an error if accessing the database fails", (done) => {
+  it("should throw an error if accessing the database fails", async () => {
     const req = {
       session: {
         user: {},
@@ -77,24 +77,23 @@ describe("wallet controller", () => {
       }),
     };
 
-    withdraw(req, res, () => {}).then((result: any) => {
-      expect(statusCode).toBe(500);
-      expect(error).toBe("Missing user or user.id");
-      done();
-    });
+    await withdraw(req, res, () => {});
+    expect(statusCode).toBe(500);
+    expect(error).toBe("Missing user or user.id");
   });
 
-  it("should throw an error if user withdraws outside their balance", (done) => {
+  it("should throw an error if user withdraws outside their balance",async() => {
     const req = {
       session: {
         user: {
           id: id1,
           email: "testing1000@test.com",
+          wallet: 200
         },
       },
       env: "testing",
       body: {
-        fund: "300",
+        fund: "600",
       },
     };
 
@@ -122,19 +121,18 @@ describe("wallet controller", () => {
       }),
     };
 
-    withdraw(req, res, () => {}).then((result: any) => {
-      expect(statusCode).toBe(500);
-      expect(error).toBe("You cannot put your account in the red. choose a lower amount");
-      done();
-    });
+    await withdraw(req, res, () => {});
+    expect(statusCode).toBe(500);
+    expect(error).toBe("You cannot put your account in the red. choose a lower amount");
   });
 
-  it("should redirect to home page after withdrawing from account", (done) => {
+  it("should redirect to home page after withdrawing from account", async() => {
     const req = {
       session: {
         user: {
           id: id1,
           email: "testing1000@test.com",
+          wallet: 200
         },
       },
       body: {
@@ -153,24 +151,22 @@ describe("wallet controller", () => {
       }),
     };
 
-    withdraw(req, res, () => {}).then((result) => {
-      walletService.findUser({
-        email: req.session.user.email,
-      }, req.env).then((currentUser) => {
-        expect(currentUser.wallet).toBe(100);
-        expect(statusCode).toBe(302);
-        expect(locationHeader).toBe("/");
-        done();
-      });
-    });
+    await withdraw(req, res, () => {});
+    const currentUser = await walletService.findUser({
+      email: req.session.user.email,
+    }, req.env);
+    expect(currentUser.wallet).toBe(100);
+    expect(statusCode).toBe(302);
+    expect(locationHeader).toBe("/");
   });
 
-  it("should redirect to home page after depositing into account", (done) => {
+  it("should redirect to home page after depositing into account", async () => {
     const req = {
       session: {
         user: {
           id: id1,
           email: "testing1000@test.com",
+          wallet: 100
         },
       },
       body: {
@@ -189,24 +185,22 @@ describe("wallet controller", () => {
       }),
     };
 
-    deposit(req, res, () => {}).then((result) => {
-      walletService.findUser({
-        email: req.session.user['email'],
-      }, req.env).then((currentUser) => {
-        expect(currentUser.wallet).toBe(500);
-        expect(statusCode).toBe(302);
-        expect(locationHeader).toBe("/");
-        done();
-      });
-    });
+    await deposit(req, res, () => {});
+    const currentUser = await walletService.findUser({
+      email: req.session.user.email,
+    }, req.env);
+    expect(currentUser.wallet).toBe(500);
+    expect(statusCode).toBe(302);
+    expect(locationHeader).toBe("/");
   });
 
-  it("should redirect to home page after transfering funds to another user", (done) => {
+  it("should redirect to home page after transfering funds to another user",async () => {
     const req = {
       session: {
         user: {
           id: id2,
           email: "testing10@test.com",
+          wallet: 500
         },
       },
       flash: jest.fn(function (name: string, message: string) {}),
@@ -228,16 +222,13 @@ describe("wallet controller", () => {
       }),
     };
 
-    transfer(req, res, () => {}).then((result) => {
-      walletService.findUser({
-        email: req.body.r_email,
-      }, req.env).then((receipient) => {
-        expect(receipient.wallet).toBe(540);
-        expect(statusCode).toBe(302);
-        expect(locationHeader).toBe("/");
-        done();
-      });
-    });
+    await transfer(req, res, () => {});
+    const receipient = await walletService.findUser({
+      email: req.body.r_email,
+    }, req.env);
+    expect(receipient.wallet).toBe(540);
+    expect(statusCode).toBe(302);
+    expect(locationHeader).toBe("/");
   });
 
 
@@ -247,6 +238,8 @@ describe("wallet controller", () => {
     await walletService.deleteUser("testing1000@test.com", "testing");
     await walletService.deleteUser("testing10@test.com", "testing");
     await walletService.deleteTransfer(id2, 'testing');
+    await walletService.deleteAudit(id2, 'testing');
+    await walletService.deleteAudit(id1, 'testing');
 
   });
 });

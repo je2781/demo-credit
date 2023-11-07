@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "jest --testTimeout=50000",
-    "start": "node src/functions/server.js",
-    "start:dev": "nodemon src/functions/server.js"
+    "start": "node src/build/functions/server.js",
+    "start:dev": "nodemon src/build/functions/server.js"
   },
   "author": "Joshua Eze",
   "license": "MIT",

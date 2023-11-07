@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import { JSDOM } from "jsdom";
 import path from "path";
 
-const homeFilePath = path.resolve(__dirname, "../../views/home_mock.ejs");
+const homeFilePath = path.resolve(__dirname, "../../build/views/home_mock.ejs");
 
 describe("Home page", () => {
     let dom: JSDOM;

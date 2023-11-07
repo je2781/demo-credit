@@ -16,7 +16,7 @@
                 <% if(env === 'production') { %>
                     <img class="profile-image" src="<%= url %>" alt="profile pic"/>
                 <% } else { %>
-                    <img class="profile-image" src="<%= url.replaceAll('src/public', '') %>" alt="profile pic"/>
+                    <img class="profile-image" src="<%= url.replaceAll('src/build/public', '') %>" alt="profile pic"/>
                 <% } %>   
             </div>
             <div class="profile__item">

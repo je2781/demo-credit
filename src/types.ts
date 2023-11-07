@@ -29,6 +29,11 @@ export interface transferProps {
   amount: number;
 }
 
+export interface auditProps {
+  userId: string;
+  amount: number;
+}
+
 export interface WalletServiceImpl {
   createUser: (
     data: createUserProps,
@@ -64,4 +69,10 @@ export interface WalletServiceImpl {
   ) => Promise<Transfer>;
 
   createTransfer: (data: transferProps, env?: string) => Promise<void>;
+
+  deleteAudit: (userId: string, env?: string) => Promise<void>;
+
+  debit: (data: auditProps, env?: string) => Promise<void>;
+
+  credit: (data: auditProps, env?: string) => Promise<void>;
 }

@@ -4,6 +4,7 @@
     "target": "es2016",
     "module": "commonjs",
     "moduleResolution": "node",
+    "outDir": "./src/build",
     "skipLibCheck": true,
     "strict": true,
     "lib": ["DOM"]

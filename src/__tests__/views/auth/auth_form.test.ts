@@ -6,7 +6,7 @@ import fs from "fs";
 
 const authFormFilePath = path.resolve(
   __dirname,
-  "../../../views/auth/auth_mock_form.ejs"
+  "../../../build/views/auth/auth_mock_form.ejs"
 );
 
 describe("Auth Form", () => {
@@ -60,7 +60,7 @@ describe("Auth Form", () => {
       container.querySelector(".mobile-nav__item-list")
     ).toBeInTheDocument();
     expect(container.querySelector(".mobile-nav__item")).toBeInTheDocument();
-    expect(container.querySelector("#fullName")).toBeInTheDocument();
+    expect(container.querySelector("#full_name")).toBeInTheDocument();
     expect(container.querySelector("#email")).toBeInTheDocument();
     expect(container.querySelector("#password")).toBeInTheDocument();
     expect(container.querySelector("#c_password")).toBeInTheDocument();

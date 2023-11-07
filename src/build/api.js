@@ -47,7 +47,7 @@ else {
 }
 //express app config settings
 app.set("view engine", "ejs");
-app.set("views", "src/views");
+app.set("views", "src/build/views");
 //parsing body of client request - for json data
 app.use(body_parser_1.default.json());
 //parsing body of client request - only for text requests
@@ -57,7 +57,7 @@ app.use((0, connect_flash_1.default)());
 //defining methods used to create middleware for file processing
 const fileStorage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "src/public/images");
+        cb(null, "src/build/public/images");
     },
     filename: (req, file, cb) => {
         cb(null, `${(0, uuid_1.v4)()}-${file.originalname}`);

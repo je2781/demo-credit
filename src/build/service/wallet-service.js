@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = __importDefault(require("../dao/user"));
 const transfer_1 = __importDefault(require("../dao/transfer"));
+const audit_1 = __importDefault(require("../dao/audit"));
 class WalletService {
     createUser(data, testObj) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -60,6 +61,21 @@ class WalletService {
     createTransfer(data, env) {
         return __awaiter(this, void 0, void 0, function* () {
             yield transfer_1.default.createTransfer(data, env);
+        });
+    }
+    debit(data, env) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield audit_1.default.debit(data, env);
+        });
+    }
+    credit(data, env) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield audit_1.default.credit(data, env);
+        });
+    }
+    deleteAudit(userId, env) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield audit_1.default.deleteAudit(userId, env);
         });
     }
 }

@@ -48,7 +48,7 @@ if (process.env.NODE_ENV === "production") {
 
 //express app config settings
 app.set("view engine", "ejs");
-app.set("views", "src/views");
+app.set("views", "src/build/views");
 
 //parsing body of client request - for json data
 app.use(bodyParser.json());
@@ -59,7 +59,7 @@ app.use(flash());
 //defining methods used to create middleware for file processing
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "src/public/images");
+    cb(null, "src/build/public/images");
   },
   filename: (req, file, cb) => {
     cb(null, `${uniqueId()}-${file.originalname}`);

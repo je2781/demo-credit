@@ -1,10 +1,8 @@
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-const {v4:idGenerator} = require('uuid');
+import { Knex } from "knex";
+import { v4 as idGenerator } from 'uuid';
 
-exports.up = function(knex) {
+
+export async function up(knex: Knex): Promise<void> {
     return knex.schema
     .createTable("transfers", (table) => {
       table.string("id").primary().unique().defaultTo(idGenerator()); 
@@ -14,12 +12,11 @@ exports.up = function(knex) {
       table.timestamps(true, true);
     //   table.foreign("user_id").references('id').inTable('users');
     });
-};
+}
 
-/**
- * @param { import("knex").Knex } knex
- * @returns { Promise<void> }
- */
-exports.down = function(knex) {
+
+export async function down(knex: Knex): Promise<void> {
     return knex.schema.dropTableIfExists("transfers");
-};
+
+}
+

@@ -23,40 +23,44 @@ export const getHomePage = async (req: any, res: any, next: any) => {
       },
       req.env
     );
-
-    if (process.env.NODE_ENV === "production") {
-      // retrieving image from cloud storage
-      const apiResponse = await cloudinary.search
-        .expression("resource_type:image")
-        .sort_by("created_at", "asc")
-        .execute();
-
-      const currentUserRecource = apiResponse["resources"].find(
-        (resource: any) => resource["asset_id"] === user.cloudinary_asset_id
-      );
-      //
-      return res.status(200).render("home", {
+    //updating session user data
+    req.session.user = user;
+    req.session.save(async () => {
+      if (process.env.NODE_ENV === "production") {
+        // retrieving image from cloud storage
+        const apiResponse = await cloudinary.search
+          .expression("resource_type:image")
+          .sort_by("created_at", "asc")
+          .execute();
+  
+        const currentUserRecource = apiResponse["resources"].find(
+          (resource: any) => resource["asset_id"] === user.cloudinary_asset_id
+        );
+        //
+        return res.status(200).render("home", {
+          docTitle: "Profile",
+          path: "/",
+          Msg: msg,
+          env: process.env.NODE_ENV,
+          userName: req.session.user["full_name"],
+          url: currentUserRecource["url"],
+          email: req.session.user["email"],
+          balance: req.session.user["wallet"],
+        });
+      }
+  
+      res.status(200).render("home", {
         docTitle: "Profile",
         path: "/",
         Msg: msg,
         env: process.env.NODE_ENV,
         userName: req.session.user["full_name"],
-        url: currentUserRecource["url"],
+        url: req.session.user["image_url"],
         email: req.session.user["email"],
         balance: req.session.user["wallet"],
       });
-    }
-
-    res.status(200).render("home", {
-      docTitle: "Profile",
-      path: "/",
-      Msg: msg,
-      env: process.env.NODE_ENV,
-      userName: req.session.user["full_name"],
-      url: req.session.user["image_url"],
-      email: req.session.user["email"],
-      balance: req.session.user["wallet"],
     });
+
   } catch (err) {
     next(err);
   }

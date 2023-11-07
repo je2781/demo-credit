@@ -19,7 +19,7 @@ describe("Authentication", () => {
       {
         email: "testing1000@test.com",
         password: "testingpassword",
-        imageUrl: "src/public/images/testing.jpg",
+        imageUrl: "src/build/public/images/testing.jpg",
         wallet: 200,
         fullName: "testinguser",
       },
@@ -30,13 +30,13 @@ describe("Authentication", () => {
     );
   });
 
-  it("should throw error because user already registered", (done) => {
+  it("should throw error because user already registered", async() => {
     const request = {
       body: {
         email: "testing1000@test.com",
         password: "testingpassword",
         c_password: "testingpassword",
-        image: "/src/public/images/testing.jpg",
+        image: "/src/build/public/images/testing.jpg",
         balance: "200",
         fullName: "testinguser",
       },
@@ -70,14 +70,12 @@ describe("Authentication", () => {
       }),
     };
 
-    postSignup(request, response, () => {}).then((result) => {
-      expect(error).toBe("Email is already in use");
-      expect(statusCode).toBe(422);
-      done();
-    });
+    await postSignup(request, response, () => {});
+    expect(error).toBe("Email is already in use");
+    expect(statusCode).toBe(422);
   });
 
-  it("should log in a user", (done) => {
+  it("should log in a user", async() => {
     const response = {
       status: jest.fn(function (code: number) {
         statusCode = code;
@@ -108,14 +106,12 @@ describe("Authentication", () => {
       return true;
     };
 
-    postLogin(request, response, () => {}).then((result) => {
-      expect(statusCode).toBe(302);
-      expect(locationHeader).toBe("/");
-      done();
-    });
+    await postLogin(request, response, () => {});
+    expect(statusCode).toBe(302);
+    expect(locationHeader).toBe("/");
   });
 
-  it("should show validation error because the user doesn't exist", (done) => {
+  it("should show validation error because the user doesn't exist", async() => {
     const request = {
       body: {
         email: "testing34@test.com",
@@ -147,14 +143,12 @@ describe("Authentication", () => {
       }),
     };
 
-    postLogin(request, response, () => {}).then((result) => {
-      expect(error).toBe("User account doesn't exist. Create an account");
-      expect(statusCode).toBe(422);
-      done();
-    });
+    await postLogin(request, response, () => {});
+    expect(error).toBe("User account doesn't exist. Create an account");
+    expect(statusCode).toBe(422);
   });
 
-  it("should logout when logout button is pressed", (done) => {
+  it("should logout when logout button is pressed",async () => {
     const response = {
       status: jest.fn(function (code: number) {
         statusCode = code;
@@ -174,11 +168,9 @@ describe("Authentication", () => {
       },
     };
 
-    postLogout(request, response, () => {}).then((result) => {
-      expect(statusCode).toBe(302);
-      expect(locationHeader).toBe("/login");
-      done();
-    });
+    await postLogout(request, response, () => {});
+    expect(statusCode).toBe(302);
+    expect(locationHeader).toBe("/login");
   });
 
   /* Closing database connection aftAll test. */

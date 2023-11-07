@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = require("../db/db");
 const uuid_1 = require("uuid");
 const transfer_1 = __importDefault(require("./transfer"));
+const audit_1 = __importDefault(require("./audit"));
 class UserDAO {
     constructor() {
         this.createUser = (data, testObj) => __awaiter(this, void 0, void 0, function* () {
@@ -86,16 +87,26 @@ class UserDAO {
                             foreignId: extractedUser.id,
                         }, env);
                         if (!extractedTransfer) {
-                            return yield transfer_1.default.createTransfer({
+                            yield transfer_1.default.createTransfer({
                                 amount: input.fund,
                                 foreignUserId: extractedUser.id,
                                 userId: input.user.id,
                             }, env);
+                            //updating audit table
+                            return yield audit_1.default.debit({
+                                amount: input.fund,
+                                userId: input.user.id,
+                            }, env);
                         }
-                        return yield transfer_1.default.updateTransfer({
+                        yield transfer_1.default.updateTransfer({
                             transfer: extractedTransfer,
                             fund: input.fund,
                             foreignId: extractedUser.id,
+                        }, env);
+                        //updating audit table
+                        return yield audit_1.default.debit({
+                            amount: input.fund,
+                            userId: input.user.id,
                         }, env);
                     }
                     if (input.foreignUser && input.user) {
@@ -113,18 +124,28 @@ class UserDAO {
                         //updating transfers table
                         const extractedTransfer = yield transfer_1.default.findTransfer({
                             foreignId: extractedUser.id,
-                        }, env);
+                        });
                         if (!extractedTransfer) {
-                            return yield transfer_1.default.createTransfer({
+                            yield transfer_1.default.createTransfer({
                                 amount: input.fund,
                                 foreignUserId: extractedUser.id,
                                 userId: input.user.id,
                             });
+                            //updating audit table
+                            return yield audit_1.default.debit({
+                                amount: input.fund,
+                                userId: input.user.id,
+                            });
                         }
-                        return yield transfer_1.default.updateTransfer({
+                        yield transfer_1.default.updateTransfer({
                             transfer: extractedTransfer,
                             fund: input.fund,
                             foreignId: extractedUser.id,
+                        });
+                        //updating audit table
+                        return yield audit_1.default.debit({
+                            amount: input.fund,
+                            userId: input.user.id,
                         });
                     }
                     // Handle the case when input.foreignUserEmail is not provided.
@@ -139,11 +160,14 @@ class UserDAO {
                         if (withdrawOpResult < 0) {
                             throw new Error(`You cannot put your account in the red. choose a lower amount`);
                         }
-                        return yield (0, db_1.dbConnection)(env)("users")
-                            .where("id", input.user.id)
-                            .update({
+                        yield (0, db_1.dbConnection)(env)("users").where("id", input.user.id).update({
                             wallet: withdrawOpResult,
                         });
+                        //updating audit table
+                        return yield audit_1.default.debit({
+                            amount: input.fund,
+                            userId: input.user.id,
+                        }, env);
                     }
                     if (input.user && input.user.id) {
                         extractedUser = yield (0, db_1.dbConnection)()("users")
@@ -153,10 +177,15 @@ class UserDAO {
                         if (withdrawOpResult < 0) {
                             throw new Error(`You cannot put your account in the red. choose a lower amount`);
                         }
-                        return yield (0, db_1.dbConnection)()("users")
+                        yield (0, db_1.dbConnection)()("users")
                             .where("id", input.user.id)
                             .update({
-                            wallet: extractedUser.wallet - input.fund,
+                            wallet: withdrawOpResult,
+                        });
+                        //updating audit table
+                        return yield audit_1.default.debit({
+                            amount: input.fund,
+                            userId: input.user.id,
                         });
                     }
                     // Handle the case when input.user or input.user.id is not provided.
@@ -166,20 +195,30 @@ class UserDAO {
                         extractedUser = yield (0, db_1.dbConnection)(env)("users")
                             .where("id", input.user.id)
                             .first();
-                        return yield (0, db_1.dbConnection)(env)("users")
+                        yield (0, db_1.dbConnection)(env)("users")
                             .where("id", input.user.id)
                             .update({
                             wallet: extractedUser.wallet + input.fund,
                         });
+                        //updating audit table
+                        return yield audit_1.default.credit({
+                            amount: input.fund,
+                            userId: input.user.id,
+                        }, env);
                     }
                     if (input.user && input.user.id) {
                         extractedUser = yield (0, db_1.dbConnection)()("users")
                             .where("id", input.user.id)
                             .first();
-                        return yield (0, db_1.dbConnection)()("users")
+                        yield (0, db_1.dbConnection)()("users")
                             .where("id", input.user.id)
                             .update({
                             wallet: extractedUser.wallet + input.fund,
+                        });
+                        //updating audit table
+                        return yield audit_1.default.credit({
+                            amount: input.fund,
+                            userId: input.user.id,
                         });
                     }
                     // Handle the case when input.user or input.user.id is not provided.

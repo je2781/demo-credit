@@ -2,6 +2,7 @@ import { dbConnection } from "../db/db";
 import { v4 as idGenerator } from "uuid";
 import { User, createUserProps } from "../types";
 import transferDAO from "./transfer";
+import auditDAO from "./audit";
 class UserDAO {
   createUser = async (
     data: createUserProps,
@@ -92,7 +93,7 @@ class UserDAO {
           );
 
           if (!extractedTransfer) {
-            return await transferDAO.createTransfer(
+            await transferDAO.createTransfer(
               {
                 amount: input.fund,
                 foreignUserId: extractedUser.id,
@@ -100,13 +101,31 @@ class UserDAO {
               },
               env
             );
+
+            //updating audit table
+            return await auditDAO.debit(
+              {
+                amount: input.fund,
+                userId: input.user.id,
+              },
+              env
+            );
           }
 
-          return await transferDAO.updateTransfer(
+          await transferDAO.updateTransfer(
             {
               transfer: extractedTransfer,
               fund: input.fund,
               foreignId: extractedUser.id,
+            },
+            env
+          );
+
+          //updating audit table
+          return await auditDAO.debit(
+            {
+              amount: input.fund,
+              userId: input.user.id,
             },
             env
           );
@@ -126,25 +145,34 @@ class UserDAO {
               wallet: extractedUser.wallet + input.fund,
             });
           //updating transfers table
-          const extractedTransfer = await transferDAO.findTransfer(
-            {
-              foreignId: extractedUser.id,
-            },
-            env
-          );
+          const extractedTransfer = await transferDAO.findTransfer({
+            foreignId: extractedUser.id,
+          });
 
           if (!extractedTransfer) {
-            return await transferDAO.createTransfer({
+            await transferDAO.createTransfer({
               amount: input.fund,
               foreignUserId: extractedUser.id,
               userId: input.user.id,
             });
+
+            //updating audit table
+            return await auditDAO.debit({
+              amount: input.fund,
+              userId: input.user.id,
+            });
           }
 
-          return await transferDAO.updateTransfer({
+          await transferDAO.updateTransfer({
             transfer: extractedTransfer,
             fund: input.fund,
             foreignId: extractedUser.id,
+          });
+
+          //updating audit table
+          return await auditDAO.debit({
+            amount: input.fund,
+            userId: input.user.id,
           });
         }
         // Handle the case when input.foreignUserEmail is not provided.
@@ -163,11 +191,18 @@ class UserDAO {
             );
           }
 
-          return await dbConnection(env)("users")
-            .where("id", input.user.id)
-            .update({
-              wallet: withdrawOpResult,
-            });
+          await dbConnection(env)("users").where("id", input.user.id).update({
+            wallet: withdrawOpResult,
+          });
+
+          //updating audit table
+          return await auditDAO.debit(
+            {
+              amount: input.fund,
+              userId: input.user.id,
+            },
+            env
+          );
         }
         if (input.user && input.user.id) {
           extractedUser = await dbConnection()("users")
@@ -181,11 +216,17 @@ class UserDAO {
             );
           }
 
-          return await dbConnection()("users")
+          await dbConnection()("users")
             .where("id", input.user.id)
             .update({
-              wallet: extractedUser.wallet - input.fund,
+              wallet: withdrawOpResult,
             });
+
+          //updating audit table
+          return await auditDAO.debit({
+            amount: input.fund,
+            userId: input.user.id,
+          });
         }
         // Handle the case when input.user or input.user.id is not provided.
         throw new Error("Missing user or user.id");
@@ -194,21 +235,36 @@ class UserDAO {
           extractedUser = await dbConnection(env)("users")
             .where("id", input.user.id)
             .first();
-          return await dbConnection(env)("users")
+          await dbConnection(env)("users")
             .where("id", input.user.id)
             .update({
               wallet: extractedUser.wallet + input.fund,
             });
+
+          //updating audit table
+          return await auditDAO.credit(
+            {
+              amount: input.fund,
+              userId: input.user.id,
+            },
+            env
+          );
         }
         if (input.user && input.user.id) {
           extractedUser = await dbConnection()("users")
             .where("id", input.user.id)
             .first();
-          return await dbConnection()("users")
+          await dbConnection()("users")
             .where("id", input.user.id)
             .update({
               wallet: extractedUser.wallet + input.fund,
             });
+
+          //updating audit table
+          return await auditDAO.credit({
+            amount: input.fund,
+            userId: input.user.id,
+          });
         }
         // Handle the case when input.user or input.user.id is not provided.
         throw new Error("Missing user or user.id");
