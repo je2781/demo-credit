@@ -76,10 +76,20 @@ class UserDAO {
             .first();
 
           await dbConnection(env)("users")
-            .where("email", input.foreignUser.email)
+            .where("email", extractedUser.email)
             .update({
               wallet: extractedUser.wallet + input.fund,
             });
+
+          //updating audit table
+          await auditDAO.credit(
+            {
+              amount: input.fund,
+              userId: extractedUser.id,
+            },
+            env
+          );
+
           //updating transfers table
           const extractedTransfer = await transferDAO.findTransfer(
             {
@@ -89,7 +99,7 @@ class UserDAO {
           );
 
           if (!extractedTransfer) {
-            await transferDAO.createTransfer(
+            return await transferDAO.createTransfer(
               {
                 amount: input.fund,
                 foreignUserId: extractedUser.id,
@@ -97,31 +107,13 @@ class UserDAO {
               },
               env
             );
-
-            //updating audit table
-            return await auditDAO.debit(
-              {
-                amount: input.fund,
-                userId: input.user.id,
-              },
-              env
-            );
           }
 
-          await transferDAO.updateTransfer(
+          return await transferDAO.updateTransfer(
             {
               transfer: extractedTransfer,
               fund: input.fund,
               foreignId: extractedUser.id,
-            },
-            env
-          );
-
-          //updating audit table
-          return await auditDAO.debit(
-            {
-              amount: input.fund,
-              userId: input.user.id,
             },
             env
           );
@@ -132,39 +124,34 @@ class UserDAO {
             .first();
 
           await dbConnection()("users")
-            .where("email", input.foreignUser.email)
+            .where("email", extractedUser.email)
             .update({
               wallet: extractedUser.wallet + input.fund,
             });
+
+          //updating audit table
+          await auditDAO.credit({
+            amount: input.fund,
+            userId: extractedUser.id,
+          });
+
           //updating transfers table
           const extractedTransfer = await transferDAO.findTransfer({
             foreignId: extractedUser.id,
           });
 
           if (!extractedTransfer) {
-            await transferDAO.createTransfer({
+            return await transferDAO.createTransfer({
               amount: input.fund,
               foreignUserId: extractedUser.id,
               userId: input.user.id,
             });
-
-            //updating audit table
-            return await auditDAO.debit({
-              amount: input.fund,
-              userId: input.user.id,
-            });
           }
 
-          await transferDAO.updateTransfer({
+          return await transferDAO.updateTransfer({
             transfer: extractedTransfer,
             fund: input.fund,
             foreignId: extractedUser.id,
-          });
-
-          //updating audit table
-          return await auditDAO.debit({
-            amount: input.fund,
-            userId: input.user.id,
           });
         }
         // Handle the case when input.foreignUserEmail is not provided.
@@ -208,11 +195,9 @@ class UserDAO {
             );
           }
 
-          await dbConnection()("users")
-            .where("id", input.user.id)
-            .update({
-              wallet: withdrawOpResult,
-            });
+          await dbConnection()("users").where("id", input.user.id).update({
+            wallet: withdrawOpResult,
+          });
 
           //updating audit table
           return await auditDAO.debit({

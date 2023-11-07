@@ -75,35 +75,30 @@ class UserDAO {
                             .where("email", input.foreignUser.email)
                             .first();
                         yield (0, db_1.dbConnection)(env)("users")
-                            .where("email", input.foreignUser.email)
+                            .where("email", extractedUser.email)
                             .update({
                             wallet: extractedUser.wallet + input.fund,
                         });
+                        //updating audit table
+                        yield audit_1.default.credit({
+                            amount: input.fund,
+                            userId: extractedUser.id,
+                        }, env);
                         //updating transfers table
                         const extractedTransfer = yield transfer_1.default.findTransfer({
                             foreignId: extractedUser.id,
                         }, env);
                         if (!extractedTransfer) {
-                            yield transfer_1.default.createTransfer({
+                            return yield transfer_1.default.createTransfer({
                                 amount: input.fund,
                                 foreignUserId: extractedUser.id,
                                 userId: input.user.id,
                             }, env);
-                            //updating audit table
-                            return yield audit_1.default.debit({
-                                amount: input.fund,
-                                userId: input.user.id,
-                            }, env);
                         }
-                        yield transfer_1.default.updateTransfer({
+                        return yield transfer_1.default.updateTransfer({
                             transfer: extractedTransfer,
                             fund: input.fund,
                             foreignId: extractedUser.id,
-                        }, env);
-                        //updating audit table
-                        return yield audit_1.default.debit({
-                            amount: input.fund,
-                            userId: input.user.id,
                         }, env);
                     }
                     if (input.foreignUser && input.user) {
@@ -111,35 +106,30 @@ class UserDAO {
                             .where("email", input.foreignUser.email)
                             .first();
                         yield (0, db_1.dbConnection)()("users")
-                            .where("email", input.foreignUser.email)
+                            .where("email", extractedUser.email)
                             .update({
                             wallet: extractedUser.wallet + input.fund,
+                        });
+                        //updating audit table
+                        yield audit_1.default.credit({
+                            amount: input.fund,
+                            userId: extractedUser.id,
                         });
                         //updating transfers table
                         const extractedTransfer = yield transfer_1.default.findTransfer({
                             foreignId: extractedUser.id,
                         });
                         if (!extractedTransfer) {
-                            yield transfer_1.default.createTransfer({
+                            return yield transfer_1.default.createTransfer({
                                 amount: input.fund,
                                 foreignUserId: extractedUser.id,
                                 userId: input.user.id,
                             });
-                            //updating audit table
-                            return yield audit_1.default.debit({
-                                amount: input.fund,
-                                userId: input.user.id,
-                            });
                         }
-                        yield transfer_1.default.updateTransfer({
+                        return yield transfer_1.default.updateTransfer({
                             transfer: extractedTransfer,
                             fund: input.fund,
                             foreignId: extractedUser.id,
-                        });
-                        //updating audit table
-                        return yield audit_1.default.debit({
-                            amount: input.fund,
-                            userId: input.user.id,
                         });
                     }
                     // Handle the case when input.foreignUserEmail is not provided.
@@ -171,9 +161,7 @@ class UserDAO {
                         if (withdrawOpResult < 0) {
                             throw new Error(`You cannot put your account in the red. choose a lower amount`);
                         }
-                        yield (0, db_1.dbConnection)()("users")
-                            .where("id", input.user.id)
-                            .update({
+                        yield (0, db_1.dbConnection)()("users").where("id", input.user.id).update({
                             wallet: withdrawOpResult,
                         });
                         //updating audit table
