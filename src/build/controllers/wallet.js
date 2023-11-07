@@ -151,9 +151,12 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
     try {
         //checking for wrong transfer details
-        if (req.body.r_email === req.session.user["email"] ||
-            req.body.r_name === req.session.user["full_name"]) {
-            throw new Error("your receipient account doesn't have that name or email");
+        const extractedUser = yield wallet_service_1.default.findUser({
+            email: req.body.r_email,
+        }, req.env);
+        if ((req.body.r_email === req.session.user["email"] ||
+            req.body.r_name === req.session.user["full_name"]) && !extractedUser) {
+            throw new Error("your receipient account doesn't exist");
         }
         yield wallet_service_1.default.manageFund({
             user: req.session.user,

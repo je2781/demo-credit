@@ -75,10 +75,6 @@ class UserDAO {
             .where("email", input.foreignUser.email)
             .first();
 
-          if (!extractedUser) {
-            throw new Error("your receipient account doesn't exist");
-          }
-
           await dbConnection(env)("users")
             .where("email", input.foreignUser.email)
             .update({
@@ -134,10 +130,6 @@ class UserDAO {
           extractedUser = await dbConnection()("users")
             .where("email", input.foreignUser.email)
             .first();
-
-          if (!extractedUser) {
-            throw new Error("your receipient account doesn't exist");
-          }
 
           await dbConnection()("users")
             .where("email", input.foreignUser.email)

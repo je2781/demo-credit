@@ -150,12 +150,18 @@ export const transfer = async (req: any, res: any, next: any) => {
 
   try {
     //checking for wrong transfer details
+    const extractedUser = await walletService.findUser(
+      {
+        email: req.body.r_email,
+      },
+      req.env
+    );
     if (
-      req.body.r_email === req.session.user["email"] ||
-      req.body.r_name === req.session.user["full_name"]
+      (req.body.r_email === req.session.user["email"] ||
+      req.body.r_name === req.session.user["full_name"]) && !extractedUser
     ) {
       throw new Error(
-        "your receipient account doesn't have that name or email"
+        "your receipient account doesn't exist"
       );
     }
 

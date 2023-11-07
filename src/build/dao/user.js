@@ -74,9 +74,6 @@ class UserDAO {
                         extractedUser = yield (0, db_1.dbConnection)(env)("users")
                             .where("email", input.foreignUser.email)
                             .first();
-                        if (!extractedUser) {
-                            throw new Error("your receipient account doesn't exist");
-                        }
                         yield (0, db_1.dbConnection)(env)("users")
                             .where("email", input.foreignUser.email)
                             .update({
@@ -113,9 +110,6 @@ class UserDAO {
                         extractedUser = yield (0, db_1.dbConnection)()("users")
                             .where("email", input.foreignUser.email)
                             .first();
-                        if (!extractedUser) {
-                            throw new Error("your receipient account doesn't exist");
-                        }
                         yield (0, db_1.dbConnection)()("users")
                             .where("email", input.foreignUser.email)
                             .update({
