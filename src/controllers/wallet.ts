@@ -32,7 +32,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
           .expression("resource_type:image")
           .sort_by("created_at", "asc")
           .execute();
-  
+
         const currentUserRecource = apiResponse["resources"].find(
           (resource: any) => resource["asset_id"] === user.cloudinary_asset_id
         );
@@ -48,7 +48,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
           balance: req.session.user["wallet"],
         });
       }
-  
+
       res.status(200).render("home", {
         docTitle: "Profile",
         path: "/",
@@ -60,7 +60,6 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         balance: req.session.user["wallet"],
       });
     });
-
   } catch (err) {
     next(err);
   }
@@ -76,13 +75,13 @@ export const getWallet = async (req: any, res: any, next: any) => {
     oldInput: {
       recName: "",
       recEmail: "",
-      fund: ''
+      fund: "",
     },
     mode: updatedMode,
     errorMsg: null,
     action: mode,
-    balance: req.session.user['wallet'],
-    validationErrors: []
+    balance: req.session.user["wallet"],
+    validationErrors: [],
   });
 };
 // Create a route for withdrawing funds
@@ -95,10 +94,10 @@ export const withdraw = async (req: any, res: any, next: any) => {
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
       oldInput: {
-        fund: req.body.fund
-       },
+        fund: req.body.fund,
+      },
       action: "withdraw",
-      balance: req.session.user['wallet'],
+      balance: req.session.user["wallet"],
     });
   }
 
@@ -120,10 +119,10 @@ export const withdraw = async (req: any, res: any, next: any) => {
       mode: "Withdraw",
       errorMsg: err.message,
       oldInput: {
-        fund: req.body.fund
-       },
+        fund: req.body.fund,
+      },
       action: "withdraw",
-      balance: req.session.user['wallet']
+      balance: req.session.user["wallet"],
     });
   }
 };
@@ -140,11 +139,11 @@ export const transfer = async (req: any, res: any, next: any) => {
       oldInput: {
         recName: req.body.r_name,
         recEmail: req.body.r_email,
-        fund: req.body.fund
+        fund: req.body.fund,
       },
       action: "transfer",
       validationErrors: errors.array(),
-      balance: req.session.user['wallet']
+      balance: req.session.user["wallet"],
     });
   }
 
@@ -157,12 +156,11 @@ export const transfer = async (req: any, res: any, next: any) => {
       req.env
     );
     if (
-      (req.body.r_email === req.session.user["email"] ||
-      req.body.r_name === req.session.user["full_name"]) && !extractedUser
+      req.body.r_email === req.session.user["email"] ||
+      req.body.r_name === req.session.user["full_name"] ||
+      !extractedUser
     ) {
-      throw new Error(
-        "your recipient account doesn't exist"
-      );
+      throw new Error("your recipient account doesn't exist");
     }
 
     await walletService.manageFund(
@@ -195,13 +193,13 @@ export const transfer = async (req: any, res: any, next: any) => {
       oldInput: {
         recName: req.body.r_name,
         recEmail: req.body.r_email,
-        fund: req.body.fund
+        fund: req.body.fund,
       },
       mode: "Transfer",
       errorMsg: err.message,
       action: "transfer",
-      balance: req.session.user['wallet'],
-      validationErrors: []
+      balance: req.session.user["wallet"],
+      validationErrors: [],
     });
   }
 };
@@ -214,12 +212,12 @@ export const deposit = async (req: any, res: any, next: any) => {
       docTitle: "Deposit",
       mode: "Deposit",
       oldInput: {
-       fund: req.body.fund
+        fund: req.body.fund,
       },
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
       action: "deposit",
-      balance: req.session.user['wallet'],
+      balance: req.session.user["wallet"],
     });
   }
   try {

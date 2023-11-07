@@ -81,13 +81,13 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         oldInput: {
             recName: "",
             recEmail: "",
-            fund: ''
+            fund: "",
         },
         mode: updatedMode,
         errorMsg: null,
         action: mode,
-        balance: req.session.user['wallet'],
-        validationErrors: []
+        balance: req.session.user["wallet"],
+        validationErrors: [],
     });
 });
 exports.getWallet = getWallet;
@@ -101,10 +101,10 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             errorMsg: errors.array()[0].msg,
             path: "/manage-wallet",
             oldInput: {
-                fund: req.body.fund
+                fund: req.body.fund,
             },
             action: "withdraw",
-            balance: req.session.user['wallet'],
+            balance: req.session.user["wallet"],
         });
     }
     try {
@@ -122,10 +122,10 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             mode: "Withdraw",
             errorMsg: err.message,
             oldInput: {
-                fund: req.body.fund
+                fund: req.body.fund,
             },
             action: "withdraw",
-            balance: req.session.user['wallet']
+            balance: req.session.user["wallet"],
         });
     }
 });
@@ -142,11 +142,11 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             oldInput: {
                 recName: req.body.r_name,
                 recEmail: req.body.r_email,
-                fund: req.body.fund
+                fund: req.body.fund,
             },
             action: "transfer",
             validationErrors: errors.array(),
-            balance: req.session.user['wallet']
+            balance: req.session.user["wallet"],
         });
     }
     try {
@@ -154,9 +154,10 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         const extractedUser = yield wallet_service_1.default.findUser({
             email: req.body.r_email,
         }, req.env);
-        if ((req.body.r_email === req.session.user["email"] ||
-            req.body.r_name === req.session.user["full_name"]) && !extractedUser) {
-            throw new Error("your receipient account doesn't exist");
+        if (req.body.r_email === req.session.user["email"] ||
+            req.body.r_name === req.session.user["full_name"] ||
+            !extractedUser) {
+            throw new Error("your recipient account doesn't exist");
         }
         yield wallet_service_1.default.manageFund({
             user: req.session.user,
@@ -183,13 +184,13 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             oldInput: {
                 recName: req.body.r_name,
                 recEmail: req.body.r_email,
-                fund: req.body.fund
+                fund: req.body.fund,
             },
             mode: "Transfer",
             errorMsg: err.message,
             action: "transfer",
-            balance: req.session.user['wallet'],
-            validationErrors: []
+            balance: req.session.user["wallet"],
+            validationErrors: [],
         });
     }
 });
@@ -202,12 +203,12 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             docTitle: "Deposit",
             mode: "Deposit",
             oldInput: {
-                fund: req.body.fund
+                fund: req.body.fund,
             },
             errorMsg: errors.array()[0].msg,
             path: "/manage-wallet",
             action: "deposit",
-            balance: req.session.user['wallet'],
+            balance: req.session.user["wallet"],
         });
     }
     try {
