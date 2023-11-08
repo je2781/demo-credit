@@ -45,7 +45,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
           userName: req.session.user["full_name"],
           url: currentUserRecource["url"],
           email: req.session.user["email"],
-          balance: req.session.user["wallet"],
+          balance: req.session.user.wallet,
         });
       }
 
@@ -57,7 +57,7 @@ export const getHomePage = async (req: any, res: any, next: any) => {
         userName: req.session.user["full_name"],
         url: req.session.user["image_url"],
         email: req.session.user["email"],
-        balance: req.session.user["wallet"],
+        balance: req.session.user.wallet,
       });
     });
   } catch (err) {
@@ -80,7 +80,7 @@ export const getWallet = async (req: any, res: any, next: any) => {
     mode: updatedMode,
     errorMsg: null,
     action: mode,
-    balance: req.session.user["wallet"],
+    balance: req.session.user.wallet,
     validationErrors: [],
   });
 };
@@ -97,7 +97,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
         fund: req.body.fund,
       },
       action: "withdraw",
-      balance: req.session.user["wallet"],
+      balance: req.session.user.wallet,
     });
   }
 
@@ -122,7 +122,7 @@ export const withdraw = async (req: any, res: any, next: any) => {
         fund: req.body.fund,
       },
       action: "withdraw",
-      balance: req.session.user["wallet"],
+      balance: req.session.user.wallet,
     });
   }
 };
@@ -143,7 +143,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       },
       action: "transfer",
       validationErrors: errors.array(),
-      balance: req.session.user["wallet"],
+      balance: req.session.user.wallet,
     });
   }
 
@@ -156,8 +156,8 @@ export const transfer = async (req: any, res: any, next: any) => {
       req.env
     );
     if (
-      req.body.r_email === req.session.user["email"] ||
-      req.body.r_name === req.session.user["full_name"] ||
+      req.body.r_email === req.session.user.email ||
+      req.body.r_name === req.session.user.full_name||
       !extractedUser
     ) {
       throw new Error("your recipient account doesn't exist");
@@ -198,7 +198,7 @@ export const transfer = async (req: any, res: any, next: any) => {
       mode: "Transfer",
       errorMsg: err.message,
       action: "transfer",
-      balance: req.session.user["wallet"],
+      balance: req.session.user.wallet,
       validationErrors: [],
     });
   }
@@ -217,7 +217,7 @@ export const deposit = async (req: any, res: any, next: any) => {
       errorMsg: errors.array()[0].msg,
       path: "/manage-wallet",
       action: "deposit",
-      balance: req.session.user["wallet"],
+      balance: req.session.user.wallet,
     });
   }
   try {

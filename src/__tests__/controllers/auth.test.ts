@@ -36,7 +36,9 @@ describe("Authentication", () => {
         email: "testing1000@test.com",
         password: "testingpassword",
         c_password: "testingpassword",
-        image: "/src/build/public/images/testing.jpg",
+        image: {
+          path: "src\\build\\public\\images\\testing.jpg"
+        },
         balance: "200",
         fullName: "testinguser",
       },
@@ -93,7 +95,6 @@ describe("Authentication", () => {
       },
       session: {
         isLoggedIn: false,
-        user: {},
         save: jest.fn(() => {
           response.status(302);
           response.redirect("/");

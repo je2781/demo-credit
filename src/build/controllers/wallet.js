@@ -52,7 +52,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     userName: req.session.user["full_name"],
                     url: currentUserRecource["url"],
                     email: req.session.user["email"],
-                    balance: req.session.user["wallet"],
+                    balance: req.session.user.wallet,
                 });
             }
             res.status(200).render("home", {
@@ -63,7 +63,7 @@ const getHomePage = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                 userName: req.session.user["full_name"],
                 url: req.session.user["image_url"],
                 email: req.session.user["email"],
-                balance: req.session.user["wallet"],
+                balance: req.session.user.wallet,
             });
         }));
     }
@@ -86,7 +86,7 @@ const getWallet = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         mode: updatedMode,
         errorMsg: null,
         action: mode,
-        balance: req.session.user["wallet"],
+        balance: req.session.user.wallet,
         validationErrors: [],
     });
 });
@@ -104,7 +104,7 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 fund: req.body.fund,
             },
             action: "withdraw",
-            balance: req.session.user["wallet"],
+            balance: req.session.user.wallet,
         });
     }
     try {
@@ -125,7 +125,7 @@ const withdraw = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 fund: req.body.fund,
             },
             action: "withdraw",
-            balance: req.session.user["wallet"],
+            balance: req.session.user.wallet,
         });
     }
 });
@@ -146,7 +146,7 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             },
             action: "transfer",
             validationErrors: errors.array(),
-            balance: req.session.user["wallet"],
+            balance: req.session.user.wallet,
         });
     }
     try {
@@ -189,7 +189,7 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             mode: "Transfer",
             errorMsg: err.message,
             action: "transfer",
-            balance: req.session.user["wallet"],
+            balance: req.session.user.wallet,
             validationErrors: [],
         });
     }
@@ -208,7 +208,7 @@ const deposit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
             errorMsg: errors.array()[0].msg,
             path: "/manage-wallet",
             action: "deposit",
-            balance: req.session.user["wallet"],
+            balance: req.session.user.wallet,
         });
     }
     try {

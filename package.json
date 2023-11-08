@@ -7,7 +7,7 @@
     "node": "18.16.0"
   },
   "scripts": {
-    "test": "jest --testTimeout=50000",
+    "test": "jest -i --testTimeout=50000",
     "start": "node src/build/functions/server.js",
     "start:dev": "nodemon src/build/functions/server.js"
   },

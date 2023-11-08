@@ -67,7 +67,6 @@ class UserDAO {
         });
         this.manageFund = (input, env) => __awaiter(this, void 0, void 0, function* () {
             let extractedUser;
-            let extractedTransfer;
             switch (input.mode) {
                 case "transfer":
                     if (input.foreignUser && env && input.user) {

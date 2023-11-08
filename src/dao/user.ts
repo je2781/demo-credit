@@ -65,8 +65,7 @@ class UserDAO {
     },
     env?: string
   ) => {
-    let extractedUser: any;
-    let extractedTransfer: any;
+    let extractedUser: User;
 
     switch (input.mode) {
       case "transfer":
@@ -158,6 +157,7 @@ class UserDAO {
         throw new Error("Missing foreignUserEmail");
       case "withdraw":
         let withdrawOpResult: number;
+        
         if (input.user && input.user.id && env) {
           extractedUser = await dbConnection(env)("users")
             .where("id", input.user.id)

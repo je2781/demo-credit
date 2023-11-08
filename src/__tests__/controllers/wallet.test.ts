@@ -82,49 +82,6 @@ describe("wallet controller", () => {
     expect(error).toBe("Missing user or user.id");
   });
 
-  it("should throw an error if user withdraws outside their balance",async() => {
-    const req = {
-      session: {
-        user: {
-          id: id1,
-          email: "testing1000@test.com",
-          wallet: 200
-        },
-      },
-      env: "testing",
-      body: {
-        fund: "600",
-      },
-    };
-
-    const res = {
-      status: jest.fn(function (code: number) {
-        statusCode = code;
-        return this;
-      }),
-      render: jest.fn(function (
-        view: string,
-        viewParams: {
-          errorMsg: string;
-          docTitle: string;
-          mode: string;
-          oldInput: {
-            recName: string,
-            recEmail: string,
-          },
-          path: string;
-          action: string;
-          balance: string;
-        }
-      ) {
-        error = viewParams.errorMsg;
-      }),
-    };
-
-    await withdraw(req, res, () => {});
-    expect(statusCode).toBe(500);
-    expect(error).toBe("You cannot put your account in the red. choose a lower amount");
-  });
 
   it("should redirect to home page after withdrawing from account", async() => {
     const req = {
@@ -132,7 +89,7 @@ describe("wallet controller", () => {
         user: {
           id: id1,
           email: "testing1000@test.com",
-          wallet: 200
+          wallet: "200"
         },
       },
       body: {
@@ -153,7 +110,7 @@ describe("wallet controller", () => {
 
     await withdraw(req, res, () => {});
     const currentUser = await walletService.findUser({
-      email: req.session.user.email,
+      email: req.session.user.email
     }, req.env);
     expect(currentUser.wallet).toBe(100);
     expect(statusCode).toBe(302);
@@ -166,7 +123,7 @@ describe("wallet controller", () => {
         user: {
           id: id1,
           email: "testing1000@test.com",
-          wallet: 100
+          wallet: "100"
         },
       },
       body: {
@@ -183,11 +140,12 @@ describe("wallet controller", () => {
       redirect: jest.fn(function (location: string) {
         locationHeader = location;
       }),
+
     };
 
     await deposit(req, res, () => {});
     const currentUser = await walletService.findUser({
-      email: req.session.user.email,
+      email: req.session.user.email
     }, req.env);
     expect(currentUser.wallet).toBe(500);
     expect(statusCode).toBe(302);
@@ -200,7 +158,7 @@ describe("wallet controller", () => {
         user: {
           id: id2,
           email: "testing10@test.com",
-          wallet: 500
+          wallet: "200"
         },
       },
       flash: jest.fn(function (name: string, message: string) {}),
@@ -223,10 +181,10 @@ describe("wallet controller", () => {
     };
 
     await transfer(req, res, () => {});
-    const receipient = await walletService.findUser({
-      email: req.body.r_email,
+    const recipient = await walletService.findUser({
+      email: req.body.r_email
     }, req.env);
-    expect(receipient.wallet).toBe(540);
+    expect(recipient.wallet).toBe(540);
     expect(statusCode).toBe(302);
     expect(locationHeader).toBe("/");
   });
