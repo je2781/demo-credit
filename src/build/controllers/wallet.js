@@ -154,8 +154,8 @@ const transfer = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         const extractedUser = yield wallet_service_1.default.findUser({
             email: req.body.r_email,
         }, req.env);
-        if (req.body.r_email === req.session.user["email"] ||
-            req.body.r_name === req.session.user["full_name"] ||
+        if (req.body.r_email === req.session.user.email ||
+            req.body.r_name === req.session.user.full_name ||
             !extractedUser) {
             throw new Error("your recipient account doesn't exist");
         }
